@@ -1,23 +1,69 @@
+/* 1. THE LGP RESET (Your provided code) */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    border: 0;
+    font-family: inherit;
+    font-size: 100%;
+    font-style: inherit;
+    font-weight: inherit;
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+body { background: #fff; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section { display: block; }
+
+/* 2. THE BRAND VARIABLES */
 :root {
-  --bg: #f8f9f8;        /* Soft off-white with a hint of sage */
-  --panel: #ffffff;
-  --text: #1a1a1a;
-  --muted: #5e665e;
-  --border: #e2e8e2;
-  --accent: #2e4a31;    /* Forest Green (matching your previous button) */
-  --accent-2: #3d6341;  /* Lighter green for hover */
-  --radius: 12px;
-  --maxw: 1040px;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --lgp-green: #2e4a31;
+  --lgp-bg: #f8f9f8;
+  --text-main: #1a1a1a;
+  --border-light: #e2e8e2;
 }
 
-body { background: var(--bg); color: var(--text); font-family: var(--font); margin: 0; }
-h1, h2, h3 { color: var(--accent); }
+/* 3. RE-DEFINING THE BASICS (So they don't look like tiny text) */
+h1 { 
+    font-size: 2.2rem; 
+    font-weight: 700; 
+    color: var(--lgp-green); 
+    margin-bottom: 1rem; 
+    line-height: 1.2;
+}
 
-/* iPhone-friendly touch targets */
-.btn, .nav-link { 
-  min-height: 44px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+h2 { 
+    font-size: 1.5rem; 
+    font-weight: 600; 
+    color: var(--lgp-green); 
+    margin-bottom: 0.8rem; 
+}
+
+p { 
+    margin-bottom: 1.2rem; 
+    color: #444; 
+}
+
+.container {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 4. IPHONE-FRIENDLY BUTTONS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    background: var(--lgp-green);
+    color: white !important;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    min-height: 44px; /* Essential for mobile touch */
 }

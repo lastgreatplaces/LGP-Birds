@@ -23,7 +23,7 @@ export default function Home() {
         <h1 style={{ color: '#2e4a31', fontSize: '3rem', marginBottom: '10px' }}>🐦</h1>
         <h1 style={{ color: '#2e4a31', margin: '0' }}>Last Great Places for Birds & Birders</h1>
         <p style={{ color: '#555', fontSize: '1.2rem', marginTop: '15px' }}>
-          Discover America's top places for bird conservation and bird watching. Find high-value birding places by season, bird group, or species, using eBird's comprehensive sightings data for Important Bird Areas and other noted birding destinations.
+          Discover America's top places for bird conservation and bird watching. Find high-value birding places by season, bird group, or species, based on eBird's sightings data for Important Bird Areas and other noted birding destinations.
         </p>
     
         
