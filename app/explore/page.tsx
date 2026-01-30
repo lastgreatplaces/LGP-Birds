@@ -4,19 +4,19 @@ export default function ExploreHub() {
   const tools = [
     {
       title: "Bird Groups",
-      desc: "Ranked places for groups like Warblers, Shorebirds, or Raptors.",
+      desc: "Ranked places for seeing bird groups like Shorebirds or Raptors.",
       link: "/explore/groups",
       icon: "🦆"
     },
     {
       title: "Specific Species",
-      desc: "Find exactly where a single species is most likely to appear.",
+      desc: "Find exactly where a single species is most likely to be seen.",
       link: "/explore/species",
       icon: "🔭"
     },
     {
-      title: "Place Lookup",
-      desc: "See a 'Top 50' list of what to expect at a specific IBA right now.",
+      title: "What Birds, Where & When",
+      desc: "What birds to expect, and likelihood for each species, at a place for a given week(s).",
       link: "/explore/spot",
       icon: "📍"
     }
