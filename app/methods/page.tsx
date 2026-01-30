@@ -14,13 +14,13 @@ export default function MethodsPage() {
         <p>
           Last Great Places for Birds & Birders summarizes seasonal birding patterns using 
           publicly available <strong>eBird checklist data</strong>, anchored to a curated set 
-          of proven birding destinations.
+          of important bird areas and birding destinations.
         </p>
 
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
         <p>
           Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-          supplemented by widely recommended birding sites from established field guides. 
+          supplemented by recommended birding sites from National Geographic and other sources. 
           Rather than reporting raw sighting counts, the site focuses on <strong>relative likelihood</strong>—how 
           consistently species or bird groups are reported at a place during a given time window.
         </p>

@@ -1,51 +1,71 @@
-import Link from 'next/link'
+import Link from 'next/link';
 
-export default function Home() {
+export default function HomePage() {
+  const cards = [
+    {
+      title: "Best places for bird groups",
+      desc: "Pick groups like Shorebirds or Waders and a time window to get ranked places.",
+      link: "/explore/groups",
+      icon: "🦆"
+    },
+    {
+      title: "Best places for a species",
+      desc: "Find where a single species is most likely—without clicking hotspot by hotspot.",
+      link: "/explore/species", // We will build this later
+      icon: "🔭"
+    },
+    {
+      title: "What you’re likely to see",
+      desc: "Choose a place and week to see the birds you’re most likely to encounter right now.",
+      link: "/explore/spot", // We will build this later
+      icon: "📍"
+    }
+  ];
+
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      fontFamily: 'sans-serif',
-      backgroundColor: '#f4f7f4',
-      textAlign: 'center',
-      padding: '20px'
-    }}>
-      <div style={{ 
-        backgroundColor: 'white', 
-        padding: '50px', 
-        borderRadius: '15px', 
-        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-        maxWidth: '600px'
-      }}>
-        <h1 style={{ color: '#2e4a31', fontSize: '3rem', marginBottom: '10px' }}>🐦</h1>
-        <h1 style={{ color: '#2e4a31', margin: '0' }}>Last Great Places for Birds & Birders</h1>
-        <p style={{ color: '#555', fontSize: '1.2rem', marginTop: '15px' }}>
-          Discover America's top places for bird conservation and bird watching. Find high-value birding places by season, bird group, or species, based on eBird's sightings data for Important Bird Areas and other noted birding destinations.
+    <div className="container">
+      <header style={{ marginTop: '50px', marginBottom: '40px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '2.8rem' }}>Last Great Places for Birds & Birders</h1>
+        <p style={{ fontSize: '1.2rem', maxWidth: '800px', margin: '20px auto', color: '#444' }}>
+          Find high-value birding places by season, bird group, or species—using Important Bird Areas 
+          and other proven birding destinations, summarized from eBird checklist patterns.
         </p>
-    
-        
-        <div style={{ marginTop: '40px' }}>
-          <Link href="/explore/groups" style={{
-            backgroundColor: '#2e4a31',
-            color: 'white',
-            padding: '15px 30px',
-            borderRadius: '8px',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-            fontSize: '1.1rem',
-            transition: 'background 0.3s'
-          }}>
-            ENTER SEARCH TOOL
-          </Link>
-        </div>
+      </header>
+
+      {/* Explore Cards Grid */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '20px',
+        marginTop: '40px'
+      }}>
+        {cards.map((card) => (
+          <div key={card.title} className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '15px' }}>{card.icon}</div>
+            <h2 style={{ fontSize: '1.4rem' }}>{card.title}</h2>
+            <p style={{ flexGrow: 1 }}>{card.desc}</p>
+            <Link href={card.link} className="btn" style={{ marginTop: '20px', width: 'fit-content' }}>
+              {card.link.includes('groups') ? 'Launch Tool' : 'Coming Soon'}
+            </Link>
+          </div>
+        ))}
       </div>
-      
-      <footer style={{ marginTop: '30px', color: '#888', fontSize: '0.9rem' }}>
-        &copy; {new Date().getFullYear()} Last Great Places - Birding Data Project
-      </footer>
+
+      {/* Coverage Strip (Fine Print) */}
+      <div style={{ 
+        marginTop: '60px', 
+        padding: '20px', 
+        borderTop: '1px solid var(--border-light)', 
+        textAlign: 'center',
+        fontSize: '0.9rem',
+        color: '#666'
+      }}>
+        <p>
+          <strong>Coverage:</strong> Currently includes 15 states in the Southeast and Mid-Atlantic; 
+          other states are being added weekly. Places include Audubon Important Bird Areas plus 
+          additional recommended birding destinations.
+        </p>
+      </div>
     </div>
-  )
+  );
 }
