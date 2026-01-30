@@ -37,10 +37,10 @@ export default function AboutPage() {
 
         <h2 style={{ marginTop: '30px' }}>Our Mission</h2>
         <p>
-          <strong>Last Great Places for Birds & Birders</strong> has taken this rich data, compiled it 
-          into an easily searchable database, and applied it to the IBAs and other noted birding areas. 
+          <strong>Last Great Places for Birds & Birders</strong> has taken the rich eBird data, compiled it 
+          into an easily searchable database, and applied it to IBAs and other noted birding areas. 
           It serves as a companion to <em>America’s Last Great Places</em> for conserving natural diversity. 
-          Studies show that protecting these habitats contributes substantially to conservation of other species and ecosystems.
+          Studies show that protecting these habitats contributes substantially to conserving other species and ecosystems.
         </p>
 
         <h2 style={{ marginTop: '30px' }}>The Developer</h2>

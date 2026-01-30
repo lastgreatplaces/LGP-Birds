@@ -15,8 +15,8 @@ export default function ExploreHub() {
       icon: "🔭"
     },
     {
-      title: "What Birds, Where & When",
-      desc: "What birds to expect, and likelihood for each species, at a place for a given week(s).",
+      title: "What you're likely to see",
+      desc: "Choose a place and week to see the birds you’re most likely to encounter.",
       link: "/explore/spot",
       icon: "📍"
     }

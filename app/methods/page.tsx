@@ -18,20 +18,23 @@ export default function MethodsPage() {
         </p>
 
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
-        <p>
-          Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-          supplemented by recommended birding sites from National Geographic and other sources. 
-          Rather than reporting raw sighting counts, the site focuses on <strong>relative likelihood</strong>—how 
-          consistently species or bird groups are reported at a place during a given time window.
-        </p>
+<p>
+  Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
+  supplemented by recommended birding sites from National Geographic and other sources. 
+</p>
 
-        <h2 style={{ marginTop: '30px' }}>Temporal Accuracy</h2>
-        <p>
-          Seasonality is handled using a <strong>week-based model</strong> aligned with eBird’s 
-          standard reporting bins. This data is presented in a month-friendly interface designed 
-          for intuitive trip planning. 
-        </p>
-        
+<h2 style={{ marginTop: '30px' }}>Sightings Normalization</h2>
+<p>
+  Rather than reporting raw sighting counts, the site focuses on <strong>relative likelihood</strong>—how 
+  consistently species or bird groups are reported at a place during a given time window. To reduce the influence of incidental or one-off sightings, eBird data are filtered to emphasize recurring patterns. Species are included only when they are reported across multiple weeks, supported by a minimum number of checklists, and observed alongside other species at a place. 
+</p>
+
+<h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
+<p>
+  Seasonality is handled using a <strong>week-based model</strong> aligned with eBird’s 
+  standard reporting bins. This data is presented in a month-friendly interface designed 
+  for intuitive trip planning. 
+</p>
         <p style={{ fontSize: '0.95rem', color: '#666', fontStyle: 'italic' }}>
           Note: Rankings reflect observed patterns in the data and are intended to help birders compare 
           places efficiently, not to predict exact outcomes. Results are influenced by reporting density; 
