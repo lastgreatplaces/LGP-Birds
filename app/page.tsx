@@ -21,11 +21,11 @@ export default function Home() {
         maxWidth: '600px'
       }}>
         <h1 style={{ color: '#2e4a31', fontSize: '3rem', marginBottom: '10px' }}>🐦</h1>
-        <h1 style={{ color: '#2e4a31', margin: '0' }}>Last Great Places</h1>
+        <h1 style={{ color: '#2e4a31', margin: '0' }}>Last Great Places for Birds & Birders</h1>
         <p style={{ color: '#555', fontSize: '1.2rem', marginTop: '15px' }}>
-          Discovering the nation's premier birding hotspots through 
-          comprehensive sighting data and frequency analysis.
+          Discover America's top places for bird conservation and bird watching.  Last Great Places uses a custom built database and search engine drawing upon Audubon's Important Bird Areas and eBird's comprehensive sightings data.
         </p>
+    
         
         <div style={{ marginTop: '40px' }}>
           <Link href="/explore/groups" style={{
