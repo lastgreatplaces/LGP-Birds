@@ -38,7 +38,7 @@ export default function MethodsPage() {
         <p style={{ fontSize: '0.95rem', color: '#666', fontStyle: 'italic' }}>
           Note: Rankings reflect observed patterns in the data and are intended to help birders compare 
           places efficiently, not to predict exact outcomes. Results are influenced by reporting density; 
-          quieter or colder places may be underrepresented.
+        less visited places and sessons may be underrepresented.
         </p>
 
         <h2 style={{ marginTop: '30px' }}>The Technical Stack</h2>
