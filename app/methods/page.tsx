@@ -28,7 +28,10 @@ export default function MethodsPage() {
 <h2 style={{ marginTop: '30px' }}>Sightings Normalization</h2>
 <p>
   Rather than reporting raw sighting counts, the site focuses on <strong>relative likelihood</strong>—how 
-  consistently species or bird groups are reported at a place during a given time window. To reduce the influence of incidental or one-off sightings, eBird data are filtered to emphasize recurring patterns. Species are included only when they are reported across multiple weeks, supported by a minimum number of checklists, and observed alongside other species at a place. 
+  consistently species or bird groups are reported at a place during a given time window. To reduce the influence of incidental or one-off sightings, eBird data are filtered to emphasize recurring patterns. Species are included only when they are reported across multiple weeks, supported by a minimum number of checklists, and observed alongside other species at a place. For more information about eBird Explore features and data see <a href="https://ebird.org/explore"
+   target="_blank" rel="noopener">
+  eBird Explore
+</a> 
 </p>
 
 <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
