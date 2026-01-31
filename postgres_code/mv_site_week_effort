@@ -1,0 +1,34 @@
+ WITH base AS (
+         SELECT e.bcr_id,
+            e.site_id,
+            e.bin_index AS week,
+            e.species,
+            e.freq AS likelihood_see,
+            e.sample_size AS num_checklists
+           FROM ebird_bins_raw e
+          WHERE e.site_id IS NOT NULL AND e.bcr_id IS NOT NULL
+        ), dedup AS (
+         SELECT b.bcr_id,
+            b.site_id,
+            b.week,
+            b.species,
+            max(b.likelihood_see) AS likelihood_see,
+            max(b.num_checklists) AS num_checklists
+           FROM base b
+          GROUP BY b.bcr_id, b.site_id, b.week, b.species
+        )
+ SELECT d.bcr_id,
+    d.site_id,
+    ds.site_name,
+    ds.state,
+    d.week,
+    d.species,
+    round(d.likelihood_see, 2) AS likelihood_see,
+    d.num_checklists::integer AS num_checklists,
+    round(d.likelihood_see * d.num_checklists, 0) AS expected_checklists
+   FROM dedup d
+     JOIN mv_site_species_present p ON p.bcr_id = d.bcr_id AND p.site_id = d.site_id AND p.species = d.species
+     JOIN variables v ON v.bcr_id = d.bcr_id
+     JOIN v_species_taxon_ok t ON t.species = d.species AND t.is_taxon_ok = true
+     JOIN dim_sites ds ON ds.site_id = d.site_id
+  WHERE d.num_checklists >= v.min_weekly_checklists::numeric AND (d.likelihood_see * d.num_checklists) >= v.min_species_checklists::numeric;
