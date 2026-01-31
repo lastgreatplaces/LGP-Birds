@@ -20,7 +20,9 @@ export default function MethodsPage() {
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
 <p>
   Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-  supplemented by recommended birding sites from National Geographic and other sources. 
+  supplemented by recommended birding sites from National Geographic and other sources. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+  Audubon Important Bird Areas
+</a>
 </p>
 
 <h2 style={{ marginTop: '30px' }}>Sightings Normalization</h2>
