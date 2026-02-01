@@ -17,7 +17,7 @@ export default function ExploreHub() {
     {
       title: "What you're likely to see",
       desc: "Choose a place and week to see the birds you’re most likely to encounter.",
-      link: "/explore/species_at_place",
+      link: "/explore/species_at_places",
       icon: "📍"
     }
   ];
