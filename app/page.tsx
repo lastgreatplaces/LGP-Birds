@@ -45,7 +45,7 @@ export default function HomePage() {
             <h2 style={{ fontSize: '1.4rem' }}>{card.title}</h2>
             <p style={{ flexGrow: 1 }}>{card.desc}</p>
             <Link href={card.link} className="btn" style={{ marginTop: '20px', width: 'fit-content' }}>
-              {card.link.includes('groups') ? 'Launch Tool' : 'Coming Soon'}
+              {card.link.includes('groups') ? 'Launch Tool' : 'Launch Tool'}
             </Link>
           </div>
         ))}
