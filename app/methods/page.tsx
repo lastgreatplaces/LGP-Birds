@@ -6,7 +6,7 @@ export default function MethodsPage() {
       <header style={{ marginTop: '40px', marginBottom: '40px' }}>
         <h1>Methodology & Data</h1>
         <p style={{ fontSize: '1.2rem', color: '#2e4a31', fontWeight: '500' }}>
-          How we transform raw citizen science into actionable birding insights.
+          How we transform raw citizen science data into actionable birding information.
         </p>
       </header>
 
