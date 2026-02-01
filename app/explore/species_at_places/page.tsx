@@ -82,7 +82,7 @@ export default function SpeciesAtPlacesSearch() {
           </div>
           <div>
             <select value={selectedPlaceId} onChange={(e) => setSelectedPlaceId(e.target.value)} style={{ width: '100%', padding: '10px' }}>
-              <option value="">-- Select a Hotspot --</option>
+              <option value="">-- Select a Place --</option>
               {places.map(p => (
                 <option key={p.site_id} value={p.site_id}>{p.site_name} ({p.state})</option>
               ))}
