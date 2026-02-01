@@ -16,7 +16,7 @@ export default function HomePage() {
     },
     {
       title: "What you’re likely to see",
-      desc: "Choose a place and week to see the birds you’re most likely to encounter right now.",
+      desc: "Choose a place and week to see which birds you’re most likely to encounter.",
       link: "/explore/spot", // We will build this later
       icon: "📍"
     }
