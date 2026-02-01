@@ -5,19 +5,19 @@ export default function HomePage() {
     {
       title: "Best places for bird groups",
       desc: "Pick groups like Shorebirds or Waders and a time window to get ranked places.",
-      link: "/explore/groups",
+      link: "/explore/places_for_groups",
       icon: "🦆"
     },
     {
       title: "Best places for a species",
       desc: "Find where a single species is most likely—without clicking hotspot by hotspot.",
-      link: "/explore/species", // We will build this later
+      link: "/explore/places_for_species", // We will build this later
       icon: "🔭"
     },
     {
       title: "What you’re likely to see",
       desc: "Choose a place and week to see which birds you’re most likely to encounter.",
-      link: "/explore/spot", // We will build this later
+      link: "/explore/species_at_places", // done
       icon: "📍"
     }
   ];
