@@ -6,7 +6,7 @@ export default function MethodsPage() {
       <header style={{ marginTop: '40px', marginBottom: '40px' }}>
         <h1>Methodology & Data</h1>
         <p style={{ fontSize: '1.2rem', color: '#2e4a31', fontWeight: '500' }}>
-          How we transform raw citizen science into actionable birding insights.
+          How we transform raw citizen science data into actionable birding information.
         </p>
       </header>
 
@@ -20,17 +20,9 @@ export default function MethodsPage() {
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
 <p>
   Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-  supplemented by recommended birding sites from National Geographic's Guide to Birding Hotspots and other sources. 
+  supplemented by recommended birding sites from National Geographic and other sources. eBird data is directly provided for most IBAs; for other places, eBird data is used from the most populated hotspot. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+  Audubon Important Bird Areas
 </a>
-</p>
-
-<h2 style={{ marginTop: '30px' }}>eBird Data</h2>
-<p>
-  eBird histogram data (i.e. bar charts) are directly provided for most IBAs; for other places, eBird histogram data are used from the most populated hotspot. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
-  Audubon Important Bird Areas. For more information about eBird Explore features and data see <a href="https://ebird.org/explore"
-   target="_blank" rel="noopener">
-  eBird Explore
-</a> 
 </p>
 
 <h2 style={{ marginTop: '30px' }}>Sightings Normalization</h2>

@@ -47,7 +47,7 @@ export default function AboutPage() {
         <p>
           The platform was developed by <strong>Greg Low</strong> at Applied Conservation. Greg is a 
           long-time conservation practitioner and a self-described "enthusiastic but incompetent 
-          birdwatcher." Now semi-retired, he initially developed this tool to help find great birding 
+          birder." Now semi-retired, he initially developed this tool to help find great birding 
           spots while migrating seasonally across the U.S. in his campervan.
         </p>
       </section>

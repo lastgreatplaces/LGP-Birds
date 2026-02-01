@@ -12,13 +12,13 @@ export default function HomePage() {
       title: "Best places for a species",
       desc: "Find where a single species is most likely—without clicking hotspot by hotspot.",
       link: "/explore/places_for_species", // We will build this later
-      icon: "🔭"
+      icon: "📍"
     },
     {
       title: "What you’re likely to see",
       desc: "Choose a place and week to see which birds you’re most likely to encounter.",
       link: "/explore/species_at_places", // done
-      icon: "📍"
+      icon: "🔭"
     }
   ];
 
@@ -27,8 +27,7 @@ export default function HomePage() {
       <header style={{ marginTop: '50px', marginBottom: '40px', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2.8rem' }}>Last Great Places for Birds & Birders</h1>
         <p style={{ fontSize: '1.2rem', maxWidth: '800px', margin: '20px auto', color: '#444' }}>
-          Find high-value birding places by season, bird group, or species—using Important Bird Areas 
-          and other proven birding destinations, summarized from eBird checklist patterns.
+          Find high-value birding places by season, bird group, or species—using Important Bird Areas, noted birding destinations and compiled eBird checklist data.
         </p>
       </header>
 
