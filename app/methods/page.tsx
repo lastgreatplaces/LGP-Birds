@@ -20,7 +20,7 @@ export default function MethodsPage() {
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
 <p>
   Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-  supplemented by recommended birding sites from National Geographic and other sources. eBird data is directly provided for most IBAs; for other places, eBird data is used from the most populated hotspot. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+  supplemented by recommended birding sites from National Geographic and other sources. eBird histogram data is directly provided for most IBAs; for other places, eBird data is used from the most populated hotspot. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
   Audubon Important Bird Areas
 </a>
 </p>
