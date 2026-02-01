@@ -12,13 +12,13 @@ export default function HomePage() {
       title: "Best places for a species",
       desc: "Find where a single species is most likely—without clicking hotspot by hotspot.",
       link: "/explore/places_for_species", // We will build this later
-      icon: "🔭"
+      icon: "📍"
     },
     {
       title: "What you’re likely to see",
       desc: "Choose a place and week to see which birds you’re most likely to encounter.",
       link: "/explore/species_at_places", // done
-      icon: "📍"
+      icon: "🔭"
     }
   ];
 
