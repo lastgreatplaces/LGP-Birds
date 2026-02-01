@@ -33,15 +33,13 @@ export default function ExploreHub() {
         gap: '20px' 
       }}>
         {tools.map((tool) => (
-          <div key={tool.title} className="card">
-            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>{tool.icon}</div>
-            <h2>{tool.title}</h2>
-            <p>{tool.desc}</p>
-            <Link href={tool.link} className="btn" style={{ marginTop: '15px' }}>
-              {tool.link === '/explore/groups' ? 'Open Tool' : 'Coming Soon'}
-            </Link>
-          </div>
-        ))}
+  <div key={tool.title}>
+    {/* ... your icon and text ... */}
+    <a href={tool.link}>
+      <button className="your-button-style">Open Tool</button>
+    </a>
+  </div>
+))}
       </div>
     </div>
   );
