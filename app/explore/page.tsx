@@ -5,19 +5,19 @@ export default function ExploreHub() {
     {
       title: "Bird Groups",
       desc: "Ranked places for seeing bird groups like Shorebirds or Raptors.",
-      link: "/explore/groups",
+      link: "/explore/places_for_groups",
       icon: "🦆"
     },
     {
       title: "Specific Species",
       desc: "Find exactly where a single species is most likely to be seen.",
-      link: "/explore/species",
+      link: "/explore/places_for_species",
       icon: "🔭"
     },
     {
       title: "What you're likely to see",
       desc: "Choose a place and week to see the birds you’re most likely to encounter.",
-      link: "/explore/spot",
+      link: "/explore/species_at_place",
       icon: "📍"
     }
   ];
