@@ -20,13 +20,18 @@ export default function MethodsPage() {
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
 <p>
   Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-  supplemented by recommended birding sites from National Geographic and other sources. 
+  supplemented by recommended birding sites from National Geographic and other sources. eBird data is directly provided for most IBAs; for other places, eBird data is used from the most populated hotspot. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+  Audubon Important Bird Areas
+</a>
 </p>
 
 <h2 style={{ marginTop: '30px' }}>Sightings Normalization</h2>
 <p>
   Rather than reporting raw sighting counts, the site focuses on <strong>relative likelihood</strong>—how 
-  consistently species or bird groups are reported at a place during a given time window. To reduce the influence of incidental or one-off sightings, eBird data are filtered to emphasize recurring patterns. Species are included only when they are reported across multiple weeks, supported by a minimum number of checklists, and observed alongside other species at a place. 
+  consistently species or bird groups are reported at a place during a given time window. To reduce the influence of incidental or one-off sightings, eBird data are filtered to emphasize recurring patterns. Species are included only when they are reported across multiple weeks, supported by a minimum number of checklists, and observed alongside other species at a place. For more information about eBird Explore features and data see <a href="https://ebird.org/explore"
+   target="_blank" rel="noopener">
+  eBird Explore
+</a> 
 </p>
 
 <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
@@ -38,7 +43,7 @@ export default function MethodsPage() {
         <p style={{ fontSize: '0.95rem', color: '#666', fontStyle: 'italic' }}>
           Note: Rankings reflect observed patterns in the data and are intended to help birders compare 
           places efficiently, not to predict exact outcomes. Results are influenced by reporting density; 
-          quieter or colder places may be underrepresented.
+        less visited places and sessons may be underrepresented.
         </p>
 
         <h2 style={{ marginTop: '30px' }}>The Technical Stack</h2>
