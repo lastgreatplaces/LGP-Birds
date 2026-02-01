@@ -27,7 +27,7 @@ export default function HomePage() {
       <header style={{ marginTop: '50px', marginBottom: '40px', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2.8rem' }}>Last Great Places for Birds & Birders</h1>
         <p style={{ fontSize: '1.2rem', maxWidth: '800px', margin: '20px auto', color: '#444' }}>
-          Find high-value birding places by season, bird group, or species—using Important Bird Areas, noted birding destinations and eBird checklist data.
+          Find high-value birding places by season, bird group, or species—using Important Bird Areas, noted birding destinations and compiled eBird checklist data.
         </p>
       </header>
 
