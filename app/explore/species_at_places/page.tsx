@@ -13,9 +13,17 @@ export default function SpeciesAtPlacesSearch() {
   const [fromWeek, setFromWeek] = useState(1)
   const [toWeek, setToWeek] = useState(2)
 
-  const [minLikelihood, setMinLikelihood] = useState(0.10) // Lowered default to catch more birds
+  const [minLikelihood, setMinLikelihood] = useState(0.10) 
   const [limit, setLimit] = useState(50)
   const [loading, setLoading] = useState(false)
+
+  // 4-Color Logic requested
+  const getLikelihoodColor = (val: number) => {
+    if (val >= 0.80) return '#1b5e20' // Dark Green
+    if (val >= 0.60) return '#4caf50' // Light Green
+    if (val >= 0.33) return '#fbc02d' // Gold
+    return '#d32f2f' // Red
+  }
 
   useEffect(() => {
     async function loadInitialData() {
@@ -30,7 +38,6 @@ export default function SpeciesAtPlacesSearch() {
   useEffect(() => {
     async function loadPlaces() {
       setSelectedPlaceId('') 
-      // Replace 'site_catalog' with whatever your place dropdown table is named
       let q = supabase.from('site_catalog').select('site_id, site_name, state').order('site_name')
       if (selectedState) q = q.eq('state', selectedState)
       const { data } = await q
@@ -41,10 +48,8 @@ export default function SpeciesAtPlacesSearch() {
 
   const runPowerQuery = async () => {
     if (!selectedPlaceId) { alert('Please select a place.'); return; }
-    
     setLoading(true)
     
-    // Convert range into the array the RPC expects: [5, 6, 7]
     const weekArray = Array.from(
         { length: toWeek - fromWeek + 1 }, 
         (_, i) => fromWeek + i
@@ -68,10 +73,10 @@ export default function SpeciesAtPlacesSearch() {
   }
 
   return (
-    <div style={{ padding: '40px', maxWidth: '1000px', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: '40px', maxWidth: '1000px', fontFamily: 'sans-serif', textAlign: 'left' }}>
       <h1 style={{ color: '#2e4a31' }}>What you’re likely to see</h1>
 
-      <div style={{ marginBottom: '25px' }}>
+      <div style={{ marginBottom: '25px', background: '#f4f4f4', padding: '20px', borderRadius: '8px' }}>
         <label><strong>1. Choose a Place</strong></label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '14px', marginTop: '10px' }}>
           <div>
@@ -91,7 +96,7 @@ export default function SpeciesAtPlacesSearch() {
         </div>
       </div>
 
-      <div style={{ marginBottom: '25px' }}>
+      <div style={{ marginBottom: '25px', background: '#f4f4f4', padding: '20px', borderRadius: '8px' }}>
         <label><strong>2. Choose Weeks</strong></label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '10px' }}>
           <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px' }}>
@@ -104,7 +109,7 @@ export default function SpeciesAtPlacesSearch() {
       </div>
 
       <button onClick={runPowerQuery} disabled={loading}
-        style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}>
+        style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
         {loading ? 'ANALYZING HOTSPOT...' : 'REVEAL SPECIES'}
       </button>
 
@@ -112,23 +117,37 @@ export default function SpeciesAtPlacesSearch() {
         <table style={{ width: '100%', marginTop: '30px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#2e4a31', color: 'white' }}>
-              <th style={{ padding: '12px' }}>Rank</th>
+              <th style={{ padding: '12px', textAlign: 'center' }}>Rank</th>
               <th style={{ textAlign: 'left' }}>Species</th>
-              <th>Likelihood</th>
-              <th>Avg Weekly Reports</th>
+              <th style={{ textAlign: 'center' }}>Avg Likelihood</th>
+              <th style={{ textAlign: 'center' }}>Avg Checklists</th>
             </tr>
           </thead>
           <tbody>
-            {results.map((r, idx) => (
-              <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{r.rank}</td>
-                <td style={{ fontWeight: 'bold' }}>{r.species}</td>
-                <td style={{ textAlign: 'center', color: '#4a7c59', fontWeight: 'bold' }}>
-                    {Math.round(r.avg_likelihood_see * 100)}%
-                </td>
-                <td style={{ textAlign: 'center' }}>{r.avg_weekly_checklists}</td>
-              </tr>
-            ))}
+            {results.map((r, idx) => {
+              const badgeColor = getLikelihoodColor(r.avg_likelihood_see)
+              return (
+                <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{r.rank}</td>
+                  <td style={{ fontWeight: 'bold' }}>{r.species}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <span style={{ 
+                      backgroundColor: badgeColor, 
+                      color: 'white', 
+                      padding: '4px 8px', 
+                      borderRadius: '4px', 
+                      fontWeight: 'bold', 
+                      fontSize: '13px', 
+                      display: 'inline-block', 
+                      minWidth: '45px' 
+                    }}>
+                      {Math.round(r.avg_likelihood_see * 100)}%
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'center' }}>{Math.round(r.avg_weekly_checklists)}</td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       )}

@@ -10,13 +10,13 @@ export default function ExploreHub() {
     },
     {
       title: "Specific Species",
-      desc: "Find exactly where a single species is most likely to be seen.",
+      desc: "Find where & when a single species is most likely to be seen.",
       link: "/explore/places_for_species",
       icon: "🔭"
     },
     {
       title: "What you're likely to see",
-      desc: "Choose a place and week to see the birds you’re most likely to encounter.",
+      desc: "Choose a place and week to see what birds you’re most likely to encounter.",
       link: "/explore/species_at_places",
       icon: "📍"
     }

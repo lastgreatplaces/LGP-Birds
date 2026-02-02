@@ -100,7 +100,7 @@ export default function SpeciesSearch() {
   const getLikelihoodColor = (val: number) => {
     if (val >= 0.80) return '#1b5e20' // Dark Green
     if (val >= 0.60) return '#4caf50' // Light Green
-    if (val >= 0.40) return '#fbc02d' // Gold
+    if (val >= 0.33) return '#fbc02d' // Gold
     return '#d32f2f' // Red
   }
 
