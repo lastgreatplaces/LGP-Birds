@@ -124,7 +124,7 @@ export default function SpeciesAtPlacesSearch() {
                 <td style={{ padding: '12px', textAlign: 'center' }}>{r.rank}</td>
                 <td style={{ fontWeight: 'bold' }}>{r.species}</td>
                 <td style={{ textAlign: 'center', color: '#4a7c59', fontWeight: 'bold' }}>
-                    {(r.avg_likelihood_see * 100).toFixed(1)}%
+                    {Math.round(r.avg_likelihood_see * 100)}%
                 </td>
                 <td style={{ textAlign: 'center' }}>{r.avg_weekly_checklists}</td>
               </tr>
