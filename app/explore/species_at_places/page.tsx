@@ -126,7 +126,7 @@ export default function SpeciesAtPlacesSearch() {
       {/* FIX: Empty state message */}
       {hasSearched && results.length === 0 && !loading && (
         <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', fontWeight: 'bold' }}>
-          No data found for this location and time period. Try a broader week range or lower the likelihood threshold.
+          No data found for this location and time period. Try a broader week range or another place.
         </div>
       )}
 
