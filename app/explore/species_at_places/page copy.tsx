@@ -16,7 +16,6 @@ export default function SpeciesAtPlacesSearch() {
   const [minLikelihood, setMinLikelihood] = useState(0.10) 
   const [limit, setLimit] = useState(50)
   const [loading, setLoading] = useState(false)
-  const [hasSearched, setHasSearched] = useState(false) // Tracking for empty state
 
   // 4-Color Logic requested
   const getLikelihoodColor = (val: number) => {
@@ -49,15 +48,7 @@ export default function SpeciesAtPlacesSearch() {
 
   const runPowerQuery = async () => {
     if (!selectedPlaceId) { alert('Please select a place.'); return; }
-    
-    // FIX: Check for inverted weeks
-    if (toWeek < fromWeek) {
-      alert('The "To" week cannot be earlier than the "From" week. Please adjust your range.');
-      return;
-    }
-
     setLoading(true)
-    setHasSearched(false)
     
     const weekArray = Array.from(
         { length: toWeek - fromWeek + 1 }, 
@@ -72,7 +63,6 @@ export default function SpeciesAtPlacesSearch() {
     })
 
     setLoading(false)
-    setHasSearched(true)
 
     if (error) {
       console.error(error)
@@ -122,13 +112,6 @@ export default function SpeciesAtPlacesSearch() {
         style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
         {loading ? 'ANALYZING HOTSPOT...' : 'REVEAL SPECIES'}
       </button>
-
-      {/* FIX: Empty state message */}
-      {hasSearched && results.length === 0 && !loading && (
-        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', fontWeight: 'bold' }}>
-          No data found for this location and time period. Try a broader week range or lower the likelihood threshold.
-        </div>
-      )}
 
       {results.length > 0 && (
         <table style={{ width: '100%', marginTop: '30px', borderCollapse: 'collapse' }}>
