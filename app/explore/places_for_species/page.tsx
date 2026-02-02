@@ -106,7 +106,7 @@ export default function SpeciesSearch() {
 
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', fontFamily: 'sans-serif', textAlign: 'left' }}>
-      <h1 style={{ color: '#2e4a31' }}>Find the Best Places for a Species</h1>
+      <h1 style={{ color: '#2e4a31' }}>Find Best Places & Weeks for a Species</h1>
 
       <div style={{ marginBottom: '20px', background: '#f4f4f4', padding: '20px', borderRadius: '8px' }}>
         <label><strong>1. Select Bird Species:</strong></label>
@@ -141,7 +141,7 @@ export default function SpeciesSearch() {
       </div>
 
       <button onClick={runPowerQuery} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', border: 'none', cursor: 'pointer', borderRadius: '4px' }}>
-        FIND BEST LOCATIONS
+        FIND BEST PLACES
       </button>
 
       {results.length > 0 && (
@@ -173,7 +173,7 @@ export default function SpeciesSearch() {
                 <th style={{ textAlign: 'center' }}>State</th>
                 <th style={{ textAlign: 'center' }}>Avg Likelihood</th>
                 <th style={{ textAlign: 'center' }}>Avg Checklists</th>
-                <th style={{ textAlign: 'center' }}>Details</th>
+                <th style={{ textAlign: 'center' }}>Best Weeks</th>
               </tr>
             </thead>
             <tbody>
