@@ -157,7 +157,7 @@ export default function GroupsSearch() {
       {/* FIX: Empty state message */}
       {hasSearched && results.length === 0 && !loading && (
         <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', fontWeight: 'bold' }}>
-          No locations matched these criteria. Try selecting "All Groups" or a wider week range.
+          No locations matched these criteria. Try selecting another Group, All Groups, or a wider week range.
         </div>
       )}
 

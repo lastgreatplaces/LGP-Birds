@@ -34,6 +34,10 @@ export default function SpeciesSearch() {
   const [weeksDataStore, setWeeksDataStore] = useState<Record<number, WeekRow[]>>({})
   const [weeksLoading, setWeeksLoading] = useState<Record<number, boolean>>({})
   const [weeksSortMode, setWeeksSortMode] = useState<'best' | 'calendar'>('best')
+  
+  // Safety & UX States
+  const [loading, setLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
 
   useEffect(() => {
     setExpandedSiteIds([])
@@ -53,7 +57,20 @@ export default function SpeciesSearch() {
   }, [])
 
   const runPowerQuery = async () => {
-    if (!selectedSpecies) return
+    if (!selectedSpecies) {
+      alert('Please select a bird species.')
+      return
+    }
+
+    // FIX: Check for inverted weeks
+    if (toWeek < fromWeek) {
+      alert('The "To" week cannot be earlier than the "From" week. Please adjust your range.')
+      return
+    }
+
+    setLoading(true)
+    setHasSearched(false)
+
     const { data, error } = await supabase.rpc('rpc_best_places_for_species', {
       p_species: selectedSpecies,
       p_week_from: fromWeek,
@@ -61,7 +78,16 @@ export default function SpeciesSearch() {
       p_states: selectedState ? [selectedState] : null,
       p_limit: 50
     })
-    if (!error) setResults((data || []) as PlaceRow[])
+
+    setLoading(false)
+    setHasSearched(true)
+
+    if (error) {
+      console.error(error)
+      alert("Query error: " + error.message)
+    } else {
+      setResults((data || []) as PlaceRow[])
+    }
   }
 
   const fetchWeeksForSite = async (siteId: number, sortMode: 'best' | 'calendar') => {
@@ -140,9 +166,17 @@ export default function SpeciesSearch() {
         </div>
       </div>
 
-      <button onClick={runPowerQuery} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', border: 'none', cursor: 'pointer', borderRadius: '4px' }}>
-        FIND BEST PLACES
+      <button onClick={runPowerQuery} disabled={loading}
+        style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', border: 'none', cursor: 'pointer', borderRadius: '4px', opacity: loading ? 0.7 : 1 }}>
+        {loading ? 'ANALYZING SIGHTINGS...' : 'FIND BEST PLACES'}
       </button>
+
+      {/* FIX: Empty state message */}
+      {hasSearched && results.length === 0 && !loading && (
+        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', fontWeight: 'bold' }}>
+          No records found for this species in the selected area/time. Try broadening your week range.
+        </div>
+      )}
 
       {results.length > 0 && (
         <>
@@ -184,7 +218,7 @@ export default function SpeciesSearch() {
                   <React.Fragment key={r.site_id}>
                     <tr onClick={() => toggleSiteWeeks(r.site_id)} style={{ borderBottom: '1px solid #eee', cursor: 'pointer', backgroundColor: isOpen ? '#f9f9f9' : 'white' }}>
                       <td style={{ padding: '12px' }}>{r.rank}</td>
-                      <td>{r.site_name}</td>
+                      <td style={{ fontWeight: 'bold' }}>{r.site_name}</td>
                       <td style={{ textAlign: 'center' }}>{r.state}</td>
                       <td style={{ textAlign: 'center' }}>
                         <span style={{ backgroundColor: badgeColor, color: 'white', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '13px', display: 'inline-block', minWidth: '45px' }}>
