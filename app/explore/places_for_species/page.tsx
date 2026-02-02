@@ -21,7 +21,7 @@ export default function SpeciesSearch() {
       const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
       
       // Load species from your specific dropdown view
-      const { data: spData } = await supabase.from('v_dropdown_species_group').select('value').order('value')
+      const { data: spData } = await supabase.from('species_group').select('species_name').order('value')
       
       if (sData) setStates(sData.map(s => s.state))
       if (wData) setWeeks(wData)
