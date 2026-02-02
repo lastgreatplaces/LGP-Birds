@@ -17,15 +17,16 @@ export default function SpeciesSearch() {
     async function loadInitialData() {
       // Load active states
       const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
-      // Load weeks
+      
+      // Load weeks for the range selectors
       const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
       
-      // Load species from your specific dropdown view
-      const { data: spData } = await supabase.from('species_group').select('species_name').order('value')
+      // Corrected: Load species from the species_groups table using species_name
+      const { data: spData } = await supabase.from('species_groups').select('species_name').order('species_name')
       
       if (sData) setStates(sData.map(s => s.state))
       if (wData) setWeeks(wData)
-      if (spData) setAllSpecies(spData.map(s => s.value))
+      if (spData) setAllSpecies(spData.map(s => s.species_name))
     }
     loadInitialData()
   }, [])
@@ -61,9 +62,9 @@ export default function SpeciesSearch() {
         <select 
           value={selectedSpecies} 
           onChange={(e) => setSelectedSpecies(e.target.value)} 
-          style={{ width: '100%', padding: '12px', marginTop: '10px', fontSize: '1rem' }}
+          style={{ width: '100%', padding: '12px', marginTop: '10px', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc' }}
         >
-          <option value="">-- Select a bird --</option>
+          <option value="">-- Select a bird species --</option>
           {allSpecies.map(sp => <option key={sp} value={sp}>{sp}</option>)}
         </select>
       </div>
@@ -94,7 +95,7 @@ export default function SpeciesSearch() {
       </div>
 
       <button onClick={runPowerQuery}
-        style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}>
+        style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
         FIND BEST LOCATIONS
       </button>
 
@@ -102,20 +103,20 @@ export default function SpeciesSearch() {
         <table style={{ width: '100%', marginTop: '30px', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#2e4a31', color: 'white' }}>
-              <th style={{ padding: '10px' }}>Rank</th>
-              <th>Site Name</th>
-              <th>State</th>
-              <th>Avg Likelihood</th>
-              <th>Weekly Checklists</th>
+              <th style={{ padding: '12px', textAlign: 'left' }}>Rank</th>
+              <th style={{ textAlign: 'left' }}>Site Name</th>
+              <th style={{ textAlign: 'center' }}>State</th>
+              <th style={{ textAlign: 'center' }}>Avg Likelihood</th>
+              <th style={{ textAlign: 'center' }}>Avg Checklists</th>
             </tr>
           </thead>
           <tbody>
             {results.map((r, idx) => (
-              <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
-                <td style={{ padding: '10px', textAlign: 'center' }}>{r.rank}</td>
-                <td style={{ padding: '10px' }}>{r.site_name}</td>
+              <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                <td style={{ padding: '12px', textAlign: 'left' }}>{r.rank}</td>
+                <td>{r.site_name}</td>
                 <td style={{ textAlign: 'center' }}>{r.state}</td>
-                {/* No decimal rounding here */}
+                {/* Rounded to whole number percentage */}
                 <td style={{ textAlign: 'center' }}>{Math.round(r.avg_likelihood_see * 100)}%</td>
                 <td style={{ textAlign: 'center' }}>{Math.round(r.avg_weekly_checklists)}</td>
               </tr>
