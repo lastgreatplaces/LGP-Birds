@@ -92,7 +92,6 @@ export default function SpeciesSearch() {
 
   const changeWeeksSortMode = async (mode: 'best' | 'calendar') => {
     setWeeksSortMode(mode)
-    // Refresh all currently open sites with the new sort mode
     for (const siteId of expandedSiteIds) {
       await fetchWeeksForSite(siteId, mode)
     }
@@ -147,13 +146,22 @@ export default function SpeciesSearch() {
 
       {results.length > 0 && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '10px' }}>
-               <button onClick={() => changeWeeksSortMode('best')} style={{ padding: '6px 12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'best' ? '#2e4a31' : 'white', color: weeksSortMode === 'best' ? 'white' : '#2e4a31' }}>Order: Best First</button>
-               <button onClick={() => changeWeeksSortMode('calendar')} style={{ padding: '6px 12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'calendar' ? '#2e4a31' : 'white', color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31' }}>Order: Calendar</button>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
             {expandedSiteIds.length > 0 && (
-              <button onClick={() => setExpandedSiteIds([])} style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', textDecoration: 'underline' }}>Clear Comparison</button>
+              <button 
+                onClick={() => setExpandedSiteIds([])} 
+                style={{ 
+                  background: 'white', 
+                  border: '1px solid #d32f2f', 
+                  color: '#d32f2f', 
+                  padding: '6px 12px', 
+                  borderRadius: '4px', 
+                  cursor: 'pointer', 
+                  fontWeight: 'bold' 
+                }}
+              >
+                Clear Comparisons
+              </button>
             )}
           </div>
 
@@ -189,7 +197,23 @@ export default function SpeciesSearch() {
                     {isOpen && (
                       <tr style={{ backgroundColor: '#f3f7f4' }}>
                         <td colSpan={6} style={{ padding: '20px' }}>
-                          <div style={{ marginBottom: '10px' }}><strong>Seasonal Trend: {r.site_name}</strong></div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                            <strong>Seasonal Trend: {r.site_name}</strong>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                               <button 
+                                 onClick={(e) => { e.stopPropagation(); changeWeeksSortMode('best'); }} 
+                                 style={{ padding: '5px 10px', fontSize: '12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'best' ? '#2e4a31' : 'white', color: weeksSortMode === 'best' ? 'white' : '#2e4a31' }}
+                               >
+                                 Best First
+                               </button>
+                               <button 
+                                 onClick={(e) => { e.stopPropagation(); changeWeeksSortMode('calendar'); }} 
+                                 style={{ padding: '5px 10px', fontSize: '12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'calendar' ? '#2e4a31' : 'white', color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31' }}
+                               >
+                                 Calendar
+                               </button>
+                            </div>
+                          </div>
                           {weeksLoading[r.site_id] ? <p>Loading weeks...</p> : (
                             <div style={{ maxHeight: '350px', overflowY: 'auto', border: '1px solid #ddd', background: 'white' }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
