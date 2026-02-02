@@ -111,7 +111,8 @@ export default function SpeciesSearch() {
   // Helper to determine the color of the bar
   const getLikelihoodColor = (val: number) => {
     if (val >= 0.80) return '#2e7d32' // Dark Green
-    if (val >= 0.50) return '#fbc02d' // Yellow/Gold
+    if (val >= 0.60) return '#06f712' // Light Green
+    if (val >= 0.40) return '#fbc02d' // Yellow/Gold
     return '#d32f2f' // Red
   }
 
