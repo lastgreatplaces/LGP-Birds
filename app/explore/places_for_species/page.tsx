@@ -35,13 +35,11 @@ export default function SpeciesSearch() {
   const [fromWeek, setFromWeek] = useState(1)
   const [toWeek, setToWeek] = useState(48) 
 
-  // Drill-down state
   const [expandedSiteId, setExpandedSiteId] = useState<number | null>(null)
   const [weeksRows, setWeeksRows] = useState<WeekRow[]>([])
   const [weeksLoading, setWeeksLoading] = useState(false)
   const [weeksSortMode, setWeeksSortMode] = useState<'best' | 'calendar'>('best')
 
-  // Close drill-down if search inputs change
   useEffect(() => {
     setExpandedSiteId(null)
     setWeeksRows([])
@@ -49,21 +47,9 @@ export default function SpeciesSearch() {
 
   useEffect(() => {
     async function loadInitialData() {
-      const { data: sData } = await supabase
-        .from('dropdown_states')
-        .select('state')
-        .eq('is_active', true)
-        .order('state')
-
-      const { data: wData } = await supabase
-        .from('weeks_months')
-        .select('week, label_long')
-        .order('week')
-
-      const { data: spData } = await supabase
-        .from('species_groups')
-        .select('species_name')
-        .order('species_name')
+      const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
+      const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
+      const { data: spData } = await supabase.from('species_groups').select('species_name').order('species_name')
 
       if (sData) setStates((sData as Array<{ state: string }>).map(x => x.state))
       if (wData) setWeeks(wData as Array<{ week: number; label_long: string }>)
@@ -99,15 +85,12 @@ export default function SpeciesSearch() {
       p_site_id: siteId,
       p_week_from: fromWeek,
       p_week_to: toWeek,
-      p_min_likelihood: 0.20, // Your hardwired threshold
+      p_min_likelihood: 0.20,
       p_sort_mode: sortMode,
-      p_limit: 12
+      p_limit: 52 // Increased limit to ensure Calendar view is complete
     })
     setWeeksLoading(false)
-    if (error) {
-      console.error(error)
-      return
-    }
+    if (error) return
     setWeeksRows((data || []) as WeekRow[])
   }
 
@@ -125,39 +108,46 @@ export default function SpeciesSearch() {
     if (expandedSiteId) await fetchWeeksForSite(expandedSiteId, mode)
   }
 
+  // Helper to determine the color of the bar
+  const getLikelihoodColor = (val: number) => {
+    if (val >= 0.80) return '#2e7d32' // Dark Green
+    if (val >= 0.50) return '#fbc02d' // Yellow/Gold
+    return '#d32f2f' // Red
+  }
+
   return (
-    <div style={{ padding: '40px', maxWidth: '1000px', fontFamily: 'sans-serif', margin: '0 auto' }}>
+    <div style={{ padding: '40px', maxWidth: '1100px', fontFamily: 'sans-serif', margin: '0 auto' }}>
       <h1 style={{ color: '#2e4a31', textAlign: 'center' }}>Find the Best Places for a Species</h1>
 
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '20px', background: '#f4f4f4', padding: '20px', borderRadius: '8px' }}>
         <label><strong>1. Select Bird Species:</strong></label>
         <select value={selectedSpecies} onChange={(e) => setSelectedSpecies(e.target.value)} style={{ width: '100%', padding: '12px', marginTop: '10px' }}>
           <option value="">-- Select a bird --</option>
           {allSpecies.map(sp => <option key={sp} value={sp}>{sp}</option>)}
         </select>
-      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-        <div>
-          <label><strong>2. Filter by State</strong></label>
-          <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} style={{ width: '100%', padding: '10px' }}>
-            <option value="">-- All Active States --</option>
-            {states.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-           <div style={{ flex: 1 }}>
-              <label>From Week</label>
-              <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px' }}>
-                {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
-              </select>
-           </div>
-           <div style={{ flex: 1 }}>
-              <label>To Week</label>
-              <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px' }}>
-                {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
-              </select>
-           </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '15px' }}>
+          <div>
+            <label><strong>2. Filter by State</strong></label>
+            <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} style={{ width: '100%', padding: '10px' }}>
+              <option value="">-- All Active States --</option>
+              {states.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+             <div style={{ flex: 1 }}>
+                <label>From Week</label>
+                <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px' }}>
+                  {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
+                </select>
+             </div>
+             <div style={{ flex: 1 }}>
+                <label>To Week</label>
+                <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px' }}>
+                  {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
+                </select>
+             </div>
+          </div>
         </div>
       </div>
 
@@ -193,34 +183,47 @@ export default function SpeciesSearch() {
                   {isOpen && (
                     <tr style={{ backgroundColor: '#f3f7f4' }}>
                       <td colSpan={6} style={{ padding: '20px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                          <strong>Best weeks for {selectedSpecies} at {r.site_name}</strong>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 'bold' }}>Seasonal Activity for {selectedSpecies}</span>
                           <div style={{ display: 'flex', gap: '5px' }}>
                             <button onClick={() => changeWeeksSortMode('best')} style={{ padding: '5px 10px', backgroundColor: weeksSortMode === 'best' ? '#2e4a31' : 'white', color: weeksSortMode === 'best' ? 'white' : '#2e4a31', border: '1px solid #2e4a31', cursor: 'pointer', borderRadius: '4px' }}>Best first</button>
                             <button onClick={() => changeWeeksSortMode('calendar')} style={{ padding: '5px 10px', backgroundColor: weeksSortMode === 'calendar' ? '#2e4a31' : 'white', color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31', border: '1px solid #2e4a31', cursor: 'pointer', borderRadius: '4px' }}>Calendar</button>
                           </div>
                         </div>
-                        {weeksLoading ? <p>Loading...</p> : (
-                          <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white' }}>
-                            <thead>
-                              <tr style={{ borderBottom: '2px solid #2e4a31' }}>
-                                <th style={{ padding: '8px', textAlign: 'left' }}>Week</th>
-                                <th style={{ textAlign: 'left' }}>Label</th>
-                                <th style={{ textAlign: 'center' }}>Likelihood</th>
-                                <th style={{ textAlign: 'center' }}>Checklists</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {weeksRows.map(w => (
-                                <tr key={w.week} style={{ borderBottom: '1px solid #eee' }}>
-                                  <td style={{ padding: '8px' }}>{w.week}</td>
-                                  <td>{w.label_long}</td>
-                                  <td style={{ textAlign: 'center' }}>{Math.round(w.likelihood_see * 100)}%</td>
-                                  <td style={{ textAlign: 'center' }}>{w.num_checklists}</td>
+                        {weeksLoading ? <p>Loading weeks...</p> : (
+                          <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white' }}>
+                              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#dfe9e2' }}>
+                                <tr>
+                                  <th style={{ padding: '8px', textAlign: 'left' }}>Week</th>
+                                  <th style={{ textAlign: 'left' }}>Label</th>
+                                  <th style={{ textAlign: 'left', width: '250px' }}>Likelihood Probability</th>
+                                  <th style={{ textAlign: 'center' }}>Checklists</th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+                              <tbody>
+                                {weeksRows.map(w => (
+                                  <tr key={w.week} style={{ borderBottom: '1px solid #eee' }}>
+                                    <td style={{ padding: '8px' }}>{w.week}</td>
+                                    <td>{w.label_long}</td>
+                                    <td style={{ padding: '8px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ flex: 1, backgroundColor: '#eee', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
+                                          <div style={{ 
+                                            width: `${w.likelihood_see * 100}%`, 
+                                            backgroundColor: getLikelihoodColor(w.likelihood_see), 
+                                            height: '100%' 
+                                          }} />
+                                        </div>
+                                        <span style={{ fontSize: '12px', minWidth: '35px' }}>{Math.round(w.likelihood_see * 100)}%</span>
+                                      </div>
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>{w.num_checklists}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         )}
                       </td>
                     </tr>
