@@ -23,28 +23,27 @@ export default function ExploreHub() {
   ];
 
   return (
-    <div className="container" style={{ paddingTop: '40px' }}>
-      <h1>Explore the Data</h1>
+    <div className="container" style={{ paddingTop: '40px', paddingLeft: '15px', paddingRight: '15px' }}>
+      <h1 style={{ marginBottom: '10px' }}>Explore the Data</h1>
       
-      {/* --- 26 STATES BADGE --- */}
+      {/* --- COMPACT 1-LINE COVERAGE BADGE --- */}
       <div style={{
-        display: 'inline-flex',
-        alignItems: 'center',
+        display: 'inline-block',
         backgroundColor: '#ecfdf5', 
         color: '#065f46',           
-        padding: '6px 16px',
-        borderRadius: '9999px',
-        fontSize: '0.9rem',
+        padding: '4px 12px',
+        borderRadius: '6px',
+        fontSize: '0.85rem',
         fontWeight: '600',
         border: '1px solid #10b981',
-        marginBottom: '20px'
+        marginBottom: '20px',
+        whiteSpace: 'nowrap'
       }}>
-        <span style={{ marginRight: '8px' }}>✓</span>
-        Now covers 26 states & counting!
+        Now covering 26 states
       </div>
-      {/* ----------------------- */}
+      {/* -------------------------------------- */}
 
-      <p style={{ marginBottom: '30px' }}>Select a tool to begin your search.</p>
+      <p style={{ marginBottom: '30px', color: '#444' }}>Select a tool to begin your search.</p>
       
       <div style={{ 
         display: 'grid', 
@@ -52,14 +51,23 @@ export default function ExploreHub() {
         gap: '20px' 
       }}>
         {tools.map((tool) => (
-          <div key={tool.title} className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <div key={tool.title} className="card" style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'flex-start',
+            padding: '20px',
+            border: '1px solid #eaeaea',
+            borderRadius: '12px',
+            backgroundColor: '#fff',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          }}>
             <div style={{ fontSize: '2rem', marginBottom: '10px' }}>{tool.icon}</div>
             
-            <h2 style={{ color: '#2e4a31', margin: '0 0 10px 0' }}>{tool.title}</h2>
+            <h2 style={{ color: '#2e4a31', margin: '0 0 10px 0', fontSize: '1.5rem' }}>{tool.title}</h2>
             
-            <p style={{ color: '#666', marginBottom: '20px' }}>{tool.desc}</p>
+            <p style={{ color: '#666', marginBottom: '20px', lineHeight: '1.5' }}>{tool.desc}</p>
             
-            <Link href={tool.link} style={{ textDecoration: 'none' }}>
+            <Link href={tool.link} style={{ width: '100%', textDecoration: 'none' }}>
               <button style={{
                 backgroundColor: '#2e4a31',
                 color: 'white',
@@ -67,7 +75,8 @@ export default function ExploreHub() {
                 borderRadius: '6px',
                 border: 'none',
                 fontWeight: 'bold',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                width: '100%' // Makes button easier to tap on mobile
               }}>
                 Open Tool
               </button>
@@ -75,6 +84,10 @@ export default function ExploreHub() {
           </div>
         ))}
       </div>
+
+      <footer style={{ marginTop: '50px', padding: '20px 0', borderTop: '1px solid #eee', textAlign: 'center', color: '#999', fontSize: '0.8rem' }}>
+        © 2026 Last Great Places for Birds & Birders
+      </footer>
     </div>
   );
 }
