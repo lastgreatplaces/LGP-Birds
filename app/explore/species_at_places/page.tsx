@@ -13,11 +13,9 @@ export default function SpeciesAtPlacesSearch() {
   const [fromWeek, setFromWeek] = useState(1)
   const [toWeek, setToWeek] = useState(2)
 
-  const [minLikelihood, setMinLikelihood] = useState(0.10)
-  const [limit, setLimit] = useState(50)
   const [loading, setLoading] = useState(false)
 
-  // 4-Color Logic requested in your "colors" version
+  // 4-Color Logic from your working "colors" version
   const getLikelihoodColor = (val: number) => {
     if (val >= 0.80) return '#1b5e20' // Dark Green
     if (val >= 0.60) return '#4caf50' // Light Green
@@ -43,13 +41,14 @@ export default function SpeciesAtPlacesSearch() {
         return
       }
 
-      // THE CRITICAL FIX: This splits "FL - Florida" to just "FL"
+      // THE FIX: We split "FL - Florida" to get "FL" 
+      // AND we use .ilike to be case-insensitive just in case
       const stateCode = selectedState.split(' - ')[0].trim()
 
       const { data, error } = await supabase
         .from('site_species_week_likelihood')
         .select('site_name, site_id')
-        .eq('state', stateCode) // Now it correctly looks for "FL"
+        .ilike('state', stateCode) 
         .order('site_name')
 
       if (error) {
@@ -58,13 +57,15 @@ export default function SpeciesAtPlacesSearch() {
       }
 
       if (data) {
+        // Use a Map to ensure we only have unique site names in the dropdown
         const uniqueMap = new Map()
         data.forEach(item => {
-          if (!uniqueMap.has(item.site_name)) {
+          if (item.site_name && !uniqueMap.has(item.site_name)) {
             uniqueMap.set(item.site_name, item)
           }
         })
-        setPlaces(Array.from(uniqueMap.values()))
+        const finalPlaces = Array.from(uniqueMap.values())
+        setPlaces(finalPlaces)
       }
     }
     fetchPlaces()
@@ -104,7 +105,7 @@ export default function SpeciesAtPlacesSearch() {
         </label>
 
         <div style={{ 
-          height: '120px', 
+          height: '130px', 
           overflowY: 'auto', 
           background: 'white', 
           border: '1px solid #ddd', 
