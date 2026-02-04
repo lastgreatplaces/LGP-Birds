@@ -86,7 +86,7 @@ export default function GroupsSearch() {
 
   return (
     <div style={{ padding: '40px', maxWidth: '1000px', fontFamily: 'sans-serif', textAlign: 'left' }}>
-      <h1 style={{ color: '#2e4a31' }}>Explore Bird Groups</h1>
+      <h1 style={{ color: '#2e4a31' }}>Best Places for Bird Groups</h1>
 
       {/* 1. Category Selection */}
       <div style={{ marginBottom: '25px', background: '#f4f4f4', padding: '20px', borderRadius: '8px' }}>
