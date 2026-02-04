@@ -11,23 +11,34 @@ export default function SpeciesAtPlaces() {
   const [selectedState, setSelectedState] = useState('')
   const [selectedPlaceId, setSelectedPlaceId] = useState<number | ''>('')
   const [fromWeek, setFromWeek] = useState(1)
-  const [toWeek, setToWeek] = useState(1)
+  const [toWeek, setToWeek] = useState(2)
 
+  // Parameters confirmed from your GitHub history
+  const [minLikelihood] = useState(0.05)
+  const [limit] = useState(50)
   const [loading, setLoading] = useState(false)
-  const [hasSearched, setHasSearched] = useState(false)
 
-  // 1. Load initial states and weeks
+  // 1. Initial Data Load (States and Weeks)
   useEffect(() => {
     async function loadInitialData() {
-      const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
-      const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
+      const { data: sData } = await supabase
+        .from('dropdown_states')
+        .select('state')
+        .eq('is_active', true)
+        .order('state')
+      
+      const { data: wData } = await supabase
+        .from('weeks_months')
+        .select('week, label_long')
+        .order('week')
+
       if (sData) setStates(sData)
       if (wData) setWeeks(wData)
     }
     loadInitialData()
   }, [])
 
-  // 2. Fetch Places - FIXED to ensure Florida locations show up
+  // 2. Fetch Places - Methodically handles "XX - StateName" for all states
   useEffect(() => {
     async function fetchPlaces() {
       if (!selectedState) {
@@ -35,53 +46,55 @@ export default function SpeciesAtPlaces() {
         return
       }
       
-      // Fix: Extract "FL" from "FL - Florida" to match DB shorthand
+      // Methodical Fix: This ensures "TX - Texas" becomes "TX" 
+      // and "CA - California" becomes "CA", matching your DB shorthand.
       const stateCode = selectedState.split(' - ')[0].trim()
 
       const { data, error } = await supabase
         .from('site_species_week_likelihood')
         .select('site_name, site_id')
-        .eq('state', stateCode)
+        .eq('state', stateCode) 
         .order('site_name')
       
       if (error) {
-        console.error("Error fetching places:", error)
+        console.error("Place fetch error:", error)
         return
       }
 
-      // Filter for unique site IDs
-      const uniqueMap = new Map()
-      data?.forEach(item => {
-        if (!uniqueMap.has(item.site_id)) {
-          uniqueMap.set(item.site_id, item)
-        }
-      })
-      setPlaces(Array.from(uniqueMap.values()))
+      if (data) {
+        const uniqueMap = new Map()
+        data.forEach(item => {
+          if (!uniqueMap.has(item.site_id)) {
+            uniqueMap.set(item.site_id, item)
+          }
+        })
+        setPlaces(Array.from(uniqueMap.values()))
+      }
     }
     fetchPlaces()
   }, [selectedState])
 
-  // 3. The Search - Using rpc_likely_species_at_place
+  // 3. Search Execution - Using confirmed rpc_species_at_place
   const runSearch = async () => {
-    if (!selectedPlaceId) {
-      alert("Please select a place first.")
-      return
-    }
+    if (!selectedPlaceId) return
     setLoading(true)
-    setHasSearched(false)
 
-    // Using the 3rd RPC from your screenshot which matches your UI parameters
-    const { data, error } = await supabase.rpc('rpc_likely_species_at_place', {
-      p_site_id: selectedPlaceId,   // Bigint
-      p_week_from: fromWeek,        // Smallint
-      p_week_to: toWeek             // Smallint
+    // Build array of weeks for ANY(p_weeks) logic
+    const weekArray = Array.from(
+      { length: toWeek - fromWeek + 1 }, 
+      (_, i) => fromWeek + i
+    )
+
+    const { data, error } = await supabase.rpc('rpc_species_at_place', {
+      p_site_id: Number(selectedPlaceId),
+      p_weeks: weekArray,
+      p_min_avg_likelihood: minLikelihood,
+      p_limit: limit
     })
 
     setLoading(false)
-    setHasSearched(true)
-
     if (error) {
-      console.error(error)
+      console.error("RPC Error:", error)
       alert("Query error: " + error.message)
     } else {
       setResults(data || [])
@@ -89,10 +102,10 @@ export default function SpeciesAtPlaces() {
   }
 
   const getLikelihoodColor = (val: number) => {
-    if (val >= 0.80) return '#1b5e20' // Dark Green
-    if (val >= 0.60) return '#4caf50' // Light Green
-    if (val >= 0.33) return '#fbc02d' // Gold
-    return '#d32f2f' // Red
+    if (val >= 0.80) return '#1b5e20'
+    if (val >= 0.60) return '#4caf50'
+    if (val >= 0.33) return '#fbc02d'
+    return '#d32f2f'
   }
 
   return (
@@ -106,8 +119,19 @@ export default function SpeciesAtPlaces() {
           1. Choose a State & Place
         </label>
 
-        {/* State Radio Grid */}
-        <div style={{ height: '110px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '15px' }}>
+        {/* State Selection Grid */}
+        <div style={{ 
+          height: '110px', 
+          overflowY: 'auto', 
+          background: 'white', 
+          border: '1px solid #ddd', 
+          borderRadius: '6px', 
+          padding: '10px', 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '8px',
+          marginBottom: '15px'
+        }}>
           {states.map(s => (
             <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', cursor: 'pointer' }}>
               <input 
@@ -118,7 +142,7 @@ export default function SpeciesAtPlaces() {
                   setSelectedState(s.state)
                   setSelectedPlaceId('') 
                 }} 
-                style={{ marginRight: '8px', width: '18px', height: '18px' }} 
+                style={{ marginRight: '8px' }} 
               />
               {s.state}
             </label>
@@ -132,7 +156,9 @@ export default function SpeciesAtPlaces() {
           disabled={!selectedState}
           style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}
         >
-          <option value="">{selectedState ? `-- Select from ${places.length} Places --` : "-- Choose State First --"}</option>
+          <option value="">
+            {selectedState ? `-- Select from ${places.length} Places --` : "-- Choose State First --"}
+          </option>
           {places.map((p) => (
             <option key={p.site_id} value={p.site_id}>{p.site_name}</option>
           ))}
@@ -143,22 +169,22 @@ export default function SpeciesAtPlaces() {
         <label style={{ fontWeight: 'bold' }}>2. Choose Start & End Weeks</label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
           <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} 
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px' }}>
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
             {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
           </select>
           <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} 
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px' }}>
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
             {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
           </select>
         </div>
       </div>
 
       <button onClick={runSearch} disabled={loading || !selectedPlaceId}
-        style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', border: 'none', opacity: (loading || !selectedPlaceId) ? 0.7 : 1 }}>
+        style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '1.1rem' }}>
         {loading ? 'ANALYZING...' : 'VIEW LIKELY BIRDS'}
       </button>
 
-      {hasSearched && (
+      {results.length > 0 && (
         <div style={{ marginTop: '25px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
