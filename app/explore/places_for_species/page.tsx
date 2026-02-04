@@ -132,7 +132,7 @@ export default function SpeciesSearch() {
 
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', fontFamily: 'sans-serif', textAlign: 'left' }}>
-      <h1 style={{ color: '#2e4a31' }}>Best Places & Weeks for a Species</h1>
+      <h1 style={{ color: '#2e4a31' }}>Find Best Places & Weeks for a Species</h1>
 
       <div style={{ marginBottom: '20px', background: '#f4f4f4', padding: '20px', borderRadius: '8px' }}>
         <label><strong>1. Select Bird Species:</strong></label>
