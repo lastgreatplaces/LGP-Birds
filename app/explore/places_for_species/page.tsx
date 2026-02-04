@@ -174,7 +174,7 @@ export default function SpeciesSearch() {
       {/* FIX: Empty state message */}
       {hasSearched && results.length === 0 && !loading && (
         <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', fontWeight: 'bold' }}>
-          No records found for this species in the selected area/time. Try broadening your week range.
+          No records found for this species in the selected area/time. Try another species, state or broadening your week range.
         </div>
       )}
 
