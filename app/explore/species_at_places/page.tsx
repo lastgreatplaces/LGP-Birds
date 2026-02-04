@@ -16,7 +16,7 @@ export default function SpeciesAtPlaces() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
-  // Load initial states and weeks
+  // 1. Load initial dropdown data
   useEffect(() => {
     async function loadInitialData() {
       const { data: sData } = await supabase
@@ -36,7 +36,7 @@ export default function SpeciesAtPlaces() {
     loadInitialData()
   }, [])
 
-  // Fetch places when a state is selected
+  // 2. Fetch ALL places for the selected state
   useEffect(() => {
     async function fetchPlaces() {
       if (!selectedState) {
@@ -45,7 +45,7 @@ export default function SpeciesAtPlaces() {
       }
 
       // Extract the 2-letter code (e.g., "FL") from "FL - Florida"
-      const stateCode = selectedState.split(' - ')[0]
+      const stateCode = selectedState.split(' - ')[0].trim()
       
       const { data, error } = await supabase
         .from('site_species_week_likelihood')
@@ -58,15 +58,24 @@ export default function SpeciesAtPlaces() {
         return
       }
 
-      // Filter for unique site names
-      const uniquePlaces = Array.from(new Set(data?.map(a => a.site_name)))
-        .map(name => data?.find(a => a.site_name === name))
-
-      setPlaces(uniquePlaces || [])
+      if (data) {
+        // Create a unique list of sites based on site_name to avoid duplicates in the dropdown
+        const uniqueMap = new Map();
+        data.forEach(item => {
+          if (!uniqueMap.has(item.site_name)) {
+            uniqueMap.set(item.site_name, item);
+          }
+        });
+        
+        const uniqueList = Array.from(uniqueMap.values());
+        console.log(`Found ${uniqueList.length} unique places for ${stateCode}`);
+        setPlaces(uniqueList);
+      }
     }
     fetchPlaces()
   }, [selectedState])
 
+  // 3. Run the Database Function
   const runSearch = async () => {
     if (!selectedPlace) {
       alert("Please select a place first.")
@@ -75,7 +84,7 @@ export default function SpeciesAtPlaces() {
     setLoading(true)
     setHasSearched(false)
 
-    // Using the RPC call based on the error message in your screenshot
+    // Using the RPC name shown in your previous error message
     const { data, error } = await supabase.rpc('rpc_species_at_place', {
       p_site_name: selectedPlace,
       p_week_from: fromWeek,
@@ -104,7 +113,7 @@ export default function SpeciesAtPlaces() {
           1. Choose a State & Place
         </label>
 
-        {/* State Radio Grid */}
+        {/* State Selection Grid */}
         <div style={{ 
           height: '120px', 
           overflowY: 'auto', 
@@ -134,14 +143,16 @@ export default function SpeciesAtPlaces() {
           ))}
         </div>
 
-        {/* Place Dropdown */}
+        {/* Place Dropdown - Now more reliable */}
         <select 
           value={selectedPlace} 
           onChange={(e) => setSelectedPlace(e.target.value)}
-          disabled={!selectedState}
+          disabled={!selectedState || places.length === 0}
           style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}
         >
-          <option value="">{selectedState ? "-- Select a Place --" : "-- Choose State First --"}</option>
+          <option value="">
+            {!selectedState ? "-- Choose State First --" : places.length === 0 ? "-- No Places Found --" : `-- Select from ${places.length} Places --`}
+          </option>
           {places.map((p, i) => (
             <option key={i} value={p.site_name}>{p.site_name}</option>
           ))}
