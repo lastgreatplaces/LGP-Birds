@@ -18,7 +18,6 @@ export default function SpeciesAtPlaces() {
 
   useEffect(() => {
     async function loadInitialData() {
-      // Load Active States
       const { data: sData } = await supabase
         .from('dropdown_states')
         .select('state')
@@ -36,7 +35,6 @@ export default function SpeciesAtPlaces() {
     loadInitialData()
   }, [])
 
-  // Fetch places when a state is selected
   useEffect(() => {
     async function fetchPlaces() {
       if (!selectedState) return
@@ -47,7 +45,6 @@ export default function SpeciesAtPlaces() {
         .eq('state', stateCode)
         .order('site_name')
       
-      // Basic deduplication for display
       const uniquePlaces = Array.from(new Set(data?.map(a => a.site_name)))
         .map(name => data?.find(a => a.site_name === name))
 
@@ -83,21 +80,15 @@ export default function SpeciesAtPlaces() {
 
   return (
     <div style={{ padding: '15px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      {/* ADJUSTED HEADING: Font size reduced to match, Title Case except 'to' */}
       <h1 style={{ color: '#2e4a31', marginBottom: '20px', fontSize: '1.5rem' }}>
         What You're Likely to See
       </h1>
 
-      {/* 1. CHOOSE STATE & PLACE - BOLDED */}
       <div style={{ background: '#f4f4f4', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-        <label style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>
           1. Choose a State & Place
-          <span style={{ marginLeft: '8px', fontSize: '0.7rem', color: '#065f46', backgroundColor: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', border: '1px solid #10b981' }}>
-            26 Active
-          </span>
         </label>
 
-        {/* STATE PICKER - Vertical separation using the 2x2 grid */}
         <div style={{ 
           height: '85px', 
           overflowY: 'auto', 
@@ -118,7 +109,7 @@ export default function SpeciesAtPlaces() {
                 checked={selectedState === s.state} 
                 onChange={() => {
                   setSelectedState(s.state)
-                  setSelectedPlace('') // Reset place when state changes
+                  setSelectedPlace('') 
                 }} 
                 style={{ marginRight: '8px', width: '18px', height: '18px' }} 
               />
@@ -127,7 +118,6 @@ export default function SpeciesAtPlaces() {
           ))}
         </div>
 
-        {/* PLACE PICKER */}
         <select 
           disabled={!selectedState}
           value={selectedPlace} 
@@ -141,7 +131,6 @@ export default function SpeciesAtPlaces() {
         </select>
       </div>
 
-      {/* 2. CHOOSE WEEKS - BOLDED & REWORDED */}
       <div style={{ background: '#f4f4f4', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
         <label style={{ fontWeight: 'bold' }}>2. Choose Start & End Weeks</label>
         
@@ -168,14 +157,7 @@ export default function SpeciesAtPlaces() {
         {loading ? 'ANALYZING...' : 'VIEW LIKELY BIRDS'}
       </button>
 
-      {/* Results Section */}
-      {hasSearched && results.length === 0 && !loading && (
-        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', textAlign: 'center' }}>
-          No sightings data found for this period.
-        </div>
-      )}
-
-      {results.length > 0 && (
+      {hasSearched && results.length > 0 && (
         <div style={{ overflowX: 'auto', marginTop: '25px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
@@ -194,7 +176,6 @@ export default function SpeciesAtPlaces() {
                 </tr>
               ))}
             </tbody>
-          </tbody>
           </table>
         </div>
       )}
