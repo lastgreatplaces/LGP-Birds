@@ -17,7 +17,7 @@ export default function SpeciesAtPlacesSearch() {
   const [limit, setLimit] = useState(50)
   const [loading, setLoading] = useState(false)
 
-  // 4-Color Logic requested
+  // 4-Color Logic requested in your "colors" version
   const getLikelihoodColor = (val: number) => {
     if (val >= 0.80) return '#1b5e20' // Dark Green
     if (val >= 0.60) return '#4caf50' // Light Green
@@ -43,13 +43,13 @@ export default function SpeciesAtPlacesSearch() {
         return
       }
 
-      // FIX: Extract "FL" from "FL - Florida"
+      // THE CRITICAL FIX: This splits "FL - Florida" to just "FL"
       const stateCode = selectedState.split(' - ')[0].trim()
 
       const { data, error } = await supabase
         .from('site_species_week_likelihood')
         .select('site_name, site_id')
-        .eq('state', stateCode)
+        .eq('state', stateCode) // Now it correctly looks for "FL"
         .order('site_name')
 
       if (error) {
@@ -58,7 +58,6 @@ export default function SpeciesAtPlacesSearch() {
       }
 
       if (data) {
-        // Unique sites only
         const uniqueMap = new Map()
         data.forEach(item => {
           if (!uniqueMap.has(item.site_name)) {
@@ -104,7 +103,6 @@ export default function SpeciesAtPlacesSearch() {
           1. Choose a State & Place
         </label>
 
-        {/* State Selection Grid */}
         <div style={{ 
           height: '120px', 
           overflowY: 'auto', 
@@ -140,7 +138,9 @@ export default function SpeciesAtPlacesSearch() {
           disabled={!selectedState}
           style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}
         >
-          <option value="">{selectedState ? `-- Select from ${places.length} Places --` : "-- Choose State First --"}</option>
+          <option value="">
+            {selectedState ? `-- Select from ${places.length} Places --` : "-- Choose State First --"}
+          </option>
           {places.map((p, i) => (
             <option key={i} value={p.site_name}>{p.site_name}</option>
           ))}
