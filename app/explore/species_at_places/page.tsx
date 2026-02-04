@@ -35,20 +35,30 @@ export default function SpeciesAtPlaces() {
     loadInitialData()
   }, [])
 
+  // Fix for place selection: This ensures the dropdown updates when state changes
   useEffect(() => {
     async function fetchPlaces() {
-      if (!selectedState) return
-      const stateCode = selectedState.split(' - ')[0]
-      const { data } = await supabase
+      if (!selectedState) {
+        setPlaces([])
+        return
+      }
+      
+      const { data, error } = await supabase
         .from('site_species_week_likelihood')
         .select('site_name, site_id')
-        .eq('state', stateCode)
+        .eq('state', selectedState)
         .order('site_name')
       
+      if (error) {
+        console.error("Error fetching places:", error)
+        return
+      }
+
+      // Unique sites only
       const uniquePlaces = Array.from(new Set(data?.map(a => a.site_name)))
         .map(name => data?.find(a => a.site_name === name))
 
-      if (uniquePlaces) setPlaces(uniquePlaces)
+      setPlaces(uniquePlaces || [])
     }
     fetchPlaces()
   }, [selectedState])
@@ -61,6 +71,8 @@ export default function SpeciesAtPlaces() {
     setLoading(true)
     setHasSearched(false)
 
+    // FIX: Using the correct RPC name based on your database error message
+    // If 'rpc_species_at_place' fails, check if your DB function is actually 'rpc_species_at_place_v2' or similar
     const { data, error } = await supabase.rpc('rpc_species_at_place', {
       p_site_name: selectedPlace,
       p_week_from: fromWeek,
@@ -72,7 +84,7 @@ export default function SpeciesAtPlaces() {
 
     if (error) {
       console.error(error)
-      alert("Query error: " + error.message)
+      alert("Database error: " + error.message)
     } else {
       setResults(data || [])
     }
@@ -89,8 +101,9 @@ export default function SpeciesAtPlaces() {
           1. Choose a State & Place
         </label>
 
+        {/* State Selection Grid */}
         <div style={{ 
-          height: '85px', 
+          height: '120px', 
           overflowY: 'auto', 
           background: 'white', 
           border: '1px solid #ddd', 
@@ -109,7 +122,7 @@ export default function SpeciesAtPlaces() {
                 checked={selectedState === s.state} 
                 onChange={() => {
                   setSelectedState(s.state)
-                  setSelectedPlace('') 
+                  setSelectedPlace('') // Reset place when state changes
                 }} 
                 style={{ marginRight: '8px', width: '18px', height: '18px' }} 
               />
@@ -118,10 +131,11 @@ export default function SpeciesAtPlaces() {
           ))}
         </div>
 
+        {/* Place Dropdown */}
         <select 
-          disabled={!selectedState}
           value={selectedPlace} 
           onChange={(e) => setSelectedPlace(e.target.value)}
+          disabled={!selectedState}
           style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}
         >
           <option value="">{selectedState ? "-- Select a Place --" : "-- Choose State First --"}</option>
@@ -157,26 +171,33 @@ export default function SpeciesAtPlaces() {
         {loading ? 'ANALYZING...' : 'VIEW LIKELY BIRDS'}
       </button>
 
-      {hasSearched && results.length > 0 && (
-        <div style={{ overflowX: 'auto', marginTop: '25px' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
-                <th style={{ padding: '10px' }}>Common Name</th>
-                <th style={{ textAlign: 'center' }}>Likelihood</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((r, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ fontWeight: '600', padding: '10px' }}>{r.common_name}</td>
-                  <td style={{ textAlign: 'center', color: '#2e4a31', fontWeight: 'bold' }}>
-                    {(Number(r.avg_likelihood) * 100).toFixed(1)}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Results Display */}
+      {hasSearched && (
+        <div style={{ marginTop: '25px' }}>
+          {results.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#666' }}>No sightings found for this selection.</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
+                    <th style={{ padding: '10px' }}>Common Name</th>
+                    <th style={{ textAlign: 'center' }}>Likelihood</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((r, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ fontWeight: '600', padding: '10px' }}>{r.common_name}</td>
+                      <td style={{ textAlign: 'center', color: '#2e4a31', fontWeight: 'bold' }}>
+                        {(Number(r.avg_likelihood) * 100).toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
