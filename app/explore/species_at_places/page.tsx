@@ -13,32 +13,20 @@ export default function SpeciesAtPlaces() {
   const [fromWeek, setFromWeek] = useState(1)
   const [toWeek, setToWeek] = useState(2)
 
-  // Parameters confirmed from your GitHub history
-  const [minLikelihood] = useState(0.05)
-  const [limit] = useState(50)
   const [loading, setLoading] = useState(false)
 
-  // 1. Initial Data Load (States and Weeks)
+  // 1. Initial Load
   useEffect(() => {
     async function loadInitialData() {
-      const { data: sData } = await supabase
-        .from('dropdown_states')
-        .select('state')
-        .eq('is_active', true)
-        .order('state')
-      
-      const { data: wData } = await supabase
-        .from('weeks_months')
-        .select('week, label_long')
-        .order('week')
-
+      const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
+      const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
       if (sData) setStates(sData)
       if (wData) setWeeks(wData)
     }
     loadInitialData()
   }, [])
 
-  // 2. Fetch Places - Methodically handles "XX - StateName" for all states
+  // 2. FETCH PLACES - This is where the "1 Place" bug lives
   useEffect(() => {
     async function fetchPlaces() {
       if (!selectedState) {
@@ -46,9 +34,12 @@ export default function SpeciesAtPlaces() {
         return
       }
       
-      // Methodical Fix: This ensures "TX - Texas" becomes "TX" 
-      // and "CA - California" becomes "CA", matching your DB shorthand.
-      const stateCode = selectedState.split(' - ')[0].trim()
+      // Clean the state string (e.g., "FL - Florida" -> "FL")
+      // We use a regex to grab the first two capital letters just in case
+      const stateMatch = selectedState.match(/[A-Z]{2}/)
+      const stateCode = stateMatch ? stateMatch[0] : selectedState.trim()
+
+      console.log(`Methodical Debug: Fetching places for state code [${stateCode}]`)
 
       const { data, error } = await supabase
         .from('site_species_week_likelihood')
@@ -57,45 +48,44 @@ export default function SpeciesAtPlaces() {
         .order('site_name')
       
       if (error) {
-        console.error("Place fetch error:", error)
+        console.error("Database Error:", error)
         return
       }
 
       if (data) {
+        // Remove duplicates (site_id is unique, site_name might repeat in raw data)
         const uniqueMap = new Map()
         data.forEach(item => {
           if (!uniqueMap.has(item.site_id)) {
             uniqueMap.set(item.site_id, item)
           }
         })
-        setPlaces(Array.from(uniqueMap.values()))
+        const uniquePlaces = Array.from(uniqueMap.values())
+        console.log(`Found ${uniquePlaces.length} unique places for ${stateCode}`)
+        setPlaces(uniquePlaces)
       }
     }
     fetchPlaces()
   }, [selectedState])
 
-  // 3. Search Execution - Using confirmed rpc_species_at_place
+  // 3. SEARCH - Using the RPC we found in your history
   const runSearch = async () => {
     if (!selectedPlaceId) return
     setLoading(true)
 
-    // Build array of weeks for ANY(p_weeks) logic
-    const weekArray = Array.from(
-      { length: toWeek - fromWeek + 1 }, 
-      (_, i) => fromWeek + i
-    )
+    const weekArray = Array.from({ length: toWeek - fromWeek + 1 }, (_, i) => fromWeek + i)
 
     const { data, error } = await supabase.rpc('rpc_species_at_place', {
       p_site_id: Number(selectedPlaceId),
       p_weeks: weekArray,
-      p_min_avg_likelihood: minLikelihood,
-      p_limit: limit
+      p_min_avg_likelihood: 0.05,
+      p_limit: 50
     })
 
     setLoading(false)
     if (error) {
-      console.error("RPC Error:", error)
-      alert("Query error: " + error.message)
+      console.error("RPC Execution Error:", error)
+      alert(error.message)
     } else {
       setResults(data || [])
     }
@@ -110,77 +100,41 @@ export default function SpeciesAtPlaces() {
 
   return (
     <div style={{ padding: '15px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: '#2e4a31', marginBottom: '20px', fontSize: '1.5rem' }}>
-        What You're Likely to See
-      </h1>
+      <h1 style={{ color: '#2e4a31', marginBottom: '20px', fontSize: '1.5rem' }}>What You're Likely to See</h1>
 
       <div style={{ background: '#f4f4f4', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>
-          1. Choose a State & Place
-        </label>
+        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>1. Choose a State & Place</label>
 
-        {/* State Selection Grid */}
-        <div style={{ 
-          height: '110px', 
-          overflowY: 'auto', 
-          background: 'white', 
-          border: '1px solid #ddd', 
-          borderRadius: '6px', 
-          padding: '10px', 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr', 
-          gap: '8px',
-          marginBottom: '15px'
-        }}>
+        {/* State Selection */}
+        <div style={{ height: '110px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '15px' }}>
           {states.map(s => (
             <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input 
-                type="radio" 
-                name="stateGroup"
-                checked={selectedState === s.state} 
-                onChange={() => {
-                  setSelectedState(s.state)
-                  setSelectedPlaceId('') 
-                }} 
-                style={{ marginRight: '8px' }} 
-              />
+              <input type="radio" name="st" checked={selectedState === s.state} onChange={() => { setSelectedState(s.state); setSelectedPlaceId(''); }} style={{ marginRight: '8px' }} />
               {s.state}
             </label>
           ))}
         </div>
 
         {/* Place Dropdown */}
-        <select 
-          value={selectedPlaceId} 
-          onChange={(e) => setSelectedPlaceId(Number(e.target.value))}
-          disabled={!selectedState}
-          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}
-        >
-          <option value="">
-            {selectedState ? `-- Select from ${places.length} Places --` : "-- Choose State First --"}
-          </option>
-          {places.map((p) => (
-            <option key={p.site_id} value={p.site_id}>{p.site_name}</option>
-          ))}
+        <select value={selectedPlaceId} onChange={(e) => setSelectedPlaceId(Number(e.target.value))} disabled={!selectedState} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: 'white' }}>
+          <option value="">{selectedState ? `-- Select from ${places.length} Places --` : "-- Choose State First --"}</option>
+          {places.map((p) => <option key={p.site_id} value={p.site_id}>{p.site_name}</option>)}
         </select>
       </div>
 
       <div style={{ background: '#f4f4f4', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
         <label style={{ fontWeight: 'bold' }}>2. Choose Start & End Weeks</label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
-          <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} 
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
+          <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }}>
             {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
           </select>
-          <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} 
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
+          <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc' }}>
             {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
           </select>
         </div>
       </div>
 
-      <button onClick={runSearch} disabled={loading || !selectedPlaceId}
-        style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '1.1rem' }}>
+      <button onClick={runSearch} disabled={loading || !selectedPlaceId} style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', border: 'none' }}>
         {loading ? 'ANALYZING...' : 'VIEW LIKELY BIRDS'}
       </button>
 
@@ -200,10 +154,7 @@ export default function SpeciesAtPlaces() {
                   <td style={{ padding: '10px' }}>{r.rank}</td>
                   <td style={{ fontWeight: 'bold' }}>{r.species || r.common_name}</td>
                   <td style={{ textAlign: 'center' }}>
-                    <span style={{ 
-                      backgroundColor: getLikelihoodColor(Number(r.avg_likelihood_see || r.avg_likelihood)), 
-                      color: 'white', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' 
-                    }}>
+                    <span style={{ backgroundColor: getLikelihoodColor(r.avg_likelihood_see || r.avg_likelihood), color: 'white', padding: '4px 8px', borderRadius: '4px' }}>
                       {Math.round((r.avg_likelihood_see || r.avg_likelihood) * 100)}%
                     </span>
                   </td>
