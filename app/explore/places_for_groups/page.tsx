@@ -103,6 +103,13 @@ export default function GroupsSearch() {
     }
   }
 
+  // Helper to determine "All" button label and visibility
+  const getAllButtonLabel = () => {
+    if (groupSet === 'major') return "All Groups";
+    if (groupSet === 'user') return "All Wetland Groups";
+    return null; // For 'species', we return null to drop the button
+  };
+
   return (
     <div style={{ padding: '15px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1 style={{ color: '#2e4a31', marginBottom: '20px', fontSize: '1.5rem' }}>Best Places for Bird Groups</h1>
@@ -121,12 +128,8 @@ export default function GroupsSearch() {
       <div style={{ marginBottom: '15px', background: '#f4f4f4', padding: '15px', borderRadius: '8px' }}>
         <label><strong>2. Select groups:</strong></label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
-          <button onClick={() => toggleGroup('All')}
-            style={{ padding: '8px 14px', borderRadius: '20px', border: '1px solid #2e4a31', fontSize: '0.85rem', cursor: 'pointer',
-                     backgroundColor: selectedGroups.includes('All') ? '#2e4a31' : 'white',
-                     color: selectedGroups.includes('All') ? 'white' : '#2e4a31' }}>
-            All {groupSet} Groups
-          </button>
+          
+          {/* Individual Group Buttons */}
           {groups.map((g, i) => {
             const val = Object.values(g)[0] as string
             const isActive = selectedGroups.includes(val)
@@ -138,6 +141,16 @@ export default function GroupsSearch() {
               </button>
             )
           })}
+
+          {/* "All" button placed LAST and dropped for 'species' */}
+          {getAllButtonLabel() && (
+            <button onClick={() => toggleGroup('All')}
+              style={{ padding: '8px 14px', borderRadius: '20px', border: '1px solid #2e4a31', fontSize: '0.85rem', cursor: 'pointer',
+                       backgroundColor: selectedGroups.includes('All') ? '#2e4a31' : 'white',
+                       color: selectedGroups.includes('All') ? 'white' : '#2e4a31' }}>
+              {getAllButtonLabel()}
+            </button>
+          )}
         </div>
       </div>
 
@@ -150,7 +163,6 @@ export default function GroupsSearch() {
           </span>
         </label>
         
-        {/* COMPACT 2-ROW GRID (85px) */}
         <div style={{ 
           height: '85px', 
           overflowY: 'auto', 
@@ -170,7 +182,6 @@ export default function GroupsSearch() {
           ))}
         </div>
 
-        {/* THICKER DROPDOWNS FOR MOBILE */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
           <div>
             <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>From Week</label>
