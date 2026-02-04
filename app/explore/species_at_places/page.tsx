@@ -17,6 +17,14 @@ export default function SpeciesAtPlacesSearch() {
   const [limit, setLimit] = useState(50)
   const [loading, setLoading] = useState(false)
 
+  // 4-Color Logic for visual representation
+  const getLikelihoodColor = (val: number) => {
+    if (val >= 0.80) return '#1b5e20' // Dark Green
+    if (val >= 0.60) return '#4caf50' // Light Green
+    if (val >= 0.33) return '#fbc02d' // Gold
+    return '#d32f2f' // Red
+  }
+
   useEffect(() => {
     async function loadInitialData() {
       const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
@@ -30,7 +38,6 @@ export default function SpeciesAtPlacesSearch() {
   useEffect(() => {
     async function loadPlaces() {
       setSelectedPlaceId('') 
-      // Replace 'site_catalog' with whatever your place dropdown table is named
       let q = supabase.from('site_catalog').select('site_id, site_name, state').order('site_name')
       if (selectedState) q = q.eq('state', selectedState)
       const { data } = await q
@@ -123,8 +130,16 @@ export default function SpeciesAtPlacesSearch() {
               <tr key={idx} style={{ borderBottom: '1px solid #ddd' }}>
                 <td style={{ padding: '12px', textAlign: 'center' }}>{r.rank}</td>
                 <td style={{ fontWeight: 'bold' }}>{r.species}</td>
-                <td style={{ textAlign: 'center', color: '#4a7c59', fontWeight: 'bold' }}>
-                    {Math.round(r.avg_likelihood_see * 100)}%
+                <td style={{ textAlign: 'center' }}>
+                    <span style={{ 
+                      backgroundColor: getLikelihoodColor(r.avg_likelihood_see), 
+                      color: 'white', 
+                      padding: '4px 8px', 
+                      borderRadius: '4px',
+                      fontWeight: 'bold'
+                    }}>
+                      {Math.round(r.avg_likelihood_see * 100)}%
+                    </span>
                 </td>
                 <td style={{ textAlign: 'center' }}>{r.avg_weekly_checklists}</td>
               </tr>
