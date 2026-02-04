@@ -107,16 +107,16 @@ export default function GroupsSearch() {
   const getAllButtonLabel = () => {
     if (groupSet === 'major') return "All Groups";
     if (groupSet === 'user') return "All Wetland Groups";
-    return null; // For 'species', we return null to drop the button
+    return null; 
   };
 
   return (
     <div style={{ padding: '15px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1 style={{ color: '#2e4a31', marginBottom: '20px', fontSize: '1.5rem' }}>Best Places for Bird Groups</h1>
 
-      {/* 1. Group Type */}
+      {/* 1. Group Type - BOLDED LABEL */}
       <div style={{ marginBottom: '15px', background: '#f4f4f4', padding: '15px', borderRadius: '8px' }}>
-        <label><strong>1. Select Group Type:</strong></label>
+        <label style={{ fontWeight: 'bold' }}>1. Select Group Type:</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginTop: '10px' }}>
           <label style={{ cursor: 'pointer' }}><input type="radio" checked={groupSet === 'major'} onChange={() => setGroupSet('major')} /> Major Groups</label>
           <label style={{ cursor: 'pointer' }}><input type="radio" checked={groupSet === 'user'} onChange={() => setGroupSet('user')} /> Coastal/Wetland</label>
@@ -124,9 +124,9 @@ export default function GroupsSearch() {
         </div>
       </div>
 
-      {/* 2. Group Selection */}
+      {/* 2. Group Selection - BOLDED LABEL */}
       <div style={{ marginBottom: '15px', background: '#f4f4f4', padding: '15px', borderRadius: '8px' }}>
-        <label><strong>2. Select groups:</strong></label>
+        <label style={{ fontWeight: 'bold' }}>2. Select groups:</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
           
           {/* Individual Group Buttons */}
@@ -182,16 +182,17 @@ export default function GroupsSearch() {
           ))}
         </div>
 
+        {/* THICKER DROPDOWNS WITH BUMPED LABEL FONT */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
           <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>From Week</label>
+            <label style={{ fontSize: '0.95rem', fontWeight: 'bold' }}>From Week</label>
             <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} 
               style={{ width: '100%', padding: '12px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
               {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>To Week</label>
+            <label style={{ fontSize: '0.95rem', fontWeight: 'bold' }}>To Week</label>
             <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} 
               style={{ width: '100%', padding: '12px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
               {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
