@@ -40,7 +40,7 @@ export default function ExploreHub() {
         marginBottom: '20px'
       }}>
         <span style={{ marginRight: '8px' }}>✓</span>
-        Now covering 26 states and counting!
+        Now covers 26 states & counting!
       </div>
       {/* ----------------------- */}
 
