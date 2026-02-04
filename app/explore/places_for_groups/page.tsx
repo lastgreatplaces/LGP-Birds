@@ -108,7 +108,7 @@ export default function GroupsSearch() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: '#2e4a31', marginBottom: '20px' }}>Find Best Places for Bird Groups</h1>
+      <h1 style={{ color: '#2e4a31', marginBottom: '20px' }}>Best Places for Bird Groups</h1>
 
       {/* 1. Group Type */}
       <div style={{ marginBottom: '15px', background: '#f4f4f4', padding: '15px', borderRadius: '8px' }}>
