@@ -19,7 +19,6 @@ export default function GroupsSearch() {
 
   useEffect(() => {
     async function loadInitialData() {
-      // Pulling the 'state' column which now contains "AL - Alabama"
       const { data: sData } = await supabase
         .from('dropdown_states')
         .select('state')
@@ -74,14 +73,9 @@ export default function GroupsSearch() {
       alert('The "To" week cannot be earlier than the "From" week.')
       return
     }
-
     setLoading(true)
     setHasSearched(false)
-
     const apiGroups = selectedGroups.includes('All') ? null : selectedGroups
-    
-    // Logic: If user selected "AL - Alabama", we need to send the code to the RPC
-    // If your RPC expects the 2-letter code, we extract it here:
     const apiStates = selectedStates.length > 0 
       ? selectedStates.map(s => s.split(' - ')[0]) 
       : null
@@ -97,7 +91,6 @@ export default function GroupsSearch() {
     
     setLoading(false)
     setHasSearched(true)
-
     if (error) {
       console.error(error)
       alert("Query error: " + error.message)
@@ -107,8 +100,8 @@ export default function GroupsSearch() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: '#2e4a31', marginBottom: '20px' }}>Best Places for Bird Groups</h1>
+    <div style={{ padding: '15px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <h1 style={{ color: '#2e4a31', marginBottom: '20px', fontSize: '1.5rem' }}>Best Places for Bird Groups</h1>
 
       {/* 1. Group Type */}
       <div style={{ marginBottom: '15px', background: '#f4f4f4', padding: '15px', borderRadius: '8px' }}>
@@ -125,7 +118,7 @@ export default function GroupsSearch() {
         <label><strong>2. Select groups:</strong></label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
           <button onClick={() => toggleGroup('All')}
-            style={{ padding: '6px 12px', borderRadius: '20px', border: '1px solid #2e4a31', fontSize: '0.85rem', cursor: 'pointer',
+            style={{ padding: '8px 14px', borderRadius: '20px', border: '1px solid #2e4a31', fontSize: '0.85rem', cursor: 'pointer',
                      backgroundColor: selectedGroups.includes('All') ? '#2e4a31' : 'white',
                      color: selectedGroups.includes('All') ? 'white' : '#2e4a31' }}>
             All {groupSet} Groups
@@ -135,7 +128,7 @@ export default function GroupsSearch() {
             const isActive = selectedGroups.includes(val)
             return (
               <button key={i} onClick={() => toggleGroup(val)}
-                style={{ padding: '6px 12px', borderRadius: '20px', border: '1px solid #ccc', fontSize: '0.85rem', cursor: 'pointer',
+                style={{ padding: '8px 14px', borderRadius: '20px', border: '1px solid #ccc', fontSize: '0.85rem', cursor: 'pointer',
                          backgroundColor: isActive ? '#4a7c59' : 'white', color: isActive ? 'white' : '#333' }}>
                 {val}
               </button>
@@ -146,32 +139,46 @@ export default function GroupsSearch() {
 
       {/* 3. States & Weeks */}
       <div style={{ background: '#f4f4f4', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-        <label style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+        <label style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
           3. Select States
           <span style={{ marginLeft: '8px', fontSize: '0.7rem', color: '#065f46', backgroundColor: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', border: '1px solid #10b981' }}>
             26 Active
           </span>
         </label>
         
-        <div style={{ height: '130px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        {/* REFINED 2-COLUMN GRID FOR IPHONE */}
+        <div style={{ 
+          height: '160px', 
+          overflowY: 'auto', 
+          background: 'white', 
+          border: '1px solid #ddd', 
+          borderRadius: '6px', 
+          padding: '12px', 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '12px' 
+        }}>
           {states.map(s => (
-            <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input type="checkbox" checked={selectedStates.includes(s.state)} onChange={() => toggleState(s.state)} style={{ marginRight: '6px' }} />
+            <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', cursor: 'pointer' }}>
+              <input type="checkbox" checked={selectedStates.includes(s.state)} onChange={() => toggleState(s.state)} style={{ marginRight: '8px', width: '18px', height: '18px' }} />
               {s.state}
             </label>
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '15px' }}>
+        {/* THICKER DROPDOWNS FOR EASIER TAPPING */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
           <div>
             <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>From Week</label>
-            <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '8px', marginTop: '4px' }}>
+            <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} 
+              style={{ width: '100%', padding: '12px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
               {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
             </select>
           </div>
           <div>
             <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>To Week</label>
-            <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '8px', marginTop: '4px' }}>
+            <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} 
+              style={{ width: '100%', padding: '12px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
               {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
             </select>
           </div>
@@ -179,7 +186,7 @@ export default function GroupsSearch() {
       </div>
 
       <button onClick={runPowerQuery} disabled={loading}
-        style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', opacity: loading ? 0.7 : 1 }}>
+        style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '1.1rem', opacity: loading ? 0.7 : 1 }}>
         {loading ? 'CALCULATING...' : 'SEARCH SIGHTINGS'}
       </button>
 
@@ -191,21 +198,21 @@ export default function GroupsSearch() {
       )}
 
       {results.length > 0 && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', marginTop: '25px', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+        <div style={{ overflowX: 'auto', marginTop: '25px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
             <thead>
-              <tr style={{ backgroundColor: '#2e4a31', color: 'white' }}>
+              <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
                 <th style={{ padding: '10px' }}>Rank</th>
-                <th style={{ textAlign: 'left' }}>Place</th>
-                <th>State</th>
-                <th>Exp. Species</th>
+                <th>Place</th>
+                <th style={{ textAlign: 'center' }}>State</th>
+                <th style={{ textAlign: 'center' }}>Exp. Species</th>
               </tr>
             </thead>
             <tbody>
               {results.map((r, idx) => (
                 <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '10px', textAlign: 'center' }}>{r.rank}</td>
-                  <td style={{ fontWeight: '600', padding: '5px' }}>{r.place}</td>
+                  <td style={{ fontWeight: '600', padding: '8px 4px' }}>{r.place}</td>
                   <td style={{ textAlign: 'center' }}>{r.state}</td>
                   <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#2e4a31' }}>{Number(r.expected_species).toFixed(1)}</td>
                 </tr>
