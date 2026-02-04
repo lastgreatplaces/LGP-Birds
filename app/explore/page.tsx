@@ -25,6 +25,25 @@ export default function ExploreHub() {
   return (
     <div className="container" style={{ paddingTop: '40px' }}>
       <h1>Explore the Data</h1>
+      
+      {/* --- 26 STATES BADGE --- */}
+      <div style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        backgroundColor: '#ecfdf5', 
+        color: '#065f46',           
+        padding: '6px 16px',
+        borderRadius: '9999px',
+        fontSize: '0.9rem',
+        fontWeight: '600',
+        border: '1px solid #10b981',
+        marginBottom: '20px'
+      }}>
+        <span style={{ marginRight: '8px' }}>✓</span>
+        Now covering 26 states and counting!
+      </div>
+      {/* ----------------------- */}
+
       <p style={{ marginBottom: '30px' }}>Select a tool to begin your search.</p>
       
       <div style={{ 
@@ -33,32 +52,28 @@ export default function ExploreHub() {
         gap: '20px' 
       }}>
         {tools.map((tool) => (
-  <div key={tool.title} className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-    {/* 1. Restores the Icon */}
-    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>{tool.icon}</div>
-    
-    {/* 2. Restores the Title */}
-    <h2 style={{ color: '#2e4a31', margin: '0 0 10px 0' }}>{tool.title}</h2>
-    
-    {/* 3. Restores the Description */}
-    <p style={{ color: '#666', marginBottom: '20px' }}>{tool.desc}</p>
-    
-    {/* 4. Restores the Styled Green Button */}
-    <a href={tool.link} style={{ textDecoration: 'none' }}>
-      <button style={{
-        backgroundColor: '#2e4a31',
-        color: 'white',
-        padding: '12px 24px',
-        borderRadius: '6px',
-        border: 'none',
-        fontWeight: 'bold',
-        cursor: 'pointer'
-      }}>
-        Open Tool
-      </button>
-    </a>
-  </div>
-))}
+          <div key={tool.title} className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>{tool.icon}</div>
+            
+            <h2 style={{ color: '#2e4a31', margin: '0 0 10px 0' }}>{tool.title}</h2>
+            
+            <p style={{ color: '#666', marginBottom: '20px' }}>{tool.desc}</p>
+            
+            <Link href={tool.link} style={{ textDecoration: 'none' }}>
+              <button style={{
+                backgroundColor: '#2e4a31',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                border: 'none',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}>
+                Open Tool
+              </button>
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );
