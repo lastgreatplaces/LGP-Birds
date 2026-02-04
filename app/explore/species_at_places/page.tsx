@@ -16,6 +16,7 @@ export default function SpeciesAtPlaces() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
+  // Load initial states and weeks
   useEffect(() => {
     async function loadInitialData() {
       const { data: sData } = await supabase
@@ -35,18 +36,21 @@ export default function SpeciesAtPlaces() {
     loadInitialData()
   }, [])
 
-  // Fix for place selection: This ensures the dropdown updates when state changes
+  // Fetch places when a state is selected
   useEffect(() => {
     async function fetchPlaces() {
       if (!selectedState) {
         setPlaces([])
         return
       }
+
+      // Extract the 2-letter code (e.g., "FL") from "FL - Florida"
+      const stateCode = selectedState.split(' - ')[0]
       
       const { data, error } = await supabase
         .from('site_species_week_likelihood')
         .select('site_name, site_id')
-        .eq('state', selectedState)
+        .eq('state', stateCode)
         .order('site_name')
       
       if (error) {
@@ -54,7 +58,7 @@ export default function SpeciesAtPlaces() {
         return
       }
 
-      // Unique sites only
+      // Filter for unique site names
       const uniquePlaces = Array.from(new Set(data?.map(a => a.site_name)))
         .map(name => data?.find(a => a.site_name === name))
 
@@ -71,8 +75,7 @@ export default function SpeciesAtPlaces() {
     setLoading(true)
     setHasSearched(false)
 
-    // FIX: Using the correct RPC name based on your database error message
-    // If 'rpc_species_at_place' fails, check if your DB function is actually 'rpc_species_at_place_v2' or similar
+    // Using the RPC call based on the error message in your screenshot
     const { data, error } = await supabase.rpc('rpc_species_at_place', {
       p_site_name: selectedPlace,
       p_week_from: fromWeek,
@@ -84,7 +87,7 @@ export default function SpeciesAtPlaces() {
 
     if (error) {
       console.error(error)
-      alert("Database error: " + error.message)
+      alert("Query error: " + error.message)
     } else {
       setResults(data || [])
     }
@@ -101,7 +104,7 @@ export default function SpeciesAtPlaces() {
           1. Choose a State & Place
         </label>
 
-        {/* State Selection Grid */}
+        {/* State Radio Grid */}
         <div style={{ 
           height: '120px', 
           overflowY: 'auto', 
@@ -118,11 +121,11 @@ export default function SpeciesAtPlaces() {
             <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', cursor: 'pointer' }}>
               <input 
                 type="radio" 
-                name="stateSelect"
+                name="stateGroup"
                 checked={selectedState === s.state} 
                 onChange={() => {
                   setSelectedState(s.state)
-                  setSelectedPlace('') // Reset place when state changes
+                  setSelectedPlace('') 
                 }} 
                 style={{ marginRight: '8px', width: '18px', height: '18px' }} 
               />
@@ -171,7 +174,6 @@ export default function SpeciesAtPlaces() {
         {loading ? 'ANALYZING...' : 'VIEW LIKELY BIRDS'}
       </button>
 
-      {/* Results Display */}
       {hasSearched && (
         <div style={{ marginTop: '25px' }}>
           {results.length === 0 ? (
