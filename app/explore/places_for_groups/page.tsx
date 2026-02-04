@@ -73,9 +73,12 @@ export default function GroupsSearch() {
       alert('The "To" week cannot be earlier than the "From" week.')
       return
     }
+
     setLoading(true)
     setHasSearched(false)
+
     const apiGroups = selectedGroups.includes('All') ? null : selectedGroups
+    
     const apiStates = selectedStates.length > 0 
       ? selectedStates.map(s => s.split(' - ')[0]) 
       : null
@@ -91,6 +94,7 @@ export default function GroupsSearch() {
     
     setLoading(false)
     setHasSearched(true)
+
     if (error) {
       console.error(error)
       alert("Query error: " + error.message)
@@ -146,27 +150,27 @@ export default function GroupsSearch() {
           </span>
         </label>
         
-        {/* REFINED 2-COLUMN GRID FOR IPHONE */}
+        {/* COMPACT 2-ROW GRID (85px) */}
         <div style={{ 
-          height: '160px', 
+          height: '85px', 
           overflowY: 'auto', 
           background: 'white', 
           border: '1px solid #ddd', 
           borderRadius: '6px', 
-          padding: '12px', 
+          padding: '10px', 
           display: 'grid', 
           gridTemplateColumns: '1fr 1fr', 
-          gap: '12px' 
+          gap: '8px' 
         }}>
           {states.map(s => (
-            <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', cursor: 'pointer' }}>
+            <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', cursor: 'pointer' }}>
               <input type="checkbox" checked={selectedStates.includes(s.state)} onChange={() => toggleState(s.state)} style={{ marginRight: '8px', width: '18px', height: '18px' }} />
               {s.state}
             </label>
           ))}
         </div>
 
-        {/* THICKER DROPDOWNS FOR EASIER TAPPING */}
+        {/* THICKER DROPDOWNS FOR MOBILE */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
           <div>
             <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>From Week</label>
