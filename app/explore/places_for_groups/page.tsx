@@ -17,49 +17,54 @@ export default function GroupsSearch() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   
-  // New State for Sorting
+  // State for Sorting
   const [sortBy, setSortBy] = useState<'exp' | 'integrity' | 'combo'>('exp')
 
-  const parseScore = (val: any): number | null => {
+  const parseRawScore = (val: any): number | null => {
     if (val === null || val === undefined) return null;
     const n = parseFloat(val);
     return isNaN(n) ? null : n;
   }
 
-  const getIntegrityColor = (score: number | null) => {
-    if (score === null) return '#9e9e9e'; 
-    if (score < 0.100) return '#1b5e20'; // Pristine
-    if (score < 0.200) return '#4caf50'; // Mostly Natural
-    if (score < 0.334) return '#fbc02d'; // Mixed
-    return '#d32f2f'; // Highly Modified
+  // Transform Footprint (0.0 - 1.0) to Integrity (100 - 0)
+  const calculateIntegrity = (footprint: number | null): number | null => {
+    if (footprint === null) return null;
+    const score = 100 - (footprint * 100);
+    return Math.max(0, Math.min(100, score)); // Clamp between 0-100
   }
 
-  // Logic to handle sorting of results
+  const getIntegrityColor = (integrityScore: number | null) => {
+    if (integrityScore === null) return '#9e9e9e'; 
+    if (integrityScore >= 90) return '#1b5e20'; // Pristine (Old < 0.10)
+    if (integrityScore >= 80) return '#4caf50'; // Mostly Natural (Old < 0.20)
+    if (integrityScore >= 66.6) return '#fbc02d'; // Mixed (Old < 0.334)
+    return '#d32f2f'; // Highly Modified (Old > 0.334)
+  }
+
   const sortedResults = useMemo(() => {
     if (!results.length) return [];
 
     return [...results].sort((a, b) => {
-      const aExp = parseScore(a.expected_species) || 0;
-      const bExp = parseScore(b.expected_species) || 0;
-      const aInt = parseScore(a.footprint_mean);
-      const bInt = parseScore(b.footprint_mean);
+      const aExp = parseRawScore(a.expected_species) || 0;
+      const bExp = parseRawScore(b.expected_species) || 0;
+      const aFoot = parseRawScore(a.footprint_mean);
+      const bFoot = parseRawScore(b.footprint_mean);
 
       if (sortBy === 'exp') {
-        return bExp - aExp; // Higher better
+        return bExp - aExp; 
       } 
       
       if (sortBy === 'integrity') {
-        // Handle nulls by pushing them to the bottom
-        if (aInt === null) return 1;
-        if (bInt === null) return -1;
-        return aInt - bInt; // Lower better
+        // Higher Integrity (Lower Footprint) is better
+        if (aFoot === null) return 1;
+        if (bFoot === null) return -1;
+        return aFoot - bFoot; 
       }
 
       if (sortBy === 'combo') {
-        // A simple "Optimal" index: Exp # divided by (Footprint + 0.1 offset)
-        // This rewards high species counts in low footprint areas.
-        const aCombo = aExp / ((aInt || 0.5) + 0.1);
-        const bCombo = bExp / ((bInt || 0.5) + 0.1);
+        // Optimal index: species count weighted by lack of human footprint
+        const aCombo = aExp / ((aFoot || 0.5) + 0.1);
+        const bCombo = bExp / ((bFoot || 0.5) + 0.1);
         return bCombo - aCombo;
       }
 
@@ -254,7 +259,9 @@ export default function GroupsSearch() {
             </thead>
             <tbody>
               {sortedResults.map((r, idx) => {
-                const fScore = parseScore(r.footprint_mean);
+                const rawFootprint = parseRawScore(r.footprint_mean);
+                const integrityScore = calculateIntegrity(rawFootprint);
+
                 return (
                   <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                     <td style={{ padding: '12px 4px', textAlign: 'center', color: '#666' }}>{idx + 1}</td>
@@ -263,16 +270,16 @@ export default function GroupsSearch() {
                     <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#2e4a31' }}>{Number(r.expected_species).toFixed(1)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ 
-                        backgroundColor: getIntegrityColor(fScore), 
+                        backgroundColor: getIntegrityColor(integrityScore), 
                         color: 'white', 
                         padding: '4px 6px', 
                         borderRadius: '4px', 
                         fontWeight: 'bold', 
                         fontSize: '0.75rem',
                         display: 'inline-block',
-                        minWidth: '45px'
+                        minWidth: '35px'
                       }}>
-                        {fScore !== null ? fScore.toFixed(3).replace(/^0+/, '') : '---'}
+                        {integrityScore !== null ? Math.round(integrityScore) : '---'}
                       </div>
                     </td>
                   </tr>
