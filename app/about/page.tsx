@@ -7,7 +7,7 @@ export default function AboutPage() {
       <header style={{ marginTop: '40px', marginBottom: '40px' }}>
         <h1>About the Project</h1>
         <p style={{ fontSize: '1.2rem', color: '#2e4a31', fontWeight: '500' }}>
-          Bridging the gap between conservation data and the birding experience.
+          Finding the best wild places for birding.
         </p>
       </header>
 
