@@ -204,8 +204,8 @@ export default function GroupsSearch() {
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
                 <th style={{ padding: '12px 4px', width: '40px' }}>Rank</th>
                 <th style={{ padding: '12px 4px' }}>Site Name</th>
-                <th style={{ padding: '12px 4px', textAlign: 'center', width: '30px' }}>St</th>
-                <th style={{ padding: '12px 4px', textAlign: 'center', width: '45px' }}>Exp.</th>
+                <th style={{ padding: '12px 4px', textAlign: 'center', width: '30px' }}>ST</th>
+                <th style={{ padding: '12px 4px', textAlign: 'center', width: '45px' }}>Exp #</th>
                 <th style={{ padding: '12px 4px', textAlign: 'center', width: '60px' }}>Integrity</th>
               </tr>
             </thead>
@@ -229,7 +229,7 @@ export default function GroupsSearch() {
                         display: 'inline-block',
                         minWidth: '45px'
                       }}>
-                        {fScore !== null ? fScore.toFixed(3) : '---'}
+                        {fScore !== null ? fScore.toFixed(3).replace(/^0+/, '') : '---'}
                       </div>
                     </td>
                   </tr>
