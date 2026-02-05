@@ -52,6 +52,12 @@ export default function MethodsPage() {
           less visited places and seasons may be underrepresented.
         </p>
 
+        <h2 style={{ marginTop: '30px' }}>Integrity</h2>
+        <p>
+          The global human modification dataset was used to measure the mean level of human impacts (roads, development, agriculture, etc.) at all places. 
+          </a> 
+        </p>
+
         <h2 style={{ marginTop: '30px' }}>The Technical Stack</h2>
         <div style={{ 
           background: '#f0f4f0', 
