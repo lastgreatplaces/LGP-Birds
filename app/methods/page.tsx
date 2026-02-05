@@ -14,20 +14,20 @@ export default function MethodsPage() {
         <p>
           Last Great Places for Birds & Birders summarizes seasonal birding patterns using 
           publicly available <strong>eBird checklist data</strong>, anchored to a curated set 
-          of important bird areas and birding destinations.
+          of important bird areas and birding destinations, as well as data on human modification at all places. 
         </p>
 
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
         <p>
           Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-          supplemented by recommended birding sites from National Geographic and other sources. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+          supplemented by recommended birding sites from National Geographic Guide to Birding Hotspots of the United States and other sources. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
           Audubon Important Bird Areas
           </a>
         </p>
 
         <h2 style={{ marginTop: '30px' }}>eBird Data</h2>
         <p>
-          eBird histogram data (i.e. bar charts) are directly provided for most IBAs; for other places, eBird data are used from the most populated hotspot. <a href="https://ebird.org/explore" target="_blank" rel="noopener">
+          eBird histogram data (i.e. bar charts) are directly provided for most IBAs; for other places, eBird data are used from the most populated hotspot. Data were compiled in early 2026. <a href="https://ebird.org/explore" target="_blank" rel="noopener">
           eBird Explore
           </a> 
         </p>
