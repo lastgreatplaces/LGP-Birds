@@ -17,13 +17,19 @@ export default function GroupsSearch() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
-  // Integrity Color Logic (Pristine to Modified)
-  const getIntegrityColor = (score: number | null | undefined) => {
-    if (score === null || score === undefined || isNaN(score)) return '#9e9e9e'; 
-    if (score < 0.100) return '#1b5e20'; 
-    if (score < 0.200) return '#4caf50'; 
-    if (score < 0.334) return '#fbc02d'; 
-    return '#d32f2f'; 
+  // Mapping function to ensure the score is always a number or null
+  const parseScore = (val: any): number | null => {
+    if (val === null || val === undefined) return null;
+    const n = parseFloat(val);
+    return isNaN(n) ? null : n;
+  }
+
+  const getIntegrityColor = (score: number | null) => {
+    if (score === null) return '#9e9e9e'; // Gray for no data
+    if (score < 0.100) return '#1b5e20'; // Pristine
+    if (score < 0.200) return '#4caf50'; // Mostly Natural
+    if (score < 0.334) return '#fbc02d'; // Mixed
+    return '#d32f2f'; // Highly Modified
   }
 
   useEffect(() => {
@@ -102,8 +108,7 @@ export default function GroupsSearch() {
     setHasSearched(true)
 
     if (error) {
-      console.error(error)
-      alert("Query error: " + error.message)
+      console.error("RPC Error:", error)
     } else {
       setResults(data || [])
     }
@@ -119,7 +124,7 @@ export default function GroupsSearch() {
     <div style={{ padding: '15px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1 style={{ color: '#2e4a31', marginBottom: '20px', fontSize: '1.5rem' }}>Best Places for Bird Groups</h1>
 
-      {/* 1. Group Type */}
+      {/* 1. Group Type Selection */}
       <div style={{ marginBottom: '15px', background: '#f4f4f4', padding: '15px', borderRadius: '8px' }}>
         <label style={{ fontWeight: 'bold' }}>1. Select Group Type:</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginTop: '10px' }}>
@@ -155,14 +160,9 @@ export default function GroupsSearch() {
         </div>
       </div>
 
-      {/* 3. States & Weeks */}
+      {/* 3. States & Weeks Selection */}
       <div style={{ background: '#f4f4f4', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-        <label style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-          3. Select States
-          <span style={{ marginLeft: '8px', fontSize: '0.7rem', color: '#065f46', backgroundColor: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', border: '1px solid #10b981' }}>
-            26 Active
-          </span>
-        </label>
+        <label style={{ fontWeight: 'bold', marginBottom: '10px', display: 'block' }}>3. States & Date Range</label>
         
         <div style={{ height: '85px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           {states.map(s => (
@@ -175,16 +175,16 @@ export default function GroupsSearch() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
           <div>
-            <label style={{ fontSize: '0.95rem', fontWeight: 'bold' }}>From Week</label>
+            <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>From</label>
             <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} 
-              style={{ width: '100%', padding: '12px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
+              style={{ width: '100%', padding: '10px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '14px' }}>
               {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ fontSize: '0.95rem', fontWeight: 'bold' }}>To Week</label>
+            <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>To</label>
             <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} 
-              style={{ width: '100%', padding: '12px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', backgroundColor: 'white' }}>
+              style={{ width: '100%', padding: '10px', marginTop: '4px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '14px' }}>
               {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
             </select>
           </div>
@@ -192,40 +192,32 @@ export default function GroupsSearch() {
       </div>
 
       <button onClick={runPowerQuery} disabled={loading}
-        style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '1.1rem', opacity: loading ? 0.7 : 1 }}>
+        style={{ width: '100%', padding: '16px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '1.1rem' }}>
         {loading ? 'CALCULATING...' : 'SEARCH SIGHTINGS'}
       </button>
 
-      {/* Results Section */}
-      {hasSearched && results.length === 0 && !loading && (
-        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', textAlign: 'center' }}>
-          No locations matched. Try a different group or state.
-        </div>
-      )}
-
+      {/* Table Results */}
       {results.length > 0 && (
         <div style={{ overflowX: 'auto', marginTop: '25px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
-                <th style={{ padding: '12px 4px', width: '35px' }}>Rank</th>
+                <th style={{ padding: '12px 4px', width: '40px' }}>Rank</th>
                 <th style={{ padding: '12px 4px' }}>Site Name</th>
                 <th style={{ padding: '12px 4px', textAlign: 'center', width: '30px' }}>St</th>
-                <th style={{ padding: '12px 4px', textAlign: 'center', width: '40px' }}>Exp.</th>
+                <th style={{ padding: '12px 4px', textAlign: 'center', width: '45px' }}>Exp.</th>
                 <th style={{ padding: '12px 4px', textAlign: 'center', width: '60px' }}>Integrity</th>
               </tr>
             </thead>
             <tbody>
               {results.map((r, idx) => {
-                const fScore = r.footprint_mean !== null ? parseFloat(r.footprint_mean as any) : null;
+                const fScore = parseScore(r.footprint_mean);
                 return (
                   <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
                     <td style={{ padding: '12px 4px', textAlign: 'center', color: '#666' }}>{idx + 1}</td>
                     <td style={{ fontWeight: '600', padding: '12px 4px', color: '#333' }}>{r.place}</td>
                     <td style={{ textAlign: 'center', color: '#666' }}>{r.state}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#2e4a31' }}>
-                      {Number(r.expected_species).toFixed(1)}
-                    </td>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#2e4a31' }}>{Number(r.expected_species).toFixed(1)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ 
                         backgroundColor: getIntegrityColor(fScore), 
