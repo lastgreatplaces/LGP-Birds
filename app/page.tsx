@@ -60,7 +60,7 @@ export default function HomePage() {
         color: '#666'
       }}>
         <p>
-          <strong>Coverage:</strong> Currently includes 15 states in the Southeast and Mid-Atlantic; 
+          <strong>Coverage:</strong> Currently includes 25 states; 
           other states are being added weekly. Places include Audubon Important Bird Areas plus 
           additional recommended birding destinations.
         </p>
