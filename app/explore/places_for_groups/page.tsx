@@ -19,7 +19,7 @@ export default function GroupsSearch() {
 
   // Integrity Color Logic (Pristine to Modified)
   const getIntegrityColor = (score: number | null | undefined) => {
-    if (score === null || score === undefined) return '#9e9e9e'; 
+    if (score === null || score === undefined || isNaN(score)) return '#9e9e9e'; 
     if (score < 0.100) return '#1b5e20'; 
     if (score < 0.200) return '#4caf50'; 
     if (score < 0.334) return '#fbc02d'; 
@@ -87,11 +87,7 @@ export default function GroupsSearch() {
     setHasSearched(false)
 
     const apiGroups = selectedGroups.includes('All') ? null : selectedGroups
-    
-    // Keeping your logic for state parsing
-    const apiStates = selectedStates.length > 0 
-      ? selectedStates.map(s => s.split(' - ')[0]) 
-      : null
+    const apiStates = selectedStates.length > 0 ? selectedStates : null
 
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
       p_group_system: groupSet,
@@ -168,17 +164,7 @@ export default function GroupsSearch() {
           </span>
         </label>
         
-        <div style={{ 
-          height: '85px', 
-          overflowY: 'auto', 
-          background: 'white', 
-          border: '1px solid #ddd', 
-          borderRadius: '6px', 
-          padding: '10px', 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr', 
-          gap: '8px' 
-        }}>
+        <div style={{ height: '85px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           {states.map(s => (
             <label key={s.state} style={{ display: 'flex', alignItems: 'center', fontSize: '0.85rem', cursor: 'pointer' }}>
               <input type="checkbox" checked={selectedStates.includes(s.state)} onChange={() => toggleState(s.state)} style={{ marginRight: '8px', width: '18px', height: '18px' }} />
@@ -210,7 +196,7 @@ export default function GroupsSearch() {
         {loading ? 'CALCULATING...' : 'SEARCH SIGHTINGS'}
       </button>
 
-      {/* Results Section - iPhone Portrait Optimized */}
+      {/* Results Section */}
       {hasSearched && results.length === 0 && !loading && (
         <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff4f4', border: '1px solid #facaca', borderRadius: '8px', color: '#d32f2f', textAlign: 'center' }}>
           No locations matched. Try a different group or state.
@@ -219,37 +205,44 @@ export default function GroupsSearch() {
 
       {results.length > 0 && (
         <div style={{ overflowX: 'auto', marginTop: '25px' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
-                <th style={{ padding: '10px 4px', width: '35px' }}>Rank</th>
+                <th style={{ padding: '10px 4px', width: '30px' }}>Rank</th>
                 <th style={{ padding: '10px 4px' }}>Site Name</th>
-                <th style={{ padding: '10px 4px', textAlign: 'center', width: '40px' }}>State</th>
-                <th style={{ padding: '10px 4px', textAlign: 'center', width: '70px' }}>Integrity</th>
+                <th style={{ padding: '10px 4px', textAlign: 'center', width: '30px' }}>St</th>
+                <th style={{ padding: '10px 4px', textAlign: 'center', width: '40px' }}>Exp. Species</th>
+                <th style={{ padding: '10px 4px', textAlign: 'center', width: '60px' }}>Integrity</th>
               </tr>
             </thead>
             <tbody>
-              {results.map((r, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '10px 4px', textAlign: 'center' }}>{idx + 1}</td>
-                  <td style={{ fontWeight: '600', padding: '10px 4px' }}>{r.place}</td>
-                  <td style={{ textAlign: 'center' }}>{r.state}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div style={{ 
-                      backgroundColor: getIntegrityColor(r.footprint_score), 
-                      color: 'white', 
-                      padding: '4px 6px', 
-                      borderRadius: '4px', 
-                      fontWeight: 'bold', 
-                      fontSize: '0.75rem',
-                      display: 'inline-block',
-                      minWidth: '45px'
-                    }}>
-                      {r.footprint_score ? Number(r.footprint_score).toFixed(3) : '---'}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {results.map((r, idx) => {
+                const fScore = r.footprint_score ? parseFloat(r.footprint_score) : null;
+                return (
+                  <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={{ padding: '10px 4px', textAlign: 'center', color: '#666' }}>{idx + 1}</td>
+                    <td style={{ fontWeight: '600', padding: '10px 4px', color: '#333' }}>{r.place}</td>
+                    <td style={{ textAlign: 'center', color: '#666' }}>{r.state}</td>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#2e4a31' }}>
+                      {Number(r.expected_species).toFixed(1)}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ 
+                        backgroundColor: getIntegrityColor(fScore), 
+                        color: 'white', 
+                        padding: '4px 6px', 
+                        borderRadius: '4px', 
+                        fontWeight: 'bold', 
+                        fontSize: '0.75rem',
+                        display: 'inline-block',
+                        minWidth: '45px'
+                      }}>
+                        {fScore ? fScore.toFixed(3) : '---'}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
