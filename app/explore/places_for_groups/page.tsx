@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../../lib/supabase'
 
 export default function GroupsSearch() {
@@ -16,8 +16,10 @@ export default function GroupsSearch() {
 
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+  
+  // New State for Sorting
+  const [sortBy, setSortBy] = useState<'exp' | 'integrity' | 'combo'>('exp')
 
-  // Mapping function to ensure the score is always a number or null
   const parseScore = (val: any): number | null => {
     if (val === null || val === undefined) return null;
     const n = parseFloat(val);
@@ -25,12 +27,45 @@ export default function GroupsSearch() {
   }
 
   const getIntegrityColor = (score: number | null) => {
-    if (score === null) return '#9e9e9e'; // Gray for no data
+    if (score === null) return '#9e9e9e'; 
     if (score < 0.100) return '#1b5e20'; // Pristine
     if (score < 0.200) return '#4caf50'; // Mostly Natural
     if (score < 0.334) return '#fbc02d'; // Mixed
     return '#d32f2f'; // Highly Modified
   }
+
+  // Logic to handle sorting of results
+  const sortedResults = useMemo(() => {
+    if (!results.length) return [];
+
+    return [...results].sort((a, b) => {
+      const aExp = parseScore(a.expected_species) || 0;
+      const bExp = parseScore(b.expected_species) || 0;
+      const aInt = parseScore(a.footprint_mean);
+      const bInt = parseScore(b.footprint_mean);
+
+      if (sortBy === 'exp') {
+        return bExp - aExp; // Higher better
+      } 
+      
+      if (sortBy === 'integrity') {
+        // Handle nulls by pushing them to the bottom
+        if (aInt === null) return 1;
+        if (bInt === null) return -1;
+        return aInt - bInt; // Lower better
+      }
+
+      if (sortBy === 'combo') {
+        // A simple "Optimal" index: Exp # divided by (Footprint + 0.1 offset)
+        // This rewards high species counts in low footprint areas.
+        const aCombo = aExp / ((aInt || 0.5) + 0.1);
+        const bCombo = bExp / ((bInt || 0.5) + 0.1);
+        return bCombo - aCombo;
+      }
+
+      return 0;
+    });
+  }, [results, sortBy]);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -88,10 +123,8 @@ export default function GroupsSearch() {
       alert('The "To" week cannot be earlier than the "From" week.')
       return
     }
-
     setLoading(true)
     setHasSearched(false)
-
     const apiGroups = selectedGroups.includes('All') ? null : selectedGroups
     const apiStates = selectedStates.length > 0 ? selectedStates : null
 
@@ -103,10 +136,8 @@ export default function GroupsSearch() {
       p_states: apiStates,
       p_limit: 50
     })
-    
     setLoading(false)
     setHasSearched(true)
-
     if (error) {
       console.error("RPC Error:", error)
     } else {
@@ -196,9 +227,21 @@ export default function GroupsSearch() {
         {loading ? 'CALCULATING...' : 'SEARCH SIGHTINGS'}
       </button>
 
+      {/* Sorting Controls */}
+      {results.length > 0 && (
+        <div style={{ marginTop: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#555' }}>Sort by:</span>
+          <div style={{ display: 'flex', background: '#eee', padding: '3px', borderRadius: '8px' }}>
+            <button onClick={() => setSortBy('exp')} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: sortBy === 'exp' ? 'white' : 'transparent', boxShadow: sortBy === 'exp' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}>Exp #</button>
+            <button onClick={() => setSortBy('integrity')} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: sortBy === 'integrity' ? 'white' : 'transparent', boxShadow: sortBy === 'integrity' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}>Integrity</button>
+            <button onClick={() => setSortBy('combo')} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: sortBy === 'combo' ? 'white' : 'transparent', boxShadow: sortBy === 'combo' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}>Optimal</button>
+          </div>
+        </div>
+      )}
+
       {/* Table Results */}
       {results.length > 0 && (
-        <div style={{ overflowX: 'auto', marginTop: '25px' }}>
+        <div style={{ overflowX: 'auto', marginTop: '10px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
@@ -210,7 +253,7 @@ export default function GroupsSearch() {
               </tr>
             </thead>
             <tbody>
-              {results.map((r, idx) => {
+              {sortedResults.map((r, idx) => {
                 const fScore = parseScore(r.footprint_mean);
                 return (
                   <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
