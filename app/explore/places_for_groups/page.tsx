@@ -145,7 +145,7 @@ export default function GroupsSearch() {
             )
           })}
           {getAllButtonLabel() && (
-            <button onClick={() => toggleGroup('All')}
+            <button key="all-btn" onClick={() => toggleGroup('All')}
               style={{ padding: '8px 14px', borderRadius: '20px', border: '1px solid #2e4a31', fontSize: '0.85rem', cursor: 'pointer',
                        backgroundColor: selectedGroups.includes('All') ? '#2e4a31' : 'white',
                        color: selectedGroups.includes('All') ? 'white' : '#2e4a31' }}>
@@ -208,20 +208,20 @@ export default function GroupsSearch() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
-                <th style={{ padding: '10px 4px', width: '30px' }}>Rank</th>
-                <th style={{ padding: '10px 4px' }}>Site Name</th>
-                <th style={{ padding: '10px 4px', textAlign: 'center', width: '30px' }}>St</th>
-                <th style={{ padding: '10px 4px', textAlign: 'center', width: '40px' }}>Exp. Species</th>
-                <th style={{ padding: '10px 4px', textAlign: 'center', width: '60px' }}>Integrity</th>
+                <th style={{ padding: '12px 4px', width: '35px' }}>Rank</th>
+                <th style={{ padding: '12px 4px' }}>Site Name</th>
+                <th style={{ padding: '12px 4px', textAlign: 'center', width: '30px' }}>St</th>
+                <th style={{ padding: '12px 4px', textAlign: 'center', width: '40px' }}>Exp.</th>
+                <th style={{ padding: '12px 4px', textAlign: 'center', width: '60px' }}>Integrity</th>
               </tr>
             </thead>
             <tbody>
               {results.map((r, idx) => {
-                const fScore = r.footprint_score ? parseFloat(r.footprint_score) : null;
+                const fScore = r.footprint_mean !== null ? parseFloat(r.footprint_mean as any) : null;
                 return (
                   <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '10px 4px', textAlign: 'center', color: '#666' }}>{idx + 1}</td>
-                    <td style={{ fontWeight: '600', padding: '10px 4px', color: '#333' }}>{r.place}</td>
+                    <td style={{ padding: '12px 4px', textAlign: 'center', color: '#666' }}>{idx + 1}</td>
+                    <td style={{ fontWeight: '600', padding: '12px 4px', color: '#333' }}>{r.place}</td>
                     <td style={{ textAlign: 'center', color: '#666' }}>{r.state}</td>
                     <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#2e4a31' }}>
                       {Number(r.expected_species).toFixed(1)}
@@ -237,11 +237,11 @@ export default function GroupsSearch() {
                         display: 'inline-block',
                         minWidth: '45px'
                       }}>
-                        {fScore ? fScore.toFixed(3) : '---'}
+                        {fScore !== null ? fScore.toFixed(3) : '---'}
                       </div>
                     </td>
                   </tr>
-                );
+                )
               })}
             </tbody>
           </table>
