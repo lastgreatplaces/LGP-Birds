@@ -145,7 +145,7 @@ export default function SpeciesSearch() {
     <div style={{ padding: '10px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#fff' }}>
       {/* Page title now left justified */}
       <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '15px', textAlign: 'left', fontWeight: 'bold' }}>
-        Best Places & Weeks for Species
+        Best Places for Species
       </h1>
 
       {/* Selectors */}
@@ -159,7 +159,7 @@ export default function SpeciesSearch() {
       </div>
 
       <div style={{ marginBottom: '15px', background: '#eef4ef', border: '1px solid #d0ddd1', padding: '12px', borderRadius: '10px' }}>
-        <label style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#2e4a31', display: 'block', marginBottom: '8px' }}>2. Region & Timing</label>
+        <label style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#2e4a31', display: 'block', marginBottom: '8px' }}>2. States & Date Range</label>
         <div style={{ height: '80px', overflowY: 'auto', background: 'white', border: '1px solid #ccc', borderRadius: '6px', padding: '8px', marginBottom: '10px' }}>
           <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer', color: '#2e4a31', fontWeight: 'bold', paddingBottom: '4px' }}>
             <input type="radio" name="state" checked={selectedState === ''} onChange={() => setSelectedState('')} style={{ marginRight: '8px' }} /> All States

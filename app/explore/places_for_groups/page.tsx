@@ -153,15 +153,15 @@ export default function GroupsSearch() {
       <div style={{ marginBottom: '12px', background: '#f4f4f4', padding: '12px', borderRadius: '8px' }}>
         <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>1. Select Group Type:</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '8px' }}>
-          <label style={{ cursor: 'pointer', fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'major'} onChange={() => setGroupSet('major')} /> Major</label>
-          <label style={{ cursor: 'pointer', fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'user'} onChange={() => setGroupSet('user')} /> Wetland</label>
-          <label style={{ cursor: 'pointer', fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'species'} onChange={() => setGroupSet('species')} /> Species</label>
+          <label style={{ cursor: 'pointer', fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'major'} onChange={() => setGroupSet('major')} /> Land/Water</label>
+          <label style={{ cursor: 'pointer', fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'user'} onChange={() => setGroupSet('user')} /> Wetlands</label>
+          <label style={{ cursor: 'pointer', fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'species'} onChange={() => setGroupSet('species')} /> Families</label>
         </div>
       </div>
 
       {/* 2. Group Selection */}
       <div style={{ marginBottom: '12px', background: '#f4f4f4', padding: '12px', borderRadius: '8px' }}>
-        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>2. Select groups (None = All):</label>
+        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>2. Select Groups</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
           {groups.map((g, i) => {
             const val = Object.values(g)[0] as string
