@@ -41,7 +41,6 @@ export default function GroupsSearch() {
     borderRadius: '4px',
     fontWeight: 'bold',
     fontSize: '0.75rem',
-    color: 'white',
     textAlign: 'center' as const
   }
 
@@ -95,7 +94,13 @@ export default function GroupsSearch() {
     async function fetchGroups() {
       setSelectedGroups([]) 
       const { data } = await supabase.from(`v_dropdown_${groupSet}_group`).select('*')
-      if (data) setGroups(data)
+      if (data) {
+        // Filter out "Landbirds" if groupSet is Wetland (user)
+        const filtered = groupSet === 'user' 
+          ? data.filter(g => (Object.values(g)[0] as string) !== 'Landbirds')
+          : data;
+        setGroups(filtered)
+      }
     }
     fetchGroups()
   }, [groupSet])
@@ -158,20 +163,20 @@ export default function GroupsSearch() {
 
   return (
     <div style={{ padding: '12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '15px', fontWeight: 'bold' }}>Best Places for Groups</h1>
+      <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '15px', fontWeight: 'bold' }}>Best Places for Bird Groups</h1>
 
-      {/* Group Type & Selection */}
+      {/* Group Selection */}
       <div style={{ background: '#f4f4f4', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
-        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>1. Group Type</label>
+        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>1. Select Group Type:</label>
         <div style={{ display: 'flex', gap: '15px', marginTop: '8px' }}>
-          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'major'} onChange={() => setGroupSet('major')} /> Land/Water</label>
-          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'user'} onChange={() => setGroupSet('user')} /> Wetlands</label>
-          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'species'} onChange={() => setGroupSet('species')} /> Families</label>
+          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'major'} onChange={() => setGroupSet('major')} /> Major</label>
+          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'user'} onChange={() => setGroupSet('user')} /> Wetland</label>
+          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'species'} onChange={() => setGroupSet('species')} /> Species</label>
         </div>
       </div>
 
       <div style={{ background: '#f4f4f4', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
-        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>2. Select Groups</label>
+        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>2. Select groups (None = All):</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
           {groups.map((g, i) => {
             const val = Object.values(g)[0] as string
@@ -187,12 +192,12 @@ export default function GroupsSearch() {
         </div>
       </div>
 
-      {/* States & Date Range */}
+      {/* Region & Date Range */}
       <div style={{ background: '#f4f4f4', padding: '12px', borderRadius: '8px', marginBottom: '15px' }}>
         <label style={{ fontWeight: 'bold', display: 'block', fontSize: '0.9rem', marginBottom: '8px' }}>3. States & Date Range</label>
-        <div style={{ height: '80px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '8px', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+        <div style={{ height: '100px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '8px', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
           <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
-            <input type="checkbox" checked={selectedStates.length === 0} onChange={() => setSelectedStates([])} /> All States
+            <input type="checkbox" checked={selectedStates.length === 0} onChange={() => setSelectedStates([])} /> All Active States
           </label>
           {states.map(s => (
             <label key={s.state} style={{ fontSize: '0.8rem' }}>
@@ -200,18 +205,23 @@ export default function GroupsSearch() {
             </label>
           ))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '10px' }}>
-          <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '13px' }}>
-            {weeks.map(w => <option key={w.week} value={w.week}>From: {w.label_long}</option>)}
+        
+        {/* Responsive Date Selectors */}
+        <div style={{ marginTop: '12px' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>From</label>
+          <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px', marginBottom: '8px' }}>
+            {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
           </select>
-          <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '13px' }}>
-            {weeks.map(w => <option key={w.week} value={w.week}>To: {w.label_long}</option>)}
+          
+          <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>To</label>
+          <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px' }}>
+            {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
           </select>
         </div>
       </div>
 
-      <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '14px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}>
-        {loading ? 'CALCULATING...' : 'FIND BEST PLACES'}
+      <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '14px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '1rem' }}>
+        {loading ? 'CALCULATING...' : 'SEARCH SIGHTINGS'}
       </button>
 
       {/* Results */}
@@ -232,7 +242,7 @@ export default function GroupsSearch() {
             <thead>
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
                 <th style={{ padding: '10px 4px', width: '20px' }}>#</th>
-                <th style={{ padding: '10px 4px' }}>Click for Best Weeks or Calendar</th>
+                <th style={{ padding: '10px 4px' }}>Click on Place for Best Weeks or Calendar</th>
                 <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Avg #</th>
                 <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Integrity</th>
               </tr>
@@ -249,10 +259,10 @@ export default function GroupsSearch() {
                       <td style={{ padding: '12px 4px', color: '#999' }}>{idx + 1}</td>
                       <td style={{ padding: '12px 4px', fontWeight: 'bold', color: '#333' }}>{r.place} <span style={{fontWeight: 'normal', color: '#666'}}>{r.state}</span></td>
                       <td style={{ padding: '12px 4px', textAlign: 'center' }}>
-                         <span style={{ ...badgeStyle, backgroundColor: '#2e4a31' }}>{Number(r.expected_species).toFixed(1)}</span>
+                         <span style={{ ...badgeStyle, backgroundColor: '#eeeeee', color: '#333' }}>{Number(r.expected_species).toFixed(1)}</span>
                       </td>
                       <td style={{ padding: '12px 4px', textAlign: 'center' }}>
-                        <span style={{ ...badgeStyle, backgroundColor: getIntegrityColor(integrityScore) }}>
+                        <span style={{ ...badgeStyle, backgroundColor: getIntegrityColor(integrityScore), color: 'white' }}>
                           {integrityScore !== null ? Math.round(integrityScore) : '--'}
                         </span>
                       </td>
