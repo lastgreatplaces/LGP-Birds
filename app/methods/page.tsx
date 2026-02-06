@@ -20,7 +20,7 @@ export default function MethodsPage() {
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
         <p>
           Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-          supplemented by recommended birding sites from <strong>National Geographic Guide to Birding Hotspots of the United States</strong>. To better guide birders to birding places, within very large landscape level IBAs (e.g.Chenier Plain) actual National Wildlife Refuges and other recommended protected areas were selected. Birders will want to explore eBird Hotpsots for localized birding sites within places. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+          supplemented by a number of recommended birding sites outside of IBAs that are identified in <strong>National Geographic Guide to Birding Hotspots of the United States</strong>. Within several very large landscape level IBAs (e.g.Chenier Plain) specific recommended protected areas are noted by National Geographic; this approach parallels Audubon's treatment of the ACE Basin in South Carolina, where three specific protected areas were selected as globally important IBAs rather than the greater ACE Basin landscape. Birders will want to explore eBird Hotpsots for localized birding sites within places. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
           Audubon Important Bird Areas
           </a>
         </p>
