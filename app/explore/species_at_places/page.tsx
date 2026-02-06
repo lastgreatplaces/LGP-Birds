@@ -81,35 +81,34 @@ export default function SpeciesAtPlacesSearch() {
   }
 
   return (
-    <div style={{ padding: '10px 12px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      {/* Reduced Title size to fit one line */}
-      <h1 style={{ color: '#2e4a31', fontSize: '1.25rem', marginBottom: '12px', fontWeight: 'bold' }}>
+    <div style={{ padding: '12px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      {/* Title increased a half size to approx 1.5rem */}
+      <h1 style={{ color: '#2e4a31', fontSize: '1.5rem', marginBottom: '16px', fontWeight: 'bold' }}>
         What you're likely to see
       </h1>
 
-      {/* 1. Choose a Place Section - Tightened */}
-      <div style={{ marginBottom: '10px', backgroundColor: '#f4f4f4', padding: '10px', borderRadius: '8px' }}>
+      {/* 1. Choose a Place Section */}
+      <div style={{ marginBottom: '12px', backgroundColor: '#f4f4f4', padding: '12px', borderRadius: '8px' }}>
+        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#333', display: 'block', marginBottom: '8px' }}>1. State & Hotspot Search</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#444', display: 'block', marginBottom: '2px' }}>1. State & Hotspot Search</span>
-            <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} style={{ width: '100%', padding: '8px', fontSize: '14px', borderRadius: '6px', border: '1px solid #ccc', marginBottom: '8px' }}>
-              {states.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-            
+          <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '6px', border: '1px solid #ccc' }}>
+            {states.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          
+          <div style={{ border: '1px solid #ccc', borderRadius: '6px', overflow: 'hidden' }}>
             <input 
               type="text" 
               placeholder="Search hotspots..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: '100%', padding: '8px', fontSize: '14px', borderRadius: '6px 6px 0 0', border: '1px solid #ccc', borderBottom: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px', fontSize: '14px', border: 'none', borderBottom: '1px solid #eee', boxSizing: 'border-box' }}
             />
             <select 
               value={selectedPlaceId} 
               onChange={(e) => setSelectedPlaceId(e.target.value)} 
               size={4} 
-              style={{ width: '100%', padding: '4px', fontSize: '14px', borderRadius: '0 0 6px 6px', border: '1px solid #ccc' }}
+              style={{ width: '100%', padding: '4px', fontSize: '14px', border: 'none' }}
             >
-              {/* Removed the "xx places found" informative line for clarity */}
               {filteredPlaces.map(p => (
                 <option key={p.site_id} value={p.site_id}>{p.site_name}</option>
               ))}
@@ -118,55 +117,57 @@ export default function SpeciesAtPlacesSearch() {
         </div>
       </div>
 
-      {/* 2. Choose Weeks (To & From) - Compacted */}
-      <div style={{ marginBottom: '12px', backgroundColor: '#f4f4f4', padding: '10px', borderRadius: '8px' }}>
-        <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#444', display: 'block', marginBottom: '6px' }}>2. Choose Weeks (To & From)</span>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '8px', fontSize: '14px', borderRadius: '6px', border: '1px solid #ccc' }}>
-            {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
-          </select>
-          <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '8px', fontSize: '14px', borderRadius: '6px', border: '1px solid #ccc' }}>
-            {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
-          </select>
-        </div>
+      {/* 2. Choose Weeks - Reverted to Stacked Format for consistency with Groups page */}
+      <div style={{ marginBottom: '16px', backgroundColor: '#f4f4f4', padding: '12px', borderRadius: '8px' }}>
+        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#333', display: 'block', marginBottom: '8px' }}>2. Choose Weeks</span>
+        
+        <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>From</label>
+        <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '6px', border: '1px solid #ccc', marginBottom: '10px' }}>
+          {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
+        </select>
+
+        <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>To</label>
+        <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '6px', border: '1px solid #ccc' }}>
+          {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
+        </select>
       </div>
 
       <button onClick={runPowerQuery} disabled={loading}
-        style={{ width: '100%', padding: '14px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '0.95rem' }}>
+        style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '1rem' }}>
         {loading ? 'ANALYZING...' : 'REVEAL SPECIES'}
       </button>
 
       {/* Results / Empty Message */}
       {hasSearched && results.length === 0 && !loading && (
-        <div style={{ marginTop: '20px', padding: '15px', textAlign: 'center', backgroundColor: '#fff9c4', borderRadius: '8px', border: '1px solid #fbc02d', color: '#616161', fontSize: '0.85rem' }}>
+        <div style={{ marginTop: '20px', padding: '15px', textAlign: 'center', backgroundColor: '#fff9c4', borderRadius: '8px', border: '1px solid #fbc02d', color: '#616161', fontSize: '0.9rem' }}>
           No species were identified at this place and time frame; perhaps choose another place or date range.
         </div>
       )}
 
       {results.length > 0 && (
-        <table style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+        <table style={{ width: '100%', marginTop: '24px', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
           <thead>
             <tr style={{ backgroundColor: '#2e4a31', color: 'white' }}>
-              <th style={{ padding: '8px 4px', width: '30px' }}>#</th>
-              <th style={{ textAlign: 'left', padding: '8px' }}>Species</th>
-              <th style={{ padding: '8px', textAlign: 'center' }}>Likelihood</th>
+              <th style={{ padding: '10px 4px', width: '35px' }}>#</th>
+              <th style={{ textAlign: 'left', padding: '10px' }}>Species</th>
+              <th style={{ padding: '10px', textAlign: 'center' }}>Likelihood</th>
             </tr>
           </thead>
           <tbody>
             {results.map((r, idx) => (
               <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '8px 4px', textAlign: 'center', color: '#888' }}>{r.rank}</td>
-                <td style={{ padding: '8px', fontWeight: 'bold', color: '#333' }}>{r.species}</td>
-                <td style={{ textAlign: 'center', padding: '8px' }}>
+                <td style={{ padding: '10px 4px', textAlign: 'center', color: '#888' }}>{r.rank}</td>
+                <td style={{ padding: '10px', fontWeight: 'bold', color: '#333' }}>{r.species}</td>
+                <td style={{ textAlign: 'center', padding: '10px' }}>
                     <span style={{ 
                       backgroundColor: getLikelihoodColor(r.avg_likelihood_see), 
                       color: 'white', 
-                      padding: '4px 8px', 
+                      padding: '5px 10px', 
                       borderRadius: '4px',
                       fontWeight: 'bold',
-                      fontSize: '0.75rem',
+                      fontSize: '0.8rem',
                       display: 'inline-block',
-                      width: '40px'
+                      minWidth: '45px'
                     }}>
                       {Math.round(r.avg_likelihood_see * 100)}%
                     </span>
