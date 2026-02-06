@@ -89,7 +89,7 @@ export default function SpeciesAtPlacesSearch() {
 
       {/* 1. Choose a Place Section */}
       <div style={{ marginBottom: '12px', backgroundColor: '#f4f4f4', padding: '12px', borderRadius: '8px' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#333', display: 'block', marginBottom: '8px' }}>1. State & Hotspot Search</span>
+        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#333', display: 'block', marginBottom: '8px' }}>1. Select a State & Place</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '6px', border: '1px solid #ccc' }}>
             {states.map(s => <option key={s} value={s}>{s}</option>)}
@@ -98,7 +98,7 @@ export default function SpeciesAtPlacesSearch() {
           <div style={{ border: '1px solid #ccc', borderRadius: '6px', overflow: 'hidden' }}>
             <input 
               type="text" 
-              placeholder="Search hotspots..." 
+              placeholder="Search places (type name or use dropdown)..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ width: '100%', padding: '10px', fontSize: '14px', border: 'none', borderBottom: '1px solid #eee', boxSizing: 'border-box' }}
