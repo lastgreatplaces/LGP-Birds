@@ -36,9 +36,11 @@ export default function MethodsPage() {
         <p>
           Rather than reporting raw sighting counts, the site focuses on <strong>relative likelihood</strong>—how 
           consistently species or bird groups are reported at a place during a given time window. To reduce the influence of incidental or one-off sightings, eBird data are filtered to emphasize recurring patterns. Species are included only when they are reported across multiple weeks, supported by a minimum number of checklists, and observed alongside other species at a place. Likelihood of species at places only show likelihoods of 20% of higher, for beginner and intermediate birders. Advanced birders seeking special species sightings will typically use other resources.
-      
-    
         </p>
+
+<h2 style={{ marginTop: '30px' }}>Integrity</h2>
+        <p> The Global Human Modification dataset was used to assess Integrity at places. For the "Combo" ranking option Expected Species number was multiplied by the Integrity score divided by 100</p>
+          
 
         <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
         <p>
@@ -52,12 +54,7 @@ export default function MethodsPage() {
           less visited places and seasons may be underrepresented.
         </p>
 
-        <h2 style={{ marginTop: '30px' }}>Integrity</h2>
-        <p>
-          The global human modification dataset was used to measure the mean level of human impacts (roads, development, agriculture, etc.) at all places. 
-          </a> 
-        </p>
-
+   
         <h2 style={{ marginTop: '30px' }}>The Technical Stack</h2>
         <div style={{ 
           background: '#f0f4f0', 
