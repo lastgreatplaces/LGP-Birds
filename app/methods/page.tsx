@@ -39,7 +39,7 @@ export default function MethodsPage() {
         </p>
 
 <h2 style={{ marginTop: '30px' }}>Integrity</h2>
-        <p> The Global Human Modification dataset was used to assess Integrity at places. For the "Combo" ranking option Expected Species number was multiplied by the Integrity score divided by 100</p>
+        <p> The Global Human Modification dataset was used to assess Integrity at places. For the "Optimal" ranking option Probability was multiplied by the Integrity score divided by 100</p>
           
 
         <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
