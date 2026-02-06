@@ -62,22 +62,26 @@ export default function SpeciesSearch() {
     return '#d32f2f'; 
   }
 
-  // --- Sorting Logic ---
+  // --- Sorting Logic with your NEW "Optimal" Formula ---
   const sortedResults = useMemo(() => {
     if (!results.length) return [];
     return [...results].sort((a, b) => {
       if (sortBy === 'avg') return b.avg_likelihood_see - a.avg_likelihood_see;
+      
       const aInt = calculateIntegrity(a.footprint_mean) || 0;
       const bInt = calculateIntegrity(b.footprint_mean) || 0;
+      
       if (sortBy === 'integrity') return bInt - aInt;
+      
       if (sortBy === 'optimal') {
-        const aScore = (a.avg_likelihood_see * 100) + (aInt * 0.5);
-        const bScore = (b.avg_likelihood_see * 100) + (bInt * 0.5);
+        // Optimal formula: (Integrity/100) * Probability
+        const aScore = (aInt / 100) * (a.avg_likelihood_see * 100);
+        const bScore = (bInt / 100) * (b.avg_likelihood_see * 100);
         return bScore - aScore;
       }
       return 0;
     });
-  }, [results, sortBy]);
+  }, [results, sortBy, calculateIntegrity]);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -133,12 +137,10 @@ export default function SpeciesSearch() {
 
   return (
     <div style={{ padding: '10px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#fff' }}>
-      {/* 1. iPhone Optimized Title */}
       <h1 style={{ color: '#2e4a31', fontSize: '1.1rem', marginBottom: '15px', textAlign: 'center', whiteSpace: 'nowrap' }}>
         Best Places for Species
       </h1>
 
-      {/* Bird Select */}
       <div style={{ marginBottom: '10px', background: '#f8f8f8', padding: '12px', borderRadius: '8px' }}>
         <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>1. Bird Species</label>
         <select value={selectedSpecies} onChange={(e) => setSelectedSpecies(e.target.value)} 
@@ -148,7 +150,6 @@ export default function SpeciesSearch() {
         </select>
       </div>
 
-      {/* Region & Timing */}
       <div style={{ marginBottom: '15px', background: '#eef4ef', border: '1px solid #d0ddd1', padding: '12px', borderRadius: '10px' }}>
         <label style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#2e4a31', display: 'block', marginBottom: '8px' }}>2. Region & Timing</label>
         
@@ -163,7 +164,6 @@ export default function SpeciesSearch() {
           ))}
         </div>
 
-        {/* 2. Stacked Weeks for iPhone */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
              <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px' }}>
                {weeks.map(w => <option key={w.week} value={w.week}>From: {w.label_long}</option>)}
@@ -178,7 +178,6 @@ export default function SpeciesSearch() {
         {loading ? 'ANALYZING...' : 'FIND BEST PLACES'}
       </button>
 
-      {/* Sorting */}
       {results.length > 0 && (
         <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#666' }}>Sort:</span>
@@ -190,14 +189,12 @@ export default function SpeciesSearch() {
         </div>
       )}
 
-      {/* Results */}
       {results.length > 0 && (
         <div style={{ marginTop: '12px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.7rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
                 <th style={{ padding: '8px 4px', width: '20px' }}>#</th>
-                {/* Changed Column Header Name */}
                 <th style={{ padding: '8px 4px' }}>Place - Click for Weeks</th>
                 <th style={{ padding: '8px 4px', textAlign: 'center', width: '20px' }}>ST</th>
                 <th style={{ padding: '8px 4px', textAlign: 'center', width: '35px' }}>Avg %</th>
