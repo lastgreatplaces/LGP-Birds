@@ -44,7 +44,7 @@ export default function MethodsPage() {
 
         <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
         <p>
-          Seasonality is handled using a <strong>week-based model</strong> aligned with eBird’s 
+          Seasonality is handled using a <strong>48 week-based model</strong> aligned with eBird’s 
           standard reporting bins. This data is presented in a month-friendly interface designed 
           for intuitive trip planning. 
         </p>
