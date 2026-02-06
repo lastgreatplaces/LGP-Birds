@@ -84,7 +84,7 @@ export default function SpeciesAtPlacesSearch() {
 
           {/* Dynamic Counter Text between dropdowns */}
           <div style={{ fontSize: '0.75rem', color: '#666', paddingLeft: '4px', fontStyle: 'italic' }}>
-            {places.length} hotspots in {selectedState || 'this state'}
+            {places.length} Places in {selectedState || 'this state'}
           </div>
           
           {/* Place Dropdown */}

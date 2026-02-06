@@ -20,7 +20,7 @@ export default function MethodsPage() {
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
         <p>
           Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-          supplemented by a number of recommended birding sites outside of IBAs that are identified in <strong>National Geographic Guide to Birding Hotspots of the United States</strong>. Within several very large landscape level IBAs (e.g.Chenier Plain) specific recommended protected areas are noted by National Geographic; this approach parallels Audubon's treatment of the ACE Basin in South Carolina, where three specific protected areas were selected as globally important IBAs rather than the greater ACE Basin landscape. Birders will want to explore eBird Hotpsots for localized birding sites within places. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+          supplemented by a number of recommended birding sites outside of IBAs that are identified in the <strong>"National Geographic Guide to Birding Hotspots of the United States"</strong>. Within several large landscape-level IBAs (e.g. Chenier Plain) specific protected areas are noted by National Geographic; this approach parallels Audubon's treatment of the ACE Basin in South Carolina, where three specific protected areas were selected as globally important IBAs rather than the greater ACE Basin landscape. Birders will want to explore eBird Hotpsots for localized birding sites within places. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
           Audubon Important Bird Areas
           </a>
         </p>
@@ -39,7 +39,7 @@ export default function MethodsPage() {
         </p>
 
 <h2 style={{ marginTop: '30px' }}>Integrity</h2>
-        <p> The Global Human Modification dataset was used to assess Integrity at places. It assesses the degree of roads, development, agriculture, industry and other human impacts on the landscape. For the "Optimal" ranking option Probability was multiplied by the Integrity score divided by 100</p>
+        <p> The Global Human Modification dataset was used to assess Integrity at places. It assesses the degree of roads, development, agriculture, industry and other human impacts on the landscape. The "Optimal" ranking option identifies places with relatively high sightings that are less modified -- i.e. Probability * Integrity / 100</p>
           
 
         <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
