@@ -163,20 +163,20 @@ export default function GroupsSearch() {
 
   return (
     <div style={{ padding: '12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '15px', fontWeight: 'bold' }}>Best Places for Bird Groups</h1>
+      <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '14px', fontWeight: 'bold' }}>Best Places for Bird Groups</h1>
 
       {/* Group Selection */}
       <div style={{ background: '#f4f4f4', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
         <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>1. Select Group Type:</label>
         <div style={{ display: 'flex', gap: '15px', marginTop: '8px' }}>
-          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'major'} onChange={() => setGroupSet('major')} /> Major</label>
-          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'user'} onChange={() => setGroupSet('user')} /> Wetland</label>
-          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'species'} onChange={() => setGroupSet('species')} /> Species</label>
+          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'major'} onChange={() => setGroupSet('major')} /> Land/Water</label>
+          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'user'} onChange={() => setGroupSet('user')} /> Wetlands/Coastal</label>
+          <label style={{ fontSize: '0.85rem' }}><input type="radio" checked={groupSet === 'species'} onChange={() => setGroupSet('species')} /> Families</label>
         </div>
       </div>
 
       <div style={{ background: '#f4f4f4', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
-        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>2. Select groups (None = All):</label>
+        <label style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>2. Select Groups </label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
           {groups.map((g, i) => {
             const val = Object.values(g)[0] as string
