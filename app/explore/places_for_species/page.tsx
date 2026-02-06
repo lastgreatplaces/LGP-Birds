@@ -195,10 +195,10 @@ export default function SpeciesSearch() {
             <thead>
               <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
                 <th style={{ padding: '8px 4px', width: '20px' }}>#</th>
-                <th style={{ padding: '8px 4px' }}>Place - Click for Weeks</th>
-                <th style={{ padding: '8px 4px', textAlign: 'center', width: '20px' }}>ST</th>
+                <th style={{ padding: '8px 4px' }}>Click on a Place to see Best Weeks or Calendar</th>
+                <th style={{ padding: '8px 4px', textAlign: 'center', width: '10px' }}> </th>
                 <th style={{ padding: '8px 4px', textAlign: 'center', width: '35px' }}>Avg %</th>
-                <th style={{ padding: '8px 4px', textAlign: 'center', width: '35px' }}>Int.</th>
+                <th style={{ padding: '8px 4px', textAlign: 'center', width: '45px' }}>Integrity</th>
               </tr>
             </thead>
             <tbody>
