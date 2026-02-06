@@ -20,7 +20,7 @@ export default function MethodsPage() {
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
         <p>
           Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
-          supplemented by recommended birding sites from National Geographic Guide to Birding Hotspots of the United States and other sources. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
+          supplemented by recommended birding sites from <strong>National Geographic Guide to Birding Hotspots of the United States</strong>. To better guide birders to birding places, within very large landscape level IBAs (e.g.Chenier Plain) actual National Wildlife Refuges and other recommended protected areas were selected. Birders will want to explore eBird Hotpsots for localized birding sites within places. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
           Audubon Important Bird Areas
           </a>
         </p>
@@ -34,12 +34,12 @@ export default function MethodsPage() {
 
         <h2 style={{ marginTop: '30px' }}>Sightings Normalization</h2>
         <p>
-          Rather than reporting raw sighting counts, the site focuses on <strong>relative likelihood</strong>—how 
+          Rather than reporting raw sighting counts, the methodology focuses on <strong>relative likelihood</strong>—how 
           consistently species or bird groups are reported at a place during a given time window. To reduce the influence of incidental or one-off sightings, eBird data are filtered to emphasize recurring patterns. Species are included only when they are reported across multiple weeks, supported by a minimum number of checklists, and observed alongside other species at a place. Likelihood of species at places only show likelihoods of 20% of higher, for beginner and intermediate birders. Advanced birders seeking special species sightings will typically use other resources.
         </p>
 
 <h2 style={{ marginTop: '30px' }}>Integrity</h2>
-        <p> The Global Human Modification dataset was used to assess Integrity at places. For the "Optimal" ranking option Probability was multiplied by the Integrity score divided by 100</p>
+        <p> The Global Human Modification dataset was used to assess Integrity at places. It assesses the degree of roads, development, agriculture, industry and other human impacts on the landscape. For the "Optimal" ranking option Probability was multiplied by the Integrity score divided by 100</p>
           
 
         <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
