@@ -1,4 +1,4 @@
-Places for Species: 'use client'
+'use client'
 
 
 
