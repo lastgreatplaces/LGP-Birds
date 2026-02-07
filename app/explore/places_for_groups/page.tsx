@@ -54,6 +54,7 @@ export default function GroupsSearch() {
   const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])
 
   const runPowerQuery = async () => {
+    if (toWeek < fromWeek) { alert('Search Error: The "To" week cannot precede the "From" week.'); return; }
     setLoading(true); setHasSearched(false);
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
       p_group_system: groupSet, p_group_values: selectedGroups.length > 0 ? selectedGroups : null,
@@ -97,7 +98,7 @@ export default function GroupsSearch() {
         </div>
       </div>
       <div style={{ background: '#f4f4f4', padding: '10px', borderRadius: '8px', marginBottom: '10px' }}>
-        <label style={{ fontWeight: 'bold', display: 'block', fontSize: '0.85rem', marginBottom: '6px' }}>3. States & Date Range</label>
+        <label style={{ fontWeight: 'bold', display: 'block', fontSize: '0.85rem', marginBottom: '6px' }}>3. Region & Date Range</label>
         <div style={{ height: '80px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '6px', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 'bold' }}><input type="checkbox" checked={selectedStates.length === 0} onChange={() => setSelectedStates([])} /> All Active States</label>
           {states.map(s => <label key={s.state} style={{ fontSize: '0.75rem' }}><input type="checkbox" checked={selectedStates.includes(s.state)} onChange={() => toggleState(s.state)} /> {s.state}</label>)}
@@ -163,6 +164,9 @@ export default function GroupsSearch() {
               })}
             </tbody>
           </table>
+          <div style={{ marginTop: '16px', fontSize: '0.7rem', color: '#666', fontStyle: 'italic', textAlign: 'center' }}>
+            Minimum 20% likelihood for reporting.
+          </div>
         </div>
       ))}
     </div>
