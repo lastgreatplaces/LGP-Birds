@@ -86,7 +86,7 @@ export default function HomePage() {
             }}
           >
             {/* Action Line (Top Row) */}
-            <div style={{ display: 'flex', alignItems: 'center', justifySpace: 'between', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1 }}>
                 <span style={{ fontSize: '24px', width: '32px', textAlign: 'center' }}>{card.icon}</span>
                 <span style={{ fontSize: '18px', fontWeight: '700', color: '#2d4a27' }}>
