@@ -54,7 +54,13 @@ export default function GroupsSearch() {
   const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])
 
   const runPowerQuery = async () => {
-    if (toWeek < fromWeek) { alert('Search Error: The "To" week cannot precede the "From" week.'); return; }
+    // START VALIDATION CHECK
+    if (Number(toWeek) < Number(fromWeek)) {
+      alert('Search Error: The "To" week cannot precede the "From" week.');
+      return; 
+    }
+    // END VALIDATION CHECK
+
     setLoading(true); setHasSearched(false);
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
       p_group_system: groupSet, p_group_values: selectedGroups.length > 0 ? selectedGroups : null,
