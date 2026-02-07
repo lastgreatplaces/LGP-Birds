@@ -54,12 +54,10 @@ export default function GroupsSearch() {
   const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])
 
   const runPowerQuery = async () => {
-    // START VALIDATION CHECK
-    if (Number(toWeek) < Number(fromWeek)) {
+    if (toWeek < fromWeek) {
       alert('Search Error: The "To" week cannot precede the "From" week.');
-      return; 
+      return;
     }
-    // END VALIDATION CHECK
 
     setLoading(true); setHasSearched(false);
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
@@ -170,7 +168,7 @@ export default function GroupsSearch() {
               })}
             </tbody>
           </table>
-          <div style={{ marginTop: '16px', fontSize: '0.7rem', color: '#666', fontStyle: 'italic', textAlign: 'center' }}>
+          <div style={{ marginTop: '16px', padding: '10px', fontSize: '0.7rem', color: '#666', fontStyle: 'italic', textAlign: 'center' }}>
             Minimum 20% likelihood for reporting.
           </div>
         </div>
