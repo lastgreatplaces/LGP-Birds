@@ -1,22 +1,24 @@
+"use client";
+
 import Link from 'next/link';
 
 export default function ExploreHub() {
   const tools = [
     {
       title: "Bird Groups › Places",
-      desc: "Best places & weeks to see specific bird groups like Shorebirds.",
+      desc: "Best places and weeks to see specific bird groups like Shorebirds.",
       link: "/explore/places_for_groups",
       icon: "🦆"
     },
     {
       title: "Specific Species › Places",
-      desc: "Best places & weeks to see a specific bird species like Sandhill Cranes.",
+      desc: "Best places and weeks to see specific bird species like Sandhill Cranes.",
       link: "/explore/places_for_species",
       icon: "📍"
     },
     {
       title: "Place › Likely Sightings",
-      desc: "What birds you're most likely to encounter at a selected place and date range.",
+      desc: "What birds you are most likely to encounter at a selected place and date range.",
       link: "/explore/species_at_places",
       icon: "🔭"
     }
@@ -57,7 +59,7 @@ export default function ExploreHub() {
         display: 'flex', 
         flexDirection: 'column', 
         gap: '12px',
-        maxWidth: '600px' // Keeps it tight on desktop, full width on mobile
+        maxWidth: '600px'
       }}>
         {tools.map((tool) => (
           <Link 
@@ -65,17 +67,19 @@ export default function ExploreHub() {
             href={tool.link} 
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
-            <div className="tool-card" style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              padding: '16px',
-              border: '1px solid #eaeaea',
-              borderRadius: '14px',
-              backgroundColor: '#fff',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-              cursor: 'pointer',
-              transition: 'background-color 0.1s ease'
-            }}>
+            <div 
+              className="tool-card"
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                padding: '16px',
+                border: '1px solid #eaeaea',
+                borderRadius: '14px',
+                backgroundColor: '#fff',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                cursor: 'pointer'
+              }}
+            >
               
               {/* Top Row: Icon, Title, and Chevron */}
               <div style={{ 
@@ -103,7 +107,7 @@ export default function ExploreHub() {
                 </span>
               </div>
               
-              {/* Bottom Row: Description (Indented to match title) */}
+              {/* Bottom Row: Description */}
               <p style={{ 
                 color: '#666', 
                 margin: '0 0 0 44px', 
@@ -130,19 +134,6 @@ export default function ExploreHub() {
       }}>
         © 2026 LAST GREAT PLACES FOR BIRDS & BIRDERS
       </footer>
-
-      {/* Adding a small style tag for the active "press" state on iPhone */}
-      <style jsx global>{`
-        .tool-card:active {
-          background-color: #f2f2f7 !important;
-          transform: scale(0.98);
-        }
-        @media (hover: hover) {
-          .tool-card:hover {
-            border-color: #d1d1d6;
-          }
-        }
-      `}</style>
     </div>
   );
 }
