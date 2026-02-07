@@ -6,10 +6,12 @@ import Link from 'next/link'
 
 export default function BestPlacesForSpecies() {
   const [speciesList, setSpeciesList] = useState<any[]>([])
+  const [states, setStates] = useState<string[]>([])
   const [weeks, setWeeks] = useState<any[]>([])
   const [results, setResults] = useState<any[]>([])
 
   const [selectedSpecies, setSelectedSpecies] = useState('')
+  const [selectedState, setSelectedState] = useState('All')
   const [fromWeek, setFromWeek] = useState(1)
   const [toWeek, setToWeek] = useState(2)
 
@@ -28,18 +30,27 @@ export default function BestPlacesForSpecies() {
 
   useEffect(() => {
     async function loadInitialData() {
-      // Fetch active species for the dropdown
+      // 1. Fetch States
+      const { data: sData } = await supabase
+        .from('dropdown_states')
+        .select('state')
+        .eq('is_active', true)
+        .order('state')
+      
+      // 2. Fetch Species
       const { data: specData } = await supabase
         .from('dropdown_species')
         .select('species_name')
         .eq('is_active', true)
         .order('species_name')
       
+      // 3. Fetch Weeks
       const { data: wData } = await supabase
         .from('weeks_months')
         .select('week, label_long')
         .order('week')
 
+      if (sData) setStates(['All', ...sData.map(s => s.state)])
       if (specData) setSpeciesList(specData)
       if (wData) setWeeks(wData)
     }
@@ -48,8 +59,8 @@ export default function BestPlacesForSpecies() {
 
   const runPowerQuery = async () => {
     if (!selectedSpecies) { 
-        alert('Please select a species.'); 
-        return; 
+      alert('Please select a species.'); 
+      return; 
     }
     
     if (toWeek < fromWeek) {
@@ -57,49 +68,74 @@ export default function BestPlacesForSpecies() {
       return;
     }
 
-    setLoading(true); 
-    setHasSearched(false);
+    setLoading(true)
+    setHasSearched(false)
 
     const weekArray = Array.from({ length: toWeek - fromWeek + 1 }, (_, i) => fromWeek + i)
 
-    // Using the specific RPC for finding places for a species
     const { data, error } = await supabase.rpc('rpc_best_places_for_species', {
       p_species_name: selectedSpecies, 
       p_weeks: weekArray, 
       p_limit: limit
     })
 
-    setLoading(false); 
+    setLoading(false)
     setHasSearched(true)
     
     if (error) {
-        console.error(error);
+      console.error(error)
     } else {
-        setResults(data || [])
+      // Apply client-side state filter if a specific state is chosen
+      let filteredData = data || []
+      if (selectedState !== 'All') {
+        filteredData = filteredData.filter((r: any) => r.state === selectedState)
+      }
+      setResults(filteredData)
     }
   }
 
   return (
     <div style={{ padding: '12px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif', color: COLORS.text }}>
-      <Link href="/explore" style={{ display: 'inline-block', backgroundColor: '#2e4a31', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', textDecoration: 'none', marginBottom: '10px' }}>
-        EXPLORE
-      </Link>
+      {/* Top Right Explore Badge */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+        <Link href="/explore" style={{ 
+          backgroundColor: COLORS.primary, 
+          color: 'white', 
+          padding: '6px 16px', 
+          borderRadius: '20px', 
+          fontSize: '0.8rem', 
+          fontWeight: 'bold', 
+          textDecoration: 'none',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+          EXPLORE
+        </Link>
+      </div>
 
       <h1 style={{ color: COLORS.primary, fontSize: '1.5rem', marginBottom: '16px', fontWeight: 'bold' }}>
         Best Places for Species
       </h1>
 
-      {/* 1. Select Species */}
+      {/* 1. Select Species & State */}
       <div style={{ marginBottom: '12px', backgroundColor: COLORS.bg, padding: '12px', borderRadius: '8px' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>1. Select a Species</span>
+        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>1. Select Species & State</span>
         
-        <select value={selectedSpecies} onChange={(e) => setSelectedSpecies(e.target.value)} 
-          style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}>
-          <option value="">-- Choose a Species --</option>
-          {speciesList.map(s => (
-            <option key={s.species_name} value={s.species_name}>{s.species_name}</option>
-          ))}
-        </select>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <select value={selectedSpecies} onChange={(e) => setSelectedSpecies(e.target.value)} 
+            style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}>
+            <option value="">-- Choose a Species --</option>
+            {speciesList.map(s => (
+              <option key={s.species_name} value={s.species_name}>{s.species_name}</option>
+            ))}
+          </select>
+
+          <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} 
+            style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}>
+            {states.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* 2. Choose Weeks */}
@@ -129,7 +165,7 @@ export default function BestPlacesForSpecies() {
         <div style={{ marginTop: '24px' }}>
           {results.length === 0 ? (
             <div style={{ padding: '15px', textAlign: 'center', backgroundColor: '#fff9c4', borderRadius: '8px', border: '1px solid #fbc02d', fontSize: '0.9rem' }}>
-              No top locations found for this species in the selected time frame.
+              No top locations found for this species in the selected state/time frame.
             </div>
           ) : (
             <>
