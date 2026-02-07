@@ -27,8 +27,11 @@ export default function HomePage() {
   return (
     <div className="container" style={{ padding: '0 16px 16px 16px', backgroundColor: '#f2f2f7', minHeight: '100vh' }}>
       
-      {/* Header section - Zero top buffer */}
-      <header style={{ paddingTop: '0px', paddingBottom: '10px', textAlign: 'left' }}>
+      {/* 4. Slight buffer between Top Bar and Main Title */}
+      <div style={{ height: '15px' }}></div>
+
+      {/* Header section */}
+      <header style={{ paddingBottom: '10px', textAlign: 'left' }}>
         <h1 style={{ 
           fontSize: '2.2rem', 
           fontWeight: '800', 
@@ -39,7 +42,7 @@ export default function HomePage() {
           Last Great Places for Birds & Birders
         </h1>
         
-        {/* Badge Row */}
+        {/* 2. Badge Match */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ 
             display: 'inline-block', 
@@ -55,7 +58,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Combined Single Subhead - Reduced Buffer */}
+        {/* 2. Combined Single Subhead */}
         <p style={{ 
           fontSize: '15px', 
           fontWeight: '600', 
@@ -67,7 +70,7 @@ export default function HomePage() {
         </p>
       </header>
 
-      {/* Tool Cards - Forced Left Alignment */}
+      {/* Tool Cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {cards.map((card) => (
           <Link 
@@ -82,28 +85,31 @@ export default function HomePage() {
               padding: '16px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
               color: 'inherit',
-              transition: 'transform 0.1s ease',
-              textAlign: 'left' // Explicit container align
+              transition: 'transform 0.1s ease'
             }}
           >
             {/* Action Line */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1, textAlign: 'left' }}>
-                <span style={{ fontSize: '24px', width: '32px', textAlign: 'center' }}>{card.icon}</span>
-                <span style={{ fontSize: '18px', fontWeight: '700', color: '#2d4a27', textAlign: 'left' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1 }}>
+                {/* Fixed width icon container to ensure 1. Text alignment below title */}
+                <div style={{ width: '32px', textAlign: 'center', fontSize: '24px', display: 'flex', justifyContent: 'center' }}>
+                  {card.icon}
+                </div>
+                {/* 2. Reduced Title font-size to 1.1rem (Explore page style) */}
+                <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#2d4a27' }}>
                   {card.title}
                 </span>
               </div>
-              <span style={{ color: '#c4c4c6', fontSize: '20px' }}>›</span>
+              <span style={{ color: '#c4c4c6', fontSize: '20px', marginLeft: '8px' }}>›</span>
             </div>
             
-            {/* Description - Left Aligned */}
+            {/* 1. Description - Now mathematically aligned under the start of the Title text */}
             <div style={{ 
               fontSize: '14px', 
               color: '#666', 
-              marginLeft: '44px', 
+              paddingLeft: '44px', /* 32px icon width + 12px gap */
               lineHeight: '1.4',
-              textAlign: 'left' 
+              textAlign: 'left'
             }}>
               {card.desc}
             </div>
@@ -111,7 +117,7 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Footer - Restored to Centered */}
+      {/* 3. Centered Footer */}
       <footer style={{ 
         marginTop: '40px', 
         padding: '20px 0', 
@@ -130,11 +136,21 @@ export default function HomePage() {
       </footer>
 
       <style jsx>{`
-        /* Aggressive Left-Align for Top Nav/Logo */
-        :global(nav), :global(header), :global(.nav-container), :global(.logo-wrapper) {
+        /* 3. Aggressive Left-Align for Top Nav Bar Components */
+        :global(nav), 
+        :global(.nav-container), 
+        :global(header > div), 
+        :global(.logo-section) {
+          margin-left: 0 !important;
+          padding-left: 0 !important;
           justify-content: flex-start !important;
-          align-items: flex-start !important;
           text-align: left !important;
+          display: flex !important;
+        }
+
+        /* Forces internal link lists to align left if they are centered by default */
+        :global(nav ul), :global(nav div) {
+          justify-content: flex-start !important;
           margin-left: 0 !important;
           padding-left: 0 !important;
         }
