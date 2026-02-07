@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../../lib/supabase'
 import React from 'react'
+import Link from 'next/link'
 
 type WeekRow = {
   week: number
@@ -32,7 +33,6 @@ export default function GroupsSearch() {
 
   const [sortBy, setSortBy] = useState<'avg' | 'integrity' | 'optimal'>('avg')
 
-  // Uniform Badge Style
   const badgeStyle = {
     display: 'inline-block',
     width: '48px',
@@ -95,7 +95,6 @@ export default function GroupsSearch() {
       setSelectedGroups([]) 
       const { data } = await supabase.from(`v_dropdown_${groupSet}_group`).select('*')
       if (data) {
-        // Filter out "Landbirds" if groupSet is Wetland (user)
         const filtered = groupSet === 'user' 
           ? data.filter(g => (Object.values(g)[0] as string) !== 'Landbirds')
           : data;
@@ -124,6 +123,10 @@ export default function GroupsSearch() {
   }
 
   const runPowerQuery = async () => {
+    if (toWeek < fromWeek) {
+      alert('Search Error: The "To" week cannot precede the "From" week.');
+      return;
+    }
     setLoading(true); setHasSearched(false);
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
       p_group_system: groupSet,
@@ -163,6 +166,10 @@ export default function GroupsSearch() {
 
   return (
     <div style={{ padding: '12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <Link href="/explore" style={{ display: 'inline-block', backgroundColor: '#2e4a31', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', textDecoration: 'none', marginBottom: '10px' }}>
+        EXPLORE
+      </Link>
+      
       <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '14px', fontWeight: 'bold' }}>Best Places for Bird Groups</h1>
 
       {/* Group Selection */}
@@ -206,7 +213,6 @@ export default function GroupsSearch() {
           ))}
         </div>
         
-        {/* Responsive Date Selectors */}
         <div style={{ marginTop: '12px' }}>
           <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>From</label>
           <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px', marginBottom: '8px' }}>
@@ -225,82 +231,93 @@ export default function GroupsSearch() {
       </button>
 
       {/* Results */}
-      {results.length > 0 && (
+      {hasSearched && (
         <div style={{ marginTop: '20px' }}>
-           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#555' }}>Sort:</span>
-            <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '6px', flex: 1 }}>
-              {['avg', 'integrity', 'optimal'].map((mode) => (
-                <button key={mode} onClick={() => setSortBy(mode as any)} style={{ flex: 1, padding: '8px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === mode ? '#007bff' : '#666', backgroundColor: sortBy === mode ? 'white' : 'transparent' }}>
-                  {mode === 'avg' ? 'Avg #' : mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </button>
-              ))}
+          {results.length === 0 ? (
+            <div style={{ padding: '15px', textAlign: 'center', backgroundColor: '#fff9c4', borderRadius: '8px', border: '1px solid #fbc02d', fontSize: '0.9rem' }}>
+              No data for this group at this place and date range.
             </div>
-          </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#555' }}>Sort:</span>
+                <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '6px', flex: 1 }}>
+                  {['avg', 'integrity', 'optimal'].map((mode) => (
+                    <button key={mode} onClick={() => setSortBy(mode as any)} style={{ flex: 1, padding: '8px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === mode ? '#007bff' : '#666', backgroundColor: sortBy === mode ? 'white' : 'transparent' }}>
+                      {mode === 'avg' ? 'Avg #' : mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
-                <th style={{ padding: '10px 4px', width: '20px' }}>#</th>
-                <th style={{ padding: '10px 4px' }}>Click on Place for Best Weeks or Calendar</th>
-                <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Avg #</th>
-                <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Integrity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedResults.map((r, idx) => {
-                const siteId = Number(r.site_id);
-                const isOpen = expandedSiteIds.includes(siteId);
-                const integrityScore = calculateIntegrity(parseRawScore(r.footprint_mean));
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
+                    <th style={{ padding: '10px 4px', width: '20px' }}>#</th>
+                    <th style={{ padding: '10px 4px' }}>Click on Place for Best Weeks or Calendar</th>
+                    <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Avg #</th>
+                    <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Integrity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedResults.map((r, idx) => {
+                    const siteId = Number(r.site_id);
+                    const isOpen = expandedSiteIds.includes(siteId);
+                    const integrityScore = calculateIntegrity(parseRawScore(r.footprint_mean));
 
-                return (
-                  <React.Fragment key={siteId}>
-                    <tr onClick={() => toggleSiteWeeks(siteId)} style={{ borderBottom: '1px solid #eee', cursor: 'pointer', backgroundColor: isOpen ? '#f9f9f9' : 'white' }}>
-                      <td style={{ padding: '12px 4px', color: '#999' }}>{idx + 1}</td>
-                      <td style={{ padding: '12px 4px', fontWeight: 'bold', color: '#333' }}>{r.place} <span style={{fontWeight: 'normal', color: '#666'}}>{r.state}</span></td>
-                      <td style={{ padding: '12px 4px', textAlign: 'center' }}>
-                         <span style={{ ...badgeStyle, backgroundColor: '#eeeeee', color: '#333' }}>{Number(r.expected_species).toFixed(1)}</span>
-                      </td>
-                      <td style={{ padding: '12px 4px', textAlign: 'center' }}>
-                        <span style={{ ...badgeStyle, backgroundColor: getIntegrityColor(integrityScore), color: 'white' }}>
-                          {integrityScore !== null ? Math.round(integrityScore) : '--'}
-                        </span>
-                      </td>
-                    </tr>
-                    {isOpen && (
-                      <tr>
-                        <td colSpan={4} style={{ padding: '10px', backgroundColor: '#f3f7f4' }}>
-                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                             <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>Weekly Breakdown</span>
-                             <div style={{ display: 'flex', gap: '4px' }}>
-                               <button onClick={(e) => { e.stopPropagation(); fetchWeeksForSite(siteId, 'best'); }} 
-                                 style={{ padding: '4px 8px', fontSize: '10px', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'best' ? '#2e4a31' : 'white', color: weeksSortMode === 'best' ? 'white' : '#2e4a31' }}>Best</button>
-                               <button onClick={(e) => { e.stopPropagation(); fetchWeeksForSite(siteId, 'calendar'); }} 
-                                 style={{ padding: '4px 8px', fontSize: '10px', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'calendar' ? '#2e4a31' : 'white', color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31' }}>Calendar</button>
-                             </div>
-                           </div>
-                           <div style={{ maxHeight: '200px', overflowY: 'auto', background: 'white', borderRadius: '4px', border: '1px solid #ddd' }}>
-                             {weeksLoading[siteId] ? ( <div style={{ padding: '15px', textAlign: 'center' }}>Loading...</div> ) : (
-                               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.7rem' }}>
-                                 <tbody>
-                                   {(weeksDataStore[siteId] || []).map(w => (
-                                     <tr key={w.week} style={{ borderBottom: '1px solid #eee' }}>
-                                       <td style={{padding: '8px'}}>{w.label_long}</td>
-                                       <td style={{paddingRight: '8px', textAlign: 'right', fontWeight: 'bold', color: '#2e4a31'}}>{w.expected_species} spp</td>
-                                     </tr>
-                                   ))}
-                                 </tbody>
-                               </table>
-                             )}
-                           </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                )
-              })}
-            </tbody>
-          </table>
+                    return (
+                      <React.Fragment key={siteId}>
+                        <tr onClick={() => toggleSiteWeeks(siteId)} style={{ borderBottom: '1px solid #eee', cursor: 'pointer', backgroundColor: isOpen ? '#f9f9f9' : 'white' }}>
+                          <td style={{ padding: '12px 4px', color: '#999' }}>{idx + 1}</td>
+                          <td style={{ padding: '12px 4px', fontWeight: 'bold', color: '#333' }}>{r.place} <span style={{fontWeight: 'normal', color: '#666'}}>{r.state}</span></td>
+                          <td style={{ padding: '12px 4px', textAlign: 'center' }}>
+                             <span style={{ ...badgeStyle, backgroundColor: '#eeeeee', color: '#333' }}>{Number(r.expected_species).toFixed(1)}</span>
+                          </td>
+                          <td style={{ padding: '12px 4px', textAlign: 'center' }}>
+                            <span style={{ ...badgeStyle, backgroundColor: getIntegrityColor(integrityScore), color: 'white' }}>
+                              {integrityScore !== null ? Math.round(integrityScore) : '--'}
+                            </span>
+                          </td>
+                        </tr>
+                        {isOpen && (
+                          <tr>
+                            <td colSpan={4} style={{ padding: '10px', backgroundColor: '#f3f7f4' }}>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                 <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>Weekly Breakdown</span>
+                                 <div style={{ display: 'flex', gap: '4px' }}>
+                                   <button onClick={(e) => { e.stopPropagation(); fetchWeeksForSite(siteId, 'best'); }} 
+                                     style={{ padding: '4px 8px', fontSize: '10px', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'best' ? '#2e4a31' : 'white', color: weeksSortMode === 'best' ? 'white' : '#2e4a31' }}>Best</button>
+                                   <button onClick={(e) => { e.stopPropagation(); fetchWeeksForSite(siteId, 'calendar'); }} 
+                                     style={{ padding: '4px 8px', fontSize: '10px', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'calendar' ? '#2e4a31' : 'white', color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31' }}>Calendar</button>
+                                 </div>
+                               </div>
+                               <div style={{ maxHeight: '200px', overflowY: 'auto', background: 'white', borderRadius: '4px', border: '1px solid #ddd' }}>
+                                 {weeksLoading[siteId] ? ( <div style={{ padding: '15px', textAlign: 'center' }}>Loading...</div> ) : (
+                                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.7rem' }}>
+                                     <tbody>
+                                       {(weeksDataStore[siteId] || []).map(w => (
+                                         <tr key={w.week} style={{ borderBottom: '1px solid #eee' }}>
+                                           <td style={{padding: '8px'}}>{w.label_long}</td>
+                                           <td style={{paddingRight: '8px', textAlign: 'right', fontWeight: 'bold', color: '#2e4a31'}}>{w.expected_species} spp</td>
+                                         </tr>
+                                       ))}
+                                     </tbody>
+                                   </table>
+                                 )}
+                               </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    )
+                  })}
+                </tbody>
+              </table>
+              <div style={{ marginTop: '16px', fontSize: '0.7rem', color: '#666', fontStyle: 'italic', textAlign: 'center' }}>
+                Minimum 20% likelihood for reporting.
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
