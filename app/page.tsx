@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -30,7 +32,7 @@ export default function HomePage() {
         <h1 style={{ 
           fontSize: '2.2rem', 
           fontWeight: '800', 
-          color: 'var(--primary-green)', 
+          color: '#2d4a27', 
           lineHeight: '1.1',
           marginBottom: '10px'
         }}>
@@ -42,7 +44,7 @@ export default function HomePage() {
           <div style={{ 
             display: 'inline-block', 
             border: '1.5px solid #a8c6a4', 
-            color: 'var(--primary-green)', 
+            color: '#2d4a27', 
             padding: '4px 12px', 
             borderRadius: '8px', 
             fontSize: '14px', 
@@ -84,10 +86,10 @@ export default function HomePage() {
             }}
           >
             {/* Action Line (Top Row) */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifySpace: 'between', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1 }}>
                 <span style={{ fontSize: '24px', width: '32px', textAlign: 'center' }}>{card.icon}</span>
-                <span style={{ fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+                <span style={{ fontSize: '18px', fontWeight: '700', color: '#2d4a27' }}>
                   {card.title}
                 </span>
               </div>
@@ -125,7 +127,6 @@ export default function HomePage() {
         </p>
       </footer>
 
-      {/* CSS for Tap Feedback */}
       <style jsx>{`
         .tool-card:active {
           transform: scale(0.97);
