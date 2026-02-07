@@ -25,12 +25,13 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="container" style={{ padding: '0 16px 16px 16px', backgroundColor: '#f2f2f7', minHeight: '100vh' }}>
+    /* Unified 20px left buffer for the whole page */
+    <div className="container" style={{ padding: '0 20px 20px 20px', backgroundColor: '#f2f2f7', minHeight: '100vh' }}>
       
-      {/* 4. Slight buffer between Top Bar and Main Title */}
+      {/* 4. Slight buffer between Top Bar and Title */}
       <div style={{ height: '15px' }}></div>
 
-      {/* Header section */}
+      {/* Header section - Aligned to 20px left */}
       <header style={{ paddingBottom: '10px', textAlign: 'left' }}>
         <h1 style={{ 
           fontSize: '2.2rem', 
@@ -42,7 +43,7 @@ export default function HomePage() {
           Last Great Places for Birds & Birders
         </h1>
         
-        {/* 2. Badge Match */}
+        {/* Badge - Matching Explore page style */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ 
             display: 'inline-block', 
@@ -58,7 +59,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 2. Combined Single Subhead */}
+        {/* Combined Subhead */}
         <p style={{ 
           fontSize: '15px', 
           fontWeight: '600', 
@@ -70,7 +71,7 @@ export default function HomePage() {
         </p>
       </header>
 
-      {/* Tool Cards */}
+      {/* Tool Cards - Left Aligned */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {cards.map((card) => (
           <Link 
@@ -88,36 +89,43 @@ export default function HomePage() {
               transition: 'transform 0.1s ease'
             }}
           >
-            {/* Action Line */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1 }}>
-                {/* Fixed width icon container to ensure 1. Text alignment below title */}
-                <div style={{ width: '32px', textAlign: 'center', fontSize: '24px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '12px', flexGrow: 1 }}>
+                
+                {/* ICON CONTAINER - Fixed width to match Explore page logic */}
+                <div style={{ width: '32px', textAlign: 'center', fontSize: '24px', flexShrink: 0 }}>
                   {card.icon}
                 </div>
-                {/* 2. Reduced Title font-size to 1.1rem (Explore page style) */}
-                <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#2d4a27' }}>
-                  {card.title}
-                </span>
+                
+                {/* TEXT CONTAINER - Guarantees Title and Desc share the same left edge */}
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                  <span style={{ 
+                    fontSize: '1.1rem', /* Reduced for single-line fit */
+                    fontWeight: '700', 
+                    color: '#2d4a27', 
+                    marginBottom: '4px',
+                    display: 'block' 
+                  }}>
+                    {card.title}
+                  </span>
+                  <span style={{ 
+                    fontSize: '14px', 
+                    color: '#666', 
+                    lineHeight: '1.4' 
+                  }}>
+                    {card.desc}
+                  </span>
+                </div>
+
               </div>
-              <span style={{ color: '#c4c4c6', fontSize: '20px', marginLeft: '8px' }}>›</span>
-            </div>
-            
-            {/* 1. Description - Now mathematically aligned under the start of the Title text */}
-            <div style={{ 
-              fontSize: '14px', 
-              color: '#666', 
-              paddingLeft: '44px', /* 32px icon width + 12px gap */
-              lineHeight: '1.4',
-              textAlign: 'left'
-            }}>
-              {card.desc}
+              {/* iOS Style Chevron */}
+              <span style={{ color: '#c4c4c6', fontSize: '20px', marginLeft: '8px', alignSelf: 'center' }}>›</span>
             </div>
           </Link>
         ))}
       </div>
 
-      {/* 3. Centered Footer */}
+      {/* Footer - Centered */}
       <footer style={{ 
         marginTop: '40px', 
         padding: '20px 0', 
@@ -136,23 +144,14 @@ export default function HomePage() {
       </footer>
 
       <style jsx>{`
-        /* 3. Aggressive Left-Align for Top Nav Bar Components */
+        /* Global Reset for Top Bar / Nav alignment */
         :global(nav), 
-        :global(.nav-container), 
-        :global(header > div), 
-        :global(.logo-section) {
+        :global(.nav-container),
+        :global(header:first-of-type) {
+          padding-left: 20px !important;
           margin-left: 0 !important;
-          padding-left: 0 !important;
           justify-content: flex-start !important;
           text-align: left !important;
-          display: flex !important;
-        }
-
-        /* Forces internal link lists to align left if they are centered by default */
-        :global(nav ul), :global(nav div) {
-          justify-content: flex-start !important;
-          margin-left: 0 !important;
-          padding-left: 0 !important;
         }
 
         .tool-card:active {
