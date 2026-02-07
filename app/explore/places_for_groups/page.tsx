@@ -54,15 +54,20 @@ export default function GroupsSearch() {
   const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])
 
   const runPowerQuery = async () => {
-    if (toWeek < fromWeek) {
+    // Exact logic from Species at Places with forced Number casting
+    if (Number(toWeek) < Number(fromWeek)) {
       alert('Search Error: The "To" week cannot precede the "From" week.');
       return;
     }
 
     setLoading(true); setHasSearched(false);
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
-      p_group_system: groupSet, p_group_values: selectedGroups.length > 0 ? selectedGroups : null,
-      p_week_from: fromWeek, p_week_to: toWeek, p_states: selectedStates.length > 0 ? selectedStates : null, p_limit: 50
+      p_group_system: groupSet, 
+      p_group_values: selectedGroups.length > 0 ? selectedGroups : null,
+      p_week_from: fromWeek, 
+      p_week_to: toWeek, 
+      p_states: selectedStates.length > 0 ? selectedStates : null, 
+      p_limit: 50
     })
     setLoading(false); setHasSearched(true); if (!error) setResults(data || [])
   }
@@ -84,6 +89,8 @@ export default function GroupsSearch() {
   return (
     <div style={{ padding: '12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '14px', fontWeight: 'bold' }}>Best Places for Bird Groups</h1>
+      
+      {/* 1. Group Type */}
       <div style={{ background: '#f4f4f4', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
         <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>1. Select Group Type:</label>
         <div style={{ display: 'flex', gap: '15px', marginTop: '4px' }}>
@@ -92,6 +99,8 @@ export default function GroupsSearch() {
           <label style={{ fontSize: '0.8rem' }}><input type="radio" checked={groupSet === 'species'} onChange={() => setGroupSet('species')} /> Families</label>
         </div>
       </div>
+
+      {/* 2. Select Groups */}
       <div style={{ background: '#f4f4f4', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
         <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>2. Select Groups</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '6px' }}>
@@ -101,6 +110,8 @@ export default function GroupsSearch() {
           })}
         </div>
       </div>
+
+      {/* 3. Region & Date Range */}
       <div style={{ background: '#f4f4f4', padding: '10px', borderRadius: '8px', marginBottom: '10px' }}>
         <label style={{ fontWeight: 'bold', display: 'block', fontSize: '0.85rem', marginBottom: '6px' }}>3. Region & Date Range</label>
         <div style={{ height: '80px', overflowY: 'auto', background: 'white', border: '1px solid #ddd', borderRadius: '6px', padding: '6px', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
@@ -108,11 +119,22 @@ export default function GroupsSearch() {
           {states.map(s => <label key={s.state} style={{ fontSize: '0.75rem' }}><input type="checkbox" checked={selectedStates.includes(s.state)} onChange={() => toggleState(s.state)} /> {s.state}</label>)}
         </div>
         <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-          <div style={{ flex: 1 }}><label style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>From</label><select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}>{weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}</select></div>
-          <div style={{ flex: 1 }}><label style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>To</label><select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}>{weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}</select></div>
+          <div style={{ flex: 1 }}><label style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>From</label>
+            <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}>
+              {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
+            </select>
+          </div>
+          <div style={{ flex: 1 }}><label style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>To</label>
+            <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}>
+              {weeks.map(w => <option key={w.week} value={w.week}>{w.label_long}</option>)}
+            </select>
+          </div>
         </div>
       </div>
-      <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '0.9rem' }}>{loading ? 'CALCULATING...' : 'SEARCH SIGHTINGS'}</button>
+
+      <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '12px', backgroundColor: '#2e4a31', color: 'white', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', border: 'none', fontSize: '0.9rem' }}>
+        {loading ? 'CALCULATING...' : 'SEARCH SIGHTINGS'}
+      </button>
 
       {hasSearched && (results.length === 0 ? (
         <div style={{ marginTop: '20px', padding: '15px', textAlign: 'center', backgroundColor: '#fff9c4', borderRadius: '8px', border: '1px solid #fbc02d', fontSize: '0.9rem' }}>
@@ -124,7 +146,9 @@ export default function GroupsSearch() {
             <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#555' }}>Sort:</span>
             <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '6px', flex: 1 }}>
               {['avg', 'integrity', 'optimal'].map((mode) => (
-                <button key={mode} onClick={() => setSortBy(mode as any)} style={{ flex: 1, padding: '6px 0', borderRadius: '5px', border: 'none', fontSize: '0.7rem', fontWeight: 'bold', color: sortBy === mode ? '#007bff' : '#666', backgroundColor: sortBy === mode ? 'white' : 'transparent' }}>{mode === 'avg' ? 'Avg #' : mode.charAt(0).toUpperCase() + mode.slice(1)}</button>
+                <button key={mode} onClick={() => setSortBy(mode as any)} style={{ flex: 1, padding: '6px 0', borderRadius: '5px', border: 'none', fontSize: '0.7rem', fontWeight: 'bold', color: sortBy === mode ? '#007bff' : '#666', backgroundColor: sortBy === mode ? 'white' : 'transparent' }}>
+                  {mode === 'avg' ? 'Avg #' : mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </button>
               ))}
             </div>
           </div>
