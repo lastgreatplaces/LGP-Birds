@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import Link from 'next/link'
 
 export default function SpeciesAtPlacesSearch() {
   const [places, setPlaces] = useState<any[]>([])
@@ -74,10 +73,7 @@ export default function SpeciesAtPlacesSearch() {
 
   return (
     <div style={{ padding: '12px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif', color: COLORS.text }}>
-      <Link href="/explore" style={{ display: 'inline-block', backgroundColor: '#2e4a31', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', textDecoration: 'none', marginBottom: '10px' }}>
-        EXPLORE
-      </Link>
-
+      
       <h1 style={{ color: COLORS.primary, fontSize: '1.5rem', marginBottom: '16px', fontWeight: 'bold' }}>
         What you're likely to see
       </h1>
