@@ -1,4 +1,4 @@
-'use client'
+'use client' 
 
 
 
@@ -58,7 +58,7 @@ export default function SpeciesSearch() {
 
   const [selectedSpecies, setSelectedSpecies] = useState('')
 
-  const [selectedState, setSelectedState] = useState('')
+  const [selectedStates, setSelectedStates] = useState<string[]>([])   // CHANGED
 
   const [fromWeek, setFromWeek] = useState(1)
 
@@ -180,6 +180,10 @@ export default function SpeciesSearch() {
 
 
 
+  const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])   // ADDED
+
+
+
   const runPowerQuery = async () => {
 
     if (!selectedSpecies) { alert('Please select a bird species.'); return; }
@@ -194,7 +198,7 @@ export default function SpeciesSearch() {
 
       p_week_to: toWeek,
 
-      p_states: selectedState ? [selectedState] : null,
+      p_states: selectedStates.length > 0 ? selectedStates : null,   // CHANGED
 
       p_limit: 50
 
@@ -326,7 +330,7 @@ export default function SpeciesSearch() {
 
           <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer', color: '#2e4a31', fontWeight: 'bold', paddingBottom: '4px' }}>
 
-            <input type="radio" name="state" checked={selectedState === ''} onChange={() => setSelectedState('')} style={{ marginRight: '8px' }} /> All States
+            <input type="checkbox" checked={selectedStates.length === 0} onChange={() => setSelectedStates([])} style={{ marginRight: '8px' }} /> All States
 
           </label>
 
@@ -334,7 +338,7 @@ export default function SpeciesSearch() {
 
             <label key={s} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', padding: '2px 0' }}>
 
-              <input type="radio" name="state" checked={selectedState === s} onChange={() => setSelectedState(s)} style={{ marginRight: '8px' }} /> {s}
+              <input type="checkbox" checked={selectedStates.includes(s)} onChange={() => toggleState(s)} style={{ marginRight: '8px' }} /> {s}
 
             </label>
 
