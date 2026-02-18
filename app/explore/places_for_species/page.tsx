@@ -40,7 +40,7 @@ export default function SpeciesSearch() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [sortBy, setSortBy] = useState<'avg' | 'integrity' | 'optimal'>('avg')
-  const [searchError, setSearchError] = useState<string | null>(null) // NEW: Reliable visual error state
+  const [searchError, setSearchError] = useState<string | null>(null)
 
   const calculateIntegrity = (foot: number | null) => {
     if (foot === null) return null;
@@ -93,17 +93,21 @@ export default function SpeciesSearch() {
   const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])
 
   const runPowerQuery = async () => {
-    setSearchError(null); // Reset error state on new click
+    setSearchError(null);
     
+    // Safety log to check values in the browser console
+    console.log(`Validating: From=${fromWeek}, To=${toWeek}`);
+
     if (!selectedSpecies) { 
       setSearchError('Please select a bird species.'); 
       return; 
     }
 
-    // Fixed numeric comparison: blocks "From Week 18 to Week 1"
+    // Force strict numeric comparison
     if (Number(toWeek) < Number(fromWeek)) {
-      setSearchError('Search Error: The "To" week cannot precede the "From" week.');
-      setResults([]); // Clear previous results so the UI correctly reflects the error
+      console.log("Validation Failed: To is less than From");
+      setSearchError('Search Error: The "To" week cannot be earlier than the "From" week.');
+      setResults([]); 
       return;
     }
 
@@ -120,10 +124,10 @@ export default function SpeciesSearch() {
 
     setLoading(false); 
     setHasSearched(true);
-    if (!error) {
-      setResults((data || []) as PlaceRow[])
+    if (error) {
+      setSearchError('A database error occurred. Please try again.');
     } else {
-      setSearchError('A database error occurred. Please try again later.');
+      setResults((data || []) as PlaceRow[])
     }
   }
 
@@ -201,18 +205,9 @@ export default function SpeciesSearch() {
         </div>
       </div>
 
-      {/* Visual Error Message Display */}
+      {/* ERROR DISPLAY AREA */}
       {searchError && (
-        <div style={{ 
-          color: '#d32f2f', 
-          backgroundColor: '#ffebee', 
-          padding: '12px', 
-          borderRadius: '8px', 
-          marginBottom: '10px', 
-          fontSize: '0.85rem', 
-          fontWeight: 'bold', 
-          border: '1px solid #ef9a9a' 
-        }}>
+        <div style={{ color: '#d32f2f', backgroundColor: '#ffebee', padding: '12px', borderRadius: '8px', marginBottom: '10px', fontSize: '0.85rem', fontWeight: 'bold', border: '1px solid #ef9a9a' }}>
           ⚠️ {searchError}
         </div>
       )}
