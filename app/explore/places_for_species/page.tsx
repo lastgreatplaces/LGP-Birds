@@ -1,140 +1,315 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useMemo } from 'react'
+import { supabase } from '../../../lib/supabase'
+
+type WeekRow = {
+  week: number
+  label_long: string | null
+  likelihood_see: number
+  num_checklists: number
+}
+
+type PlaceRow = {
+  rank: number
+  site_id: number
+  site_name: string
+  state: string
+  avg_likelihood_see: number
+  avg_weekly_checklists: number
+  avg_expected_checklists: number
+  footprint_mean: number | null
+}
 
 export default function SpeciesSearch() {
-  const [birdSpecies, setBirdSpecies] = useState("American Crow");
-  const [selectedStates, setSelectedStates] = useState(["All States"]);
-  const [fromWeek, setFromWeek] = useState(20);
-  const [toWeek, setToWeek] = useState(1);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Mock data for display based on your successful version
-  const [results, setResults] = useState([
-    { id: 1, name: "Beech Fork State Park", st: "WV", avg: 95, integrity: 80 }
-  ]);
+  const [allSpecies, setAllSpecies] = useState<string[]>([])
+  const [states, setStates] = useState<string[]>([])
+  const [weeks, setWeeks] = useState<Array<{ week: number; label_long: string }>>([])
+  const [results, setResults] = useState<PlaceRow[]>([])
 
-  const handleSearch = () => {
-    // FIX: Only trigger error if 'To' is less than 'From' 
-    // and 'To' isn't the start of the year (Week 1)
-    if (fromWeek > toWeek && toWeek !== 1) {
-      setError("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!");
+  const [selectedSpecies, setSelectedSpecies] = useState('')
+  const [selectedStates, setSelectedStates] = useState<string[]>([])
+  const [fromWeek, setFromWeek] = useState(1)
+  const [toWeek, setToWeek] = useState(52)
+
+  const [expandedSiteIds, setExpandedSiteIds] = useState<number[]>([])
+  const [weeksDataStore, setWeeksDataStore] = useState<Record<number, WeekRow[]>>({})
+  const [weeksLoading, setWeeksLoading] = useState<Record<number, boolean>>({})
+  const [weeksSortMode, setWeeksSortMode] = useState<'best' | 'calendar'>('best')
+  
+  const [loading, setLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
+  const [sortBy, setSortBy] = useState<'avg' | 'integrity' | 'optimal'>('avg')
+  const [searchError, setSearchError] = useState<string | null>(null)
+
+  const calculateIntegrity = (foot: number | null) => {
+    if (foot === null) return null;
+    return Math.round(Math.max(0, Math.min(100, 100 - (foot * 100))));
+  }
+
+  const getLikelihoodColor = (val: number) => {
+    if (val >= 0.80) return '#1b5e20'
+    if (val >= 0.60) return '#4caf50'
+    if (val >= 0.33) return '#fbc02d'
+    return '#d32f2f'
+  }
+
+  const getIntegrityColor = (score: number | null) => {
+    if (score === null) return '#9e9e9e';
+    if (score >= 90) return '#1b5e20';
+    if (score >= 80) return '#4caf50';
+    if (score >= 67) return '#fbc02d';
+    return '#d32f2f';
+  }
+
+  const sortedResults = useMemo(() => {
+    if (!results.length) return [];
+    return [...results].sort((a, b) => {
+      if (sortBy === 'avg') return b.avg_likelihood_see - a.avg_likelihood_see;
+      const aInt = calculateIntegrity(a.footprint_mean) || 0;
+      const bInt = calculateIntegrity(b.footprint_mean) || 0;
+      if (sortBy === 'integrity') return bInt - aInt;
+      if (sortBy === 'optimal') {
+        const aScore = (aInt / 100) * (a.avg_likelihood_see * 100);
+        const bScore = (bInt / 100) * (b.avg_likelihood_see * 100);
+        return bScore - aScore;
+      }
+      return 0;
+    });
+  }, [results, sortBy]);
+
+  useEffect(() => {
+    async function loadInitialData() {
+      const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
+      const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
+      const { data: spData } = await supabase.from('species_groups').select('species_name').order('species_name')
+      if (sData) setStates((sData as any[]).map(x => x.state))
+      if (wData) setWeeks(wData as any[])
+      if (spData) setAllSpecies((spData as any[]).map(x => x.species_name))
+    }
+    loadInitialData()
+  }, [])
+
+  const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])
+
+  const runPowerQuery = async () => {
+    setSearchError(null); 
+    
+    // 1. DATE VALIDATION FIRST
+    if (Number(toWeek) < Number(fromWeek)) {
+      setSearchError('Search Error: The "To" week cannot precede the "From" week.');
+      setResults([]); 
       return;
     }
-    
-    setError(null);
-    // Search logic execution...
-  };
+
+    // 2. SPECIES VALIDATION SECOND
+    if (!selectedSpecies) { 
+      setSearchError('Please select a bird species.'); 
+      return; 
+    }
+
+    setLoading(true); 
+    setHasSearched(false);
+
+    const { data, error } = await supabase.rpc('rpc_best_places_for_species', {
+      p_species: selectedSpecies,
+      p_week_from: fromWeek,
+      p_week_to: toWeek,
+      p_states: selectedStates.length > 0 ? selectedStates : null,
+      p_limit: 50
+    })
+
+    setLoading(false); 
+    setHasSearched(true);
+    if (!error) {
+      setResults((data || []) as PlaceRow[])
+    } else {
+      setSearchError('A database error occurred. Please try again later.');
+    }
+  }
+
+  const fetchWeeksForSite = async (siteId: number, sortMode: 'best' | 'calendar') => {
+    setWeeksLoading(prev => ({ ...prev, [siteId]: true }))
+    setWeeksSortMode(sortMode)
+    const { data, error } = await supabase.rpc('rpc_species_weeks_at_place', {
+      p_species: selectedSpecies,
+      p_site_id: siteId,
+      p_week_from: fromWeek,
+      p_week_to: toWeek,
+      p_min_likelihood: 0.001,
+      p_sort_mode: sortMode,
+      p_limit: 52
+    })
+    setWeeksLoading(prev => ({ ...prev, [siteId]: false }))
+    if (!error) setWeeksDataStore(prev => ({ ...prev, [siteId]: (data || []) as WeekRow[] }))
+  }
+
+  const toggleSiteWeeks = async (siteId: number) => {
+    if (expandedSiteIds.includes(siteId)) {
+      setExpandedSiteIds(prev => prev.filter(id => id !== siteId))
+    } else {
+      setExpandedSiteIds(prev => [...prev, siteId])
+      await fetchWeeksForSite(siteId, 'best')
+    }
+  }
+
+  const badgeStyle = {
+    display: 'inline-block',
+    width: '45px',
+    height: '22px',
+    lineHeight: '22px',
+    borderRadius: '4px',
+    fontWeight: 'bold',
+    fontSize: '0.7rem',
+    color: 'white',
+    textAlign: 'center' as const
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 font-sans text-gray-800">
-      <h1 className="text-2xl font-bold text-green-800 mb-6">Best Places for Species</h1>
+    <div style={{ padding: '10px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', backgroundColor: '#fff' }}>
+      <h1 style={{ color: '#2e4a31', fontSize: '1.4rem', marginBottom: '15px', textAlign: 'left', fontWeight: 'bold' }}>
+        Best Places for Species
+      </h1>
 
-      {/* 1. Bird Species */}
-      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-        <label className="block font-bold mb-2">1. Bird Species</label>
-        <select 
-          className="w-full p-2 border rounded bg-white"
-          value={birdSpecies}
-          onChange={(e) => setBirdSpecies(e.target.value)}
-        >
-          <option>American Crow</option>
-          <option>American Coot</option>
-          <option>American Black Duck</option>
+      <div style={{ marginBottom: '10px', background: '#f8f8f8', padding: '12px', borderRadius: '8px' }}>
+        <label style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>1. Bird Species</label>
+        <select value={selectedSpecies} onChange={(e) => setSelectedSpecies(e.target.value)}
+                style={{ width: '100%', padding: '12px', marginTop: '8px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px' }}>
+          <option value="">-- Choose Bird --</option>
+          {allSpecies.map(sp => <option key={sp} value={sp}>{sp}</option>)}
         </select>
       </div>
 
-      {/* 2. States & Date Range */}
-      <div className="bg-green-50/50 p-4 rounded-lg border border-green-100 mb-4">
-        <label className="block font-bold mb-2 text-green-900">2. States & Date Range</label>
-        
-        {/* States Multi-select Box */}
-        <div className="bg-white border rounded mb-4 h-32 overflow-y-scroll p-2">
-          {["All States", "AL", "AR", "AZ", "CA", "FL", "GA"].map((st) => (
-            <label key={st} className="flex items-center gap-2 py-1 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={selectedStates.includes(st)}
-                onChange={() => {}} 
-                className="rounded text-blue-600"
-              />
-              <span className="text-sm">{st}</span>
+      <div style={{ marginBottom: '15px', background: '#eef4ef', border: '1px solid #d0ddd1', padding: '12px', borderRadius: '10px' }}>
+        <label style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#2e4a31', display: 'block', marginBottom: '8px' }}>2. States & Date Range</label>
+        <div style={{ height: '80px', overflowY: 'auto', background: 'white', border: '1px solid #ccc', borderRadius: '6px', padding: '8px', marginBottom: '10px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer', color: '#2e4a31', fontWeight: 'bold', paddingBottom: '4px' }}>
+            <input type="checkbox" checked={selectedStates.length === 0} onChange={() => setSelectedStates([])} style={{ marginRight: '8px' }} /> All States
+          </label>
+          {states.map(s => (
+            <label key={s} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', padding: '2px 0' }}>
+              <input type="checkbox" checked={selectedStates.includes(s)} onChange={() => toggleState(s)} style={{ marginRight: '8px' }} /> {s}
             </label>
           ))}
         </div>
-
-        {/* Date Selects */}
-        <select 
-          className="w-full p-2 border rounded bg-white mb-3"
-          value={fromWeek}
-          onChange={(e) => setFromWeek(Number(e.target.value))}
-        >
-          <option value={20}>From: May – Late (Week 20)</option>
-          <option value={15}>From: April – Mid to Late (Week 15)</option>
-        </select>
-
-        <select 
-          className="w-full p-2 border rounded bg-white"
-          value={toWeek}
-          onChange={(e) => setToWeek(Number(e.target.value))}
-        >
-          <option value={1}>To: January – Early (Week 1)</option>
-          <option value={7}>To: February – Mid to Late (Week 7)</option>
-        </select>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+             <select value={fromWeek} onChange={(e) => setFromWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px' }}>
+               {weeks.map(w => <option key={w.week} value={w.week}>From: {w.label_long}</option>)}
+             </select>
+             <select value={toWeek} onChange={(e) => setToWeek(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px' }}>
+               {weeks.map(w => <option key={w.week} value={w.week}>To: {w.label_long}</option>)}
+             </select>
+        </div>
       </div>
 
-      {/* Error Message Section */}
-      {error && (
-        <div className="bg-red-600 text-white p-4 rounded-lg mb-4 flex items-center gap-3">
-          <span className="text-xl">⚠️</span>
-          <p className="font-bold text-sm uppercase leading-tight">{error}</p>
+      {searchError && (
+        <div style={{ 
+          color: '#d32f2f', 
+          backgroundColor: '#ffebee', 
+          padding: '12px', 
+          borderRadius: '8px', 
+          marginBottom: '10px', 
+          fontSize: '0.85rem', 
+          fontWeight: 'bold', 
+          border: '1px solid #ef9a9a' 
+        }}>
+          ⚠️ {searchError}
         </div>
       )}
 
-      <button 
-        onClick={handleSearch}
-        className="w-full bg-[#2d4a31] text-white font-bold py-3 rounded-lg mb-6 uppercase tracking-widest hover:bg-[#1e3321]"
-      >
-        Find Best Places
+      <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', borderRadius: '8px', border: 'none', fontSize: '1rem', cursor: loading ? 'not-allowed' : 'pointer' }}>
+        {loading ? 'ANALYZING...' : 'FIND BEST PLACES'}
       </button>
 
-      {/* Results Header/Sort */}
-      <div className="flex items-center gap-4 mb-2">
-        <span className="text-sm font-bold text-gray-600">Sort:</span>
-        <div className="flex-1 flex bg-gray-200 rounded-lg p-1">
-          <button className="flex-1 bg-white text-blue-600 py-1 rounded shadow text-sm font-bold">Probability</button>
-          <button className="flex-1 text-gray-500 py-1 text-sm font-bold">Integrity</button>
-          <button className="flex-1 text-gray-500 py-1 text-sm font-bold">Optimal</button>
+      {results.length > 0 && (
+        <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#666' }}>Sort:</span>
+          <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '6px', flex: 1 }}>
+            <button onClick={() => setSortBy('avg')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'avg' ? '#007bff' : '#666', backgroundColor: sortBy === 'avg' ? 'white' : 'transparent' }}>Probability</button>
+            <button onClick={() => setSortBy('integrity')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'integrity' ? '#007bff' : '#666', backgroundColor: sortBy === 'integrity' ? 'white' : 'transparent' }}>Integrity</button>
+            <button onClick={() => setSortBy('optimal')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'optimal' ? '#007bff' : '#666', backgroundColor: sortBy === 'optimal' ? 'white' : 'transparent' }}>Optimal</button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Results Table */}
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-[#2d4a31] text-white text-xs uppercase">
-            <th className="p-3 text-left w-8">#</th>
-            <th className="p-3 text-left">Click on a Place to see Best Weeks or Calendar</th>
-            <th className="p-3 text-center w-12">ST</th>
-            <th className="p-3 text-center w-20">Avg %</th>
-            <th className="p-3 text-center w-20">Integrity</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {results.map((r) => (
-            <tr key={r.id} className="text-sm">
-              <td className="p-3 text-gray-400">{r.id}</td>
-              <td className="p-3 font-bold text-gray-700">{r.name}</td>
-              <td className="p-3 text-center text-gray-500">{r.st}</td>
-              <td className="p-3 text-center">
-                <span className="bg-green-700 text-white px-3 py-1 rounded text-xs font-bold">{r.avg}%</span>
-              </td>
-              <td className="p-3 text-center">
-                <span className="bg-green-500 text-white px-3 py-1 rounded text-xs font-bold">{r.integrity}</span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {results.length > 0 && (
+        <div style={{ marginTop: '12px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#2e4a31', color: 'white', textAlign: 'left' }}>
+                <th style={{ padding: '10px 4px', width: '20px' }}>#</th>
+                <th style={{ padding: '10px 4px' }}>Click on a Place to see Best Weeks or Calendar</th>
+                <th style={{ padding: '10px 4px', textAlign: 'center', width: '25px' }}>ST</th>
+                <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Avg %</th>
+                <th style={{ padding: '10px 4px', textAlign: 'center', width: '55px' }}>Integrity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedResults.map((r, idx) => {
+                const isOpen = expandedSiteIds.includes(r.site_id)
+                const intScore = calculateIntegrity(r.footprint_mean)
+                return (
+                  <React.Fragment key={r.site_id}>
+                    <tr onClick={() => toggleSiteWeeks(r.site_id)} style={{ borderBottom: '1px solid #eee', cursor: 'pointer', backgroundColor: isOpen ? '#f9f9f9' : 'white' }}>
+                      <td style={{ padding: '12px 4px', color: '#999' }}>{idx + 1}</td>
+                      <td style={{ padding: '12px 4px', fontWeight: 'bold', color: '#333' }}>{r.site_name}</td>
+                      <td style={{ padding: '12px 4px', textAlign: 'center' }}>{r.state}</td>
+                      <td style={{ padding: '12px 4px', textAlign: 'center' }}>
+                         <span style={{ ...badgeStyle, backgroundColor: getLikelihoodColor(r.avg_likelihood_see) }}>
+                          {Math.round(r.avg_likelihood_see * 100)}%
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 4px', textAlign: 'center' }}>
+                        <span style={{ ...badgeStyle, backgroundColor: getIntegrityColor(intScore) }}>
+                          {intScore ?? '--'}
+                        </span>
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr>
+                        <td colSpan={5} style={{ padding: '10px', backgroundColor: '#f3f7f4' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>Weekly Availability</span>
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                <button onClick={(e) => { e.stopPropagation(); fetchWeeksForSite(r.site_id, 'best'); }}
+                                  style={{ padding: '4px 8px', fontSize: '10px', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'best' ? '#2e4a31' : 'white', color: weeksSortMode === 'best' ? 'white' : '#2e4a31' }}>Best</button>
+                                <button onClick={(e) => { e.stopPropagation(); fetchWeeksForSite(r.site_id, 'calendar'); }}
+                                  style={{ padding: '4px 8px', fontSize: '10px', borderRadius: '4px', border: '1px solid #2e4a31', backgroundColor: weeksSortMode === 'calendar' ? '#2e4a31' : 'white', color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31' }}>Calendar</button>
+                              </div>
+                            </div>
+                            <div style={{ maxHeight: '200px', overflowY: 'auto', background: 'white', borderRadius: '4px', border: '1px solid #ddd' }}>
+                              {weeksLoading[r.site_id] ? (
+                                <div style={{ padding: '15px', textAlign: 'center', fontSize: '0.8rem' }}>Loading weeks...</div>
+                              ) : (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.7rem' }}>
+                                  <tbody>
+                                    {(weeksDataStore[r.site_id] || []).map(w => (
+                                      <tr key={w.week} style={{ borderBottom: '1px solid #eee' }}>
+                                        <td style={{padding: '8px', width: '40%'}}>{w.label_long}</td>
+                                        <td style={{paddingRight: '8px'}}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <div style={{ flex: 1, backgroundColor: '#eee', height: '6px', borderRadius: '3px' }}>
+                                              <div style={{ width: `${w.likelihood_see * 100}%`, backgroundColor: getLikelihoodColor(w.likelihood_see), height: '100%', borderRadius: '3px' }} />
+                                            </div>
+                                            <span style={{ minWidth: '25px', textAlign: 'right' }}>{Math.round(w.likelihood_see * 100)}%</span>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              )}
+                            </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
-  );
+  )
 }
