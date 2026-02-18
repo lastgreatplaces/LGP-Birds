@@ -188,6 +188,8 @@ export default function SpeciesSearch() {
 
     if (!selectedSpecies) { alert('Please select a bird species.'); return; }
 
+    if (Number(toWeek) < Number(fromWeek)) { alert('Search Error: The "To" week cannot precede the "From" week.'); return; }   // ADDED
+
     setLoading(true); setHasSearched(false);
 
     const { data, error } = await supabase.rpc('rpc_best_places_for_species', {
@@ -367,6 +369,8 @@ export default function SpeciesSearch() {
 
 
       <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', borderRadius: '8px', border: 'none', fontSize: '1rem' }}>
+
+
 
         {loading ? 'ANALYZING...' : 'FIND BEST PLACES'}
 
