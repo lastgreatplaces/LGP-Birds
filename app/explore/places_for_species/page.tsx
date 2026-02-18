@@ -95,14 +95,16 @@ export default function SpeciesSearch() {
   const runPowerQuery = async () => {
     setSearchError(null); 
     
-    // 1. DATE VALIDATION FIRST
-    if (Number(toWeek) < Number(fromWeek)) {
-      setSearchError('Search Error: The "To" week cannot precede the "From" week.');
-      setResults([]); 
+    // --- UPDATED DATE VALIDATION ---
+    // This allows searching if the To Week is Week 1 (reset), 
+    // otherwise it prevents "From Week 20 to Week 10" errors.
+    if (fromWeek > toWeek && toWeek !== 1) {
+      setSearchError("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!");
+      setResults([]);
       return;
     }
 
-    // 2. SPECIES VALIDATION SECOND
+    // Species check second
     if (!selectedSpecies) { 
       setSearchError('Please select a bird species.'); 
       return; 
