@@ -95,19 +95,21 @@ export default function SpeciesSearch() {
   const runPowerQuery = async () => {
     setSearchError(null);
     
-    // Safety log to check values in the browser console
-    console.log(`Validating: From=${fromWeek}, To=${toWeek}`);
+    // Explicitly convert to numbers for comparison
+    const startW = Number(fromWeek);
+    const endW = Number(toWeek);
 
     if (!selectedSpecies) { 
       setSearchError('Please select a bird species.'); 
       return; 
     }
 
-    // Force strict numeric comparison
-    if (Number(toWeek) < Number(fromWeek)) {
-      console.log("Validation Failed: To is less than From");
-      setSearchError('Search Error: The "To" week cannot be earlier than the "From" week.');
-      setResults([]); 
+    // BLOCKER: If To is less than From, stop everything
+    if (endW < startW) {
+      const msg = `Search Error: The "To" week (Week ${endW}) cannot be earlier than the "From" week (Week ${startW}).`;
+      setSearchError(msg);
+      setResults([]); // Clear existing results so the user knows the search failed
+      window.alert(msg); // Backup alert to ensure you see the failure
       return;
     }
 
@@ -116,8 +118,8 @@ export default function SpeciesSearch() {
 
     const { data, error } = await supabase.rpc('rpc_best_places_for_species', {
       p_species: selectedSpecies,
-      p_week_from: fromWeek,
-      p_week_to: toWeek,
+      p_week_from: startW,
+      p_week_to: endW,
       p_states: selectedStates.length > 0 ? selectedStates : null,
       p_limit: 50
     })
@@ -205,7 +207,7 @@ export default function SpeciesSearch() {
         </div>
       </div>
 
-      {/* ERROR DISPLAY AREA */}
+      {/* CRITICAL: Visual Error Banner */}
       {searchError && (
         <div style={{ color: '#d32f2f', backgroundColor: '#ffebee', padding: '12px', borderRadius: '8px', marginBottom: '10px', fontSize: '0.85rem', fontWeight: 'bold', border: '1px solid #ef9a9a' }}>
           ⚠️ {searchError}
