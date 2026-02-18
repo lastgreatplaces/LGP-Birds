@@ -186,7 +186,7 @@ export default function SpeciesSearch() {
 
   const runPowerQuery = async () => {
 
-   alert('MARKER: runPowerQuery fired');
+   alert(`fromWeek=${fromWeek} toWeek=${toWeek}`);
    
     if (!selectedSpecies) { alert('Please select a bird species.'); return; }
 
