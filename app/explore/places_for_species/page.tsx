@@ -95,7 +95,7 @@ export default function SpeciesSearch() {
   const runPowerQuery = async () => {
     setSearchError(null);
     
-    // Explicitly convert to numbers for comparison
+    // Explicit numeric conversion for comparison
     const startW = Number(fromWeek);
     const endW = Number(toWeek);
 
@@ -104,12 +104,10 @@ export default function SpeciesSearch() {
       return; 
     }
 
-    // BLOCKER: If To is less than From, stop everything
+    // BLOCKER: Validation for date range
     if (endW < startW) {
-      const msg = `Search Error: The "To" week (Week ${endW}) cannot be earlier than the "From" week (Week ${startW}).`;
-      setSearchError(msg);
-      setResults([]); // Clear existing results so the user knows the search failed
-      window.alert(msg); // Backup alert to ensure you see the failure
+      setSearchError(`Search Error: The "To" week cannot be earlier than the "From" week.`);
+      setResults([]); // Clear results to show the search didn't run
       return;
     }
 
@@ -207,7 +205,7 @@ export default function SpeciesSearch() {
         </div>
       </div>
 
-      {/* CRITICAL: Visual Error Banner */}
+      {/* ERROR BANNER - This is what was missing */}
       {searchError && (
         <div style={{ color: '#d32f2f', backgroundColor: '#ffebee', padding: '12px', borderRadius: '8px', marginBottom: '10px', fontSize: '0.85rem', fontWeight: 'bold', border: '1px solid #ef9a9a' }}>
           ⚠️ {searchError}
@@ -217,17 +215,6 @@ export default function SpeciesSearch() {
       <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', borderRadius: '8px', border: 'none', fontSize: '1rem', cursor: loading ? 'not-allowed' : 'pointer' }}>
         {loading ? 'ANALYZING...' : 'FIND BEST PLACES'}
       </button>
-
-      {results.length > 0 && (
-        <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#666' }}>Sort:</span>
-          <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '6px', flex: 1 }}>
-            <button onClick={() => setSortBy('avg')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'avg' ? '#007bff' : '#666', backgroundColor: sortBy === 'avg' ? 'white' : 'transparent' }}>Probability</button>
-            <button onClick={() => setSortBy('integrity')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'integrity' ? '#007bff' : '#666', backgroundColor: sortBy === 'integrity' ? 'white' : 'transparent' }}>Integrity</button>
-            <button onClick={() => setSortBy('optimal')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'optimal' ? '#007bff' : '#666', backgroundColor: sortBy === 'optimal' ? 'white' : 'transparent' }}>Optimal</button>
-          </div>
-        </div>
-      )}
 
       {results.length > 0 && (
         <div style={{ marginTop: '12px' }}>
