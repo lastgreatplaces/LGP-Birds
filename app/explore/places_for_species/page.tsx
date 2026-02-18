@@ -370,8 +370,6 @@ export default function SpeciesSearch() {
 
       <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', borderRadius: '8px', border: 'none', fontSize: '1rem' }}>
 
-
-
         {loading ? 'ANALYZING...' : 'FIND BEST PLACES'}
 
       </button>
