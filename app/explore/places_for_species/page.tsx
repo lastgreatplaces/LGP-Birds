@@ -4,15 +4,12 @@ import React, { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 
 export default function SpeciesSearch() {
-  // Logic check: This will print in your browser console (F12)
-  useEffect(() => { console.log("VERSION 12: DATE VALIDATION ACTIVE"); }, []);
-
   const [allSpecies, setAllSpecies] = useState<string[]>([])
   const [weeks, setWeeks] = useState<any[]>([])
   const [results, setResults] = useState<any[]>([])
   const [selectedSpecies, setSelectedSpecies] = useState('')
-  const [fromWeek, setFromWeek] = useState(1)
-  const [toWeek, setToWeek] = useState(52)
+  const [fromWeek, setFromWeek] = useState(17) // Defaulting to May per your screenshot
+  const [toWeek, setToWeek] = useState(1)    // Defaulting to Jan per your screenshot
   const [loading, setLoading] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
 
@@ -31,37 +28,34 @@ export default function SpeciesSearch() {
     const startW = Number(fromWeek);
     const endW = Number(toWeek);
 
-    if (!selectedSpecies) { 
-      setSearchError('Please select a bird species.'); 
-      return; 
-    }
-
-    // THE VALIDATION LOGIC: catches May (Week 20) vs January (Week 1)
+    // STEP 1: CHECK DATES FIRST (The "Cigar" Check)
     if (endW < startW) {
-      setSearchError(`Date Range Error: "From" week (${startW}) is after "To" week (${endW}). Please adjust your dates.`);
+      setSearchError(`⚠️ DATE ERROR: Your "From" week is later than your "To" week. The database cannot search backwards!`);
       setResults([]);
-      return;
+      return; // STOP HERE
     }
 
+    // STEP 2: CHECK BIRD SECOND
+    if (!selectedSpecies) { 
+      setSearchError('⚠️ Please select a bird species.'); 
+      return; // STOP HERE
+    }
+
+    // STEP 3: RUN QUERY ONLY IF STEPS 1 & 2 PASS
     setLoading(true); 
-    const { data, error } = await supabase.rpc('rpc_best_places_for_species', {
+    const { data } = await supabase.rpc('rpc_best_places_for_species', {
       p_species: selectedSpecies,
       p_week_from: startW,
       p_week_to: endW,
       p_limit: 50
     })
     setLoading(false); 
-
-    if (error) {
-        setSearchError('Database connection error.');
-    } else {
-        setResults(data || [])
-    }
+    setResults(data || [])
   }
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h2 style={{ color: '#2e4a31' }}>Best Places for Species</h2>
+      <h2 style={{ color: '#2e4a31' }}>Best Places for Species (V13)</h2>
       
       <div style={{ marginBottom: '15px', background: '#f9f9f9', padding: '15px', borderRadius: '8px' }}>
         <label style={{ fontWeight: 'bold' }}>1. Bird Species</label>
@@ -85,18 +79,18 @@ export default function SpeciesSearch() {
 
       {searchError && (
         <div style={{ color: 'white', background: '#d32f2f', padding: '15px', borderRadius: '8px', marginBottom: '15px', fontWeight: 'bold' }}>
-          ⚠️ {searchError}
+          {searchError}
         </div>
       )}
 
       <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '15px', background: '#2e4a31', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-        {loading ? 'ANALYZING DB...' : 'FIND BEST PLACES'}
+        {loading ? 'ANALYZING...' : 'FIND BEST PLACES'}
       </button>
 
       <div style={{ marginTop: '20px' }}>
         {results.map((r, i) => (
             <div key={i} style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                <strong>{r.site_name}</strong> ({r.state}) - {Math.round(r.avg_likelihood_see * 100)}%
+                {r.site_name} - {Math.round(r.avg_likelihood_see * 100)}%
             </div>
         ))}
       </div>
