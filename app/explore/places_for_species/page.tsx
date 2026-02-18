@@ -40,6 +40,7 @@ export default function SpeciesSearch() {
   const [loading, setLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [sortBy, setSortBy] = useState<'avg' | 'integrity' | 'optimal'>('avg')
+  const [searchError, setSearchError] = useState<string | null>(null) // NEW: Reliable visual error state
 
   const calculateIntegrity = (foot: number | null) => {
     if (foot === null) return null;
@@ -92,15 +93,17 @@ export default function SpeciesSearch() {
   const toggleState = (val: string) => setSelectedStates(prev => prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val])
 
   const runPowerQuery = async () => {
-    // Basic validation
+    setSearchError(null); // Reset error state on new click
+    
     if (!selectedSpecies) { 
-      alert('Please select a bird species.'); 
+      setSearchError('Please select a bird species.'); 
       return; 
     }
 
-    // This is the error message that wasn't showing before
-    if (toWeek < fromWeek) {
-      alert('Search Error: The "To" week cannot precede the "From" week.');
+    // Fixed numeric comparison: blocks "From Week 18 to Week 1"
+    if (Number(toWeek) < Number(fromWeek)) {
+      setSearchError('Search Error: The "To" week cannot precede the "From" week.');
+      setResults([]); // Clear previous results so the UI correctly reflects the error
       return;
     }
 
@@ -117,7 +120,11 @@ export default function SpeciesSearch() {
 
     setLoading(false); 
     setHasSearched(true);
-    if (!error) setResults((data || []) as PlaceRow[])
+    if (!error) {
+      setResults((data || []) as PlaceRow[])
+    } else {
+      setSearchError('A database error occurred. Please try again later.');
+    }
   }
 
   const fetchWeeksForSite = async (siteId: number, sortMode: 'best' | 'calendar') => {
@@ -194,7 +201,23 @@ export default function SpeciesSearch() {
         </div>
       </div>
 
-      <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', borderRadius: '8px', border: 'none', fontSize: '1rem' }}>
+      {/* Visual Error Message Display */}
+      {searchError && (
+        <div style={{ 
+          color: '#d32f2f', 
+          backgroundColor: '#ffebee', 
+          padding: '12px', 
+          borderRadius: '8px', 
+          marginBottom: '10px', 
+          fontSize: '0.85rem', 
+          fontWeight: 'bold', 
+          border: '1px solid #ef9a9a' 
+        }}>
+          ⚠️ {searchError}
+        </div>
+      )}
+
+      <button onClick={runPowerQuery} disabled={loading} style={{ width: '100%', padding: '15px', backgroundColor: '#2e4a31', color: 'white', fontWeight: 'bold', borderRadius: '8px', border: 'none', fontSize: '1rem', cursor: loading ? 'not-allowed' : 'pointer' }}>
         {loading ? 'ANALYZING...' : 'FIND BEST PLACES'}
       </button>
 
