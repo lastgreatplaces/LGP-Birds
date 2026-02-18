@@ -188,7 +188,10 @@ export default function SpeciesSearch() {
 
     if (!selectedSpecies) { alert('Please select a bird species.'); return; }
 
-    if (Number(toWeek) < Number(fromWeek)) { alert('Search Error: The "To" week cannot precede the "From" week.'); return; }   // ADDED
+    if (toWeek < fromWeek) {
+    alert('Search Error: The "To" week cannot precede the "From" week.');
+    return;
+  }
 
     setLoading(true); setHasSearched(false);
 
