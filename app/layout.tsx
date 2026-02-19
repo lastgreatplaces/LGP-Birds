@@ -31,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             
             <div style={{ display: 'flex', gap: '15px' }}>
               <Link href="/explore" className="nav-link" style={{ textDecoration: 'none', color: '#444', fontSize: '0.9rem' }}>Explore</Link>
+               <Link href="/places" className="nav-link" style={{ textDecoration: 'none', color: '#444', fontSize: '0.9rem' }}>Places</Link>
               <Link href="/about" className="nav-link" style={{ textDecoration: 'none', color: '#444', fontSize: '0.9rem' }}>About</Link>
               <Link href="/methods" className="nav-link" style={{ textDecoration: 'none', color: '#444', fontSize: '0.9rem' }}>Methods</Link>
             </div>
