@@ -37,29 +37,41 @@ export default function PlacesPage() {
     async function loadPlaces() {
       setLoading(true)
 
-      // Pull all rows (client-side filtering/sorting)
-      const { data, error } = await supabase
-        .from('site_catalog_web')
-        .select('site_id, site_name, state, bird_region, acres, priority, site_slug, iba_link, ebird_link')
-        .order('site_name')
+      // Pull all rows (client-side filtering/sorting) -- PAGED to avoid 1,000 row cap
+      const pageSize = 1000
+      let from = 0
+      let rowsAll: PlaceRow[] = []
+
+      while (true) {
+        const { data, error } = await supabase
+          .from('site_catalog_web')
+          .select('site_id, site_name, state, bird_region, acres, priority, site_slug, iba_link, ebird_link')
+          .order('site_name', { ascending: true })
+          .range(from, from + pageSize - 1)
+
+        if (error) {
+          setLoading(false)
+          setHasLoaded(true)
+          console.error(error)
+          alert('Error loading Places from the database.')
+          return
+        }
+
+        const chunk = (data || []) as PlaceRow[]
+        rowsAll = rowsAll.concat(chunk)
+
+        if (chunk.length < pageSize) break
+        from += pageSize
+      }
 
       setLoading(false)
       setHasLoaded(true)
 
-      if (error) {
-        console.error(error)
-        alert('Error loading Places from the database.')
-        return
-      }
-
-      const rows = (data || []) as PlaceRow[]
-      setAllRows(rows)
+      setAllRows(rowsAll)
 
       // Build dropdown lists from the data
-      const uniqStates = Array.from(new Set(rows.map(r => (r.state || '').trim()).filter(Boolean))).sort()
-      const uniqRegions = Array.from(
-        new Set(rows.map(r => (r.bird_region || '').trim()).filter(Boolean))
-      ).sort()
+      const uniqStates = Array.from(new Set(rowsAll.map(r => (r.state || '').trim()).filter(Boolean))).sort()
+      const uniqRegions = Array.from(new Set(rowsAll.map(r => (r.bird_region || '').trim()).filter(Boolean))).sort()
 
       setStates(uniqStates)
       setRegions(uniqRegions)
