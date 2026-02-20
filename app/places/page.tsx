@@ -1,6 +1,8 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+export const dynamic = 'force-dynamic'
+
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
@@ -16,7 +18,7 @@ type PlaceRow = {
   ebird_link: string | null
 }
 
-export default function PlacesPage() {
+function PlacesPageInner() {
   const COLORS = { primary: '#2e4a31', bg: '#f4f4f4', border: '#ccc', text: '#333' }
 
   const searchParams = useSearchParams()
@@ -38,18 +40,17 @@ export default function PlacesPage() {
   const [sortField, setSortField] = useState<'name' | 'state' | 'region' | 'acres' | 'priority'>('name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
-  // ✅ NEW: track + highlight the target row
+  // target + highlight
   const [targetSiteId, setTargetSiteId] = useState<number | null>(urlSiteId)
   const [highlightSiteId, setHighlightSiteId] = useState<number | null>(null)
 
-  // ✅ NEW: refs to each rendered card so we can scroll
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
   useEffect(() => {
     async function loadPlaces() {
       setLoading(true)
 
-      // Pull all rows (client-side filtering/sorting) -- PAGED to avoid 1,000 row cap
+      // Paged to avoid 1,000 row cap
       const pageSize = 1000
       let from = 0
       let rowsAll: PlaceRow[] = []
@@ -81,7 +82,6 @@ export default function PlacesPage() {
 
       setAllRows(rowsAll)
 
-      // Build dropdown lists from the data
       const uniqStates = Array.from(new Set(rowsAll.map(r => (r.state || '').trim()).filter(Boolean))).sort()
       const uniqRegions = Array.from(new Set(rowsAll.map(r => (r.bird_region || '').trim()).filter(Boolean))).sort()
 
@@ -92,9 +92,11 @@ export default function PlacesPage() {
     loadPlaces()
   }, [])
 
-  // ✅ NEW: if URL has site_id, clear filters so it can be found
+  // If URL has site_id, clear filters so it can be found
   useEffect(() => {
     if (!urlSiteId) return
+    if (!Number.isFinite(urlSiteId)) return
+
     setTargetSiteId(urlSiteId)
     setSelectedStates([])
     setSelectedRegions([])
@@ -162,7 +164,7 @@ export default function PlacesPage() {
     })
   }, [filteredRows, sortField, sortDir])
 
-  // ✅ NEW: after render, scroll to target site card + highlight
+  // After render, scroll to target site + highlight
   useEffect(() => {
     if (!targetSiteId) return
     if (!hasLoaded) return
@@ -171,10 +173,8 @@ export default function PlacesPage() {
     const el = rowRefs.current[targetSiteId]
     if (!el) return
 
-    // scroll
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
-    // highlight for a moment
     setHighlightSiteId(targetSiteId)
     const t = window.setTimeout(() => setHighlightSiteId(null), 1800)
     return () => window.clearTimeout(t)
@@ -378,15 +378,11 @@ export default function PlacesPage() {
 
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {r.iba_link ? (
-                    <a href={r.iba_link} target="_blank" rel="noreferrer" style={linkPillStyle}>
-                      IBA
-                    </a>
+                    <a href={r.iba_link} target="_blank" rel="noreferrer" style={linkPillStyle}>IBA</a>
                   ) : null}
 
                   {r.ebird_link ? (
-                    <a href={r.ebird_link} target="_blank" rel="noreferrer" style={linkPillStyle}>
-                      eBird
-                    </a>
+                    <a href={r.ebird_link} target="_blank" rel="noreferrer" style={linkPillStyle}>eBird</a>
                   ) : null}
 
                   {r.site_slug ? (
@@ -405,5 +401,13 @@ export default function PlacesPage() {
         Data source: site_catalog_web
       </div>
     </div>
+  )
+}
+
+export default function PlacesPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>Loading…</div>}>
+      <PlacesPageInner />
+    </Suspense>
   )
 }
