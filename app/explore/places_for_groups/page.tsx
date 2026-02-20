@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../../lib/supabase'
 import React from 'react'
+import Link from 'next/link' // ✅ ADDED
 
 type WeekRow = { week: number; label_long: string | null; expected_species: number }
 
@@ -98,9 +99,9 @@ export default function GroupsSearch() {
 
   const runPowerQuery = async () => {
     // UPDATED DATE VALIDATION Logic
-    if (fromWeek > toWeek && toWeek !== 1) { 
-      alert("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!"); 
-      return; 
+    if (fromWeek > toWeek && toWeek !== 1) {
+      alert("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!")
+      return
     }
 
     setLoading(true)
@@ -347,9 +348,35 @@ export default function GroupsSearch() {
                         style={{ borderBottom: '1px solid #eee', cursor: 'pointer', backgroundColor: isOpen ? '#f9f9f9' : 'white' }}
                       >
                         <td style={{ padding: '10px 4px', color: '#999' }}>{idx + 1}</td>
+
+                        {/* ✅ UPDATED: place name now includes small ⓘ link to /places */}
                         <td style={{ padding: '10px 4px', fontWeight: 'bold', color: '#333' }}>
-                          {r.place} <span style={{ fontWeight: 'normal', color: '#666' }}>{r.state}</span>
+                          <span>{r.place}</span>
+
+                          <Link
+                            href={`/places?site_id=${siteId}`}
+                            onClick={(e) => e.stopPropagation()} // IMPORTANT: don't toggle the row
+                            style={{
+                              display: 'inline-block',
+                              marginLeft: '6px',
+                              fontSize: '14px',
+                              lineHeight: '14px',
+                              fontWeight: '700',
+                              color: '#2e4a31',
+                              textDecoration: 'none',
+                              border: '1px solid #cfcfcf',
+                              borderRadius: '10px',
+                              padding: '0px 5px'
+                            }}
+                            title="Open this place in Places"
+                            aria-label="Open this place in Places"
+                          >
+                            ⓘ
+                          </Link>
+
+                          <span style={{ fontWeight: 'normal', color: '#666', marginLeft: '6px' }}>{r.state}</span>
                         </td>
+
                         <td style={{ padding: '10px 4px', textAlign: 'center' }}>
                           <span style={{ ...badgeStyle, backgroundColor: '#eeeeee', color: '#333' }}>{Number(r.expected_species).toFixed(1)}</span>
                         </td>
