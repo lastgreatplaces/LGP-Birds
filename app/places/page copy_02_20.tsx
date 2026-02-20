@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { supabase } from '../../lib/supabase'
 
 type PlaceRow = {
@@ -189,9 +190,9 @@ export default function PlacesPage() {
         </div>
 
         {/* Search */}
-        <div style={{ marginTop: '10px' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
-            Search by place name
+        <div style={{ marginTop: '10px', paddingRight: '10px' }}>
+  <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
+    Search by place name
           </label>
           <input
             value={searchText}
@@ -328,6 +329,11 @@ export default function PlacesPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {/* NEW: Deep link to Likely Sightings for this place */}
+                <Link href={`/explore/species_at_places?site_id=${r.site_id}`} style={linkPillStyle}>
+                  Likely sightings
+                </Link>
+
                 {r.iba_link ? (
                   <a href={r.iba_link} target="_blank" rel="noreferrer" style={linkPillStyle}>
                     IBA

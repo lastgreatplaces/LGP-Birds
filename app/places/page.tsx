@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
 type PlaceRow = {
@@ -19,6 +19,10 @@ type PlaceRow = {
 export default function PlacesPage() {
   const COLORS = { primary: '#2e4a31', bg: '#f4f4f4', border: '#ccc', text: '#333' }
 
+  const searchParams = useSearchParams()
+  const urlSiteIdRaw = searchParams.get('site_id')
+  const urlSiteId = urlSiteIdRaw ? Number(urlSiteIdRaw) : null
+
   const [allRows, setAllRows] = useState<PlaceRow[]>([])
   const [states, setStates] = useState<string[]>([])
   const [regions, setRegions] = useState<string[]>([])
@@ -33,6 +37,13 @@ export default function PlacesPage() {
 
   const [sortField, setSortField] = useState<'name' | 'state' | 'region' | 'acres' | 'priority'>('name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+
+  // ✅ NEW: track + highlight the target row
+  const [targetSiteId, setTargetSiteId] = useState<number | null>(urlSiteId)
+  const [highlightSiteId, setHighlightSiteId] = useState<number | null>(null)
+
+  // ✅ NEW: refs to each rendered card so we can scroll
+  const rowRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
   useEffect(() => {
     async function loadPlaces() {
@@ -81,6 +92,17 @@ export default function PlacesPage() {
     loadPlaces()
   }, [])
 
+  // ✅ NEW: if URL has site_id, clear filters so it can be found
+  useEffect(() => {
+    if (!urlSiteId) return
+    setTargetSiteId(urlSiteId)
+    setSelectedStates([])
+    setSelectedRegions([])
+    setSearchText('')
+    setSortField('name')
+    setSortDir('asc')
+  }, [urlSiteId])
+
   const toggleState = (val: string) => {
     setSelectedStates(prev => (prev.includes(val) ? prev.filter(s => s !== val) : [...prev, val]))
   }
@@ -126,7 +148,6 @@ export default function PlacesPage() {
       if (sortField === 'state') return (r.state || '').toLowerCase()
       if (sortField === 'region') return ((r.bird_region || '') as string).toLowerCase()
       if (sortField === 'priority') return ((r.priority || '') as string).toLowerCase()
-      // acres
       return r.acres ?? -1
     }
 
@@ -134,17 +155,30 @@ export default function PlacesPage() {
       const ka: any = key(a)
       const kb: any = key(b)
 
-      // numeric
-      if (sortField === 'acres') {
-        return (Number(ka) - Number(kb)) * dir
-      }
-
-      // text
+      if (sortField === 'acres') return (Number(ka) - Number(kb)) * dir
       if (ka < kb) return -1 * dir
       if (ka > kb) return 1 * dir
       return 0
     })
   }, [filteredRows, sortField, sortDir])
+
+  // ✅ NEW: after render, scroll to target site card + highlight
+  useEffect(() => {
+    if (!targetSiteId) return
+    if (!hasLoaded) return
+    if (loading) return
+
+    const el = rowRefs.current[targetSiteId]
+    if (!el) return
+
+    // scroll
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+    // highlight for a moment
+    setHighlightSiteId(targetSiteId)
+    const t = window.setTimeout(() => setHighlightSiteId(null), 1800)
+    return () => window.clearTimeout(t)
+  }, [targetSiteId, hasLoaded, loading, sortedRows.length])
 
   const sortButtonStyle = (active: boolean) => ({
     flex: 1,
@@ -190,9 +224,9 @@ export default function PlacesPage() {
         </div>
 
         {/* Search */}
-        <div style={{ marginTop: '10px', paddingRight: '10px' }}>
-  <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
-    Search by place name
+        <div style={{ marginTop: '10px' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
+            Search by place name
           </label>
           <input
             value={searchText}
@@ -200,6 +234,7 @@ export default function PlacesPage() {
             placeholder="Type a place name..."
             style={{
               width: '100%',
+              boxSizing: 'border-box',
               padding: '10px',
               fontSize: '16px',
               borderRadius: '6px',
@@ -315,46 +350,54 @@ export default function PlacesPage() {
 
       {!loading && sortedRows.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {sortedRows.map((r) => (
-            <div key={r.site_id} style={{ background: 'white', border: `1px solid ${COLORS.border}`, borderRadius: '10px', padding: '12px' }}>
-              <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
-                {r.site_name}
+          {sortedRows.map((r) => {
+            const isHighlighted = highlightSiteId === r.site_id
+            return (
+              <div
+                key={r.site_id}
+                ref={(el) => { rowRefs.current[r.site_id] = el }}
+                style={{
+                  background: isHighlighted ? '#fff9c4' : 'white',
+                  border: `1px solid ${COLORS.border}`,
+                  borderRadius: '10px',
+                  padding: '12px',
+                  boxShadow: isHighlighted ? '0 0 0 2px rgba(251, 192, 45, 0.6)' : 'none',
+                  transition: 'background 250ms ease, box-shadow 250ms ease'
+                }}
+              >
+                <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
+                  {r.site_name}
+                </div>
+
+                <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '10px' }}>
+                  <span style={{ fontWeight: 'bold', color: COLORS.primary }}>{r.state}</span>
+                  {r.bird_region ? <span> • {r.bird_region}</span> : null}
+                  {typeof r.acres === 'number' ? <span> • {r.acres.toLocaleString()} acres</span> : null}
+                  {r.priority ? <span> • Priority: {r.priority}</span> : null}
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {r.iba_link ? (
+                    <a href={r.iba_link} target="_blank" rel="noreferrer" style={linkPillStyle}>
+                      IBA
+                    </a>
+                  ) : null}
+
+                  {r.ebird_link ? (
+                    <a href={r.ebird_link} target="_blank" rel="noreferrer" style={linkPillStyle}>
+                      eBird
+                    </a>
+                  ) : null}
+
+                  {r.site_slug ? (
+                    <span style={{ fontSize: '0.75rem', color: '#999', marginLeft: '2px' }}>
+                      {r.site_slug}
+                    </span>
+                  ) : null}
+                </div>
               </div>
-
-              <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '10px' }}>
-                <span style={{ fontWeight: 'bold', color: COLORS.primary }}>{r.state}</span>
-                {r.bird_region ? <span> • {r.bird_region}</span> : null}
-                {typeof r.acres === 'number' ? <span> • {r.acres.toLocaleString()} acres</span> : null}
-                {r.priority ? <span> • Priority: {r.priority}</span> : null}
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {/* NEW: Deep link to Likely Sightings for this place */}
-                <Link href={`/explore/species_at_places?site_id=${r.site_id}`} style={linkPillStyle}>
-                  Likely sightings
-                </Link>
-
-                {r.iba_link ? (
-                  <a href={r.iba_link} target="_blank" rel="noreferrer" style={linkPillStyle}>
-                    IBA
-                  </a>
-                ) : null}
-
-                {r.ebird_link ? (
-                  <a href={r.ebird_link} target="_blank" rel="noreferrer" style={linkPillStyle}>
-                    eBird
-                  </a>
-                ) : null}
-
-                {/* Optional: show slug if you want a stable identifier (kept small) */}
-                {r.site_slug ? (
-                  <span style={{ fontSize: '0.75rem', color: '#999', marginLeft: '2px' }}>
-                    {r.site_slug}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
