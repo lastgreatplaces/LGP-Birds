@@ -190,9 +190,9 @@ export default function PlacesPage() {
         </div>
 
         {/* Search */}
-        <div style={{ marginTop: '10px' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
-            Search by place name
+        <div style={{ marginTop: '10px', paddingRight: '10px' }}>
+  <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
+    Search by place name
           </label>
           <input
             value={searchText}
