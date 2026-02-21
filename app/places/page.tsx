@@ -44,12 +44,12 @@ function PlacesPageInner() {
   const [targetSiteId, setTargetSiteId] = useState<number | null>(urlSiteId)
   const [highlightSiteId, setHighlightSiteId] = useState<number | null>(null)
 
-  // NEW: show/hide Top button
+  // show/hide Top button
   const [showTopBtn, setShowTopBtn] = useState(false)
 
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
-  // NEW: listen to scroll position for Top button
+  // listen to scroll position for Top button visibility
   useEffect(() => {
     const onScroll = () => setShowTopBtn(window.scrollY > 250)
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -61,7 +61,6 @@ function PlacesPageInner() {
     async function loadPlaces() {
       setLoading(true)
 
-      // Paged to avoid 1,000 row cap
       const pageSize = 1000
       let from = 0
       let rowsAll: PlaceRow[] = []
@@ -90,7 +89,6 @@ function PlacesPageInner() {
 
       setLoading(false)
       setHasLoaded(true)
-
       setAllRows(rowsAll)
 
       const uniqStates = Array.from(new Set(rowsAll.map(r => (r.state || '').trim()).filter(Boolean))).sort()
@@ -103,7 +101,6 @@ function PlacesPageInner() {
     loadPlaces()
   }, [])
 
-  // If URL has site_id, clear filters so it can be found
   useEffect(() => {
     if (!urlSiteId) return
     if (!Number.isFinite(urlSiteId)) return
@@ -175,7 +172,6 @@ function PlacesPageInner() {
     })
   }, [filteredRows, sortField, sortDir])
 
-  // After render, scroll to target site + highlight
   useEffect(() => {
     if (!targetSiteId) return
     if (!hasLoaded) return
@@ -216,48 +212,47 @@ function PlacesPageInner() {
   }
 
   return (
-    <div style={{ padding: '12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: COLORS.text }}>
-      {/* STICKY HEADER + TOP BUTTON */}
+    <div style={{ padding: '0 12px 12px 12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: COLORS.text }}>
+      
+      {/* FROZEN HEADER: Title + Top Button */}
       <div
         style={{
           position: 'sticky',
           top: 0,
-          zIndex: 50,
+          zIndex: 100,
           background: 'white',
-          paddingTop: '8px',
-          paddingBottom: '10px',
-          borderBottom: `1px solid ${COLORS.border}`
+          paddingTop: '12px',
+          paddingBottom: '12px',
+          borderBottom: `1px solid ${COLORS.border}`,
+          marginBottom: '10px'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-          <div style={{ color: COLORS.primary, fontSize: '1.2rem', fontWeight: 'bold' }}>Places</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ color: COLORS.primary, fontSize: '1.4rem', fontWeight: 'bold' }}>Places</div>
 
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            disabled={!showTopBtn}
             style={{
-              padding: '6px 10px',
-              borderRadius: '8px',
-              border: `1px solid ${COLORS.border}`,
-              background: showTopBtn ? 'white' : '#f3f3f3',
-              color: showTopBtn ? COLORS.primary : '#999',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              border: `1px solid ${showTopBtn ? COLORS.primary : COLORS.border}`,
+              background: showTopBtn ? COLORS.primary : '#f9f9f9',
+              color: showTopBtn ? 'white' : '#ccc',
               fontWeight: 'bold',
-              fontSize: '0.8rem',
+              fontSize: '0.85rem',
               cursor: showTopBtn ? 'pointer' : 'default',
-              whiteSpace: 'nowrap'
+              transition: 'all 0.2s ease',
+              opacity: showTopBtn ? 1 : 0.5,
+              pointerEvents: showTopBtn ? 'auto' : 'none'
             }}
-            aria-label="Back to top"
-            title="Back to top"
           >
             ↑ Top
           </button>
         </div>
       </div>
 
-      <div style={{ height: '10px' }} />
-
-      {/* Filters */}
+      {/* Filters Container */}
       <div style={{ background: COLORS.bg, padding: '10px', borderRadius: '8px', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
           <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Filters</span>
@@ -292,7 +287,6 @@ function PlacesPageInner() {
 
         {/* State + Region pickers */}
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          {/* States */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label style={{ fontWeight: 'bold', fontSize: '0.8rem' }}>States</label>
@@ -304,12 +298,10 @@ function PlacesPageInner() {
                 Clear
               </button>
             </div>
-
             <div style={{ height: '120px', overflowY: 'auto', background: 'white', border: `1px solid ${COLORS.border}`, borderRadius: '6px', padding: '8px', marginTop: '6px' }}>
               <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer', color: COLORS.primary, fontWeight: 'bold', paddingBottom: '4px' }}>
                 <input type="checkbox" checked={selectedStates.length === 0} onChange={() => setSelectedStates([])} style={{ marginRight: '8px' }} /> All States
               </label>
-
               {states.map(s => (
                 <label key={s} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', padding: '2px 0' }}>
                   <input type="checkbox" checked={selectedStates.includes(s)} onChange={() => toggleState(s)} style={{ marginRight: '8px' }} /> {s}
@@ -318,7 +310,6 @@ function PlacesPageInner() {
             </div>
           </div>
 
-          {/* Bird Regions */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <label style={{ fontWeight: 'bold', fontSize: '0.8rem' }}>Bird Regions</label>
@@ -330,12 +321,10 @@ function PlacesPageInner() {
                 Clear
               </button>
             </div>
-
             <div style={{ height: '120px', overflowY: 'auto', background: 'white', border: `1px solid ${COLORS.border}`, borderRadius: '6px', padding: '8px', marginTop: '6px' }}>
               <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer', color: COLORS.primary, fontWeight: 'bold', paddingBottom: '4px' }}>
                 <input type="checkbox" checked={selectedRegions.length === 0} onChange={() => setSelectedRegions([])} style={{ marginRight: '8px' }} /> All Regions
               </label>
-
               {regions.map(r => (
                 <label key={r} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', padding: '2px 0' }}>
                   <input type="checkbox" checked={selectedRegions.includes(r)} onChange={() => toggleRegion(r)} style={{ marginRight: '8px' }} /> {r}
@@ -353,7 +342,6 @@ function PlacesPageInner() {
       {/* Sort bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
         <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#666' }}>Sort:</span>
-
         <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '8px', flex: 1 }}>
           <button onClick={() => setSortField('name')} style={sortButtonStyle(sortField === 'name')}>Name</button>
           <button onClick={() => setSortField('state')} style={sortButtonStyle(sortField === 'state')}>State</button>
@@ -361,7 +349,6 @@ function PlacesPageInner() {
           <button onClick={() => setSortField('acres')} style={sortButtonStyle(sortField === 'acres')}>Acres</button>
           <button onClick={() => setSortField('priority')} style={sortButtonStyle(sortField === 'priority')}>Priority</button>
         </div>
-
         <button
           type="button"
           onClick={() => setSortDir(prev => (prev === 'asc' ? 'desc' : 'asc'))}
@@ -376,7 +363,6 @@ function PlacesPageInner() {
             color: COLORS.primary,
             minWidth: '64px'
           }}
-          title="Toggle sort direction"
         >
           {sortDir === 'asc' ? 'Asc' : 'Desc'}
         </button>
@@ -415,28 +401,18 @@ function PlacesPageInner() {
                 <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
                   {r.site_name}
                 </div>
-
                 <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '10px' }}>
                   <span style={{ fontWeight: 'bold', color: COLORS.primary }}>{r.state}</span>
                   {r.bird_region ? <span> • {r.bird_region}</span> : null}
                   {typeof r.acres === 'number' ? <span> • {r.acres.toLocaleString()} acres</span> : null}
                   {r.priority ? <span> • Priority: {r.priority}</span> : null}
                 </div>
-
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {r.iba_link ? (
-                    <a href={r.iba_link} target="_blank" rel="noreferrer" style={linkPillStyle}>IBA</a>
-                  ) : null}
-
-                  {r.ebird_link ? (
-                    <a href={r.ebird_link} target="_blank" rel="noreferrer" style={linkPillStyle}>eBird</a>
-                  ) : null}
-
-                  {r.site_slug ? (
-                    <span style={{ fontSize: '0.75rem', color: '#999', marginLeft: '2px' }}>
-                      {r.site_slug}
-                    </span>
-                  ) : null}
+                  {r.iba_link && <a href={r.iba_link} target="_blank" rel="noreferrer" style={linkPillStyle}>IBA</a>}
+                  {r.ebird_link && <a href={r.ebird_link} target="_blank" rel="noreferrer" style={linkPillStyle}>eBird</a>}
+                  {r.site_slug && (
+                    <span style={{ fontSize: '0.75rem', color: '#999', marginLeft: '2px' }}>{r.site_slug}</span>
+                  )}
                 </div>
               </div>
             )
