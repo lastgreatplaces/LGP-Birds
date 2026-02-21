@@ -44,7 +44,18 @@ function PlacesPageInner() {
   const [targetSiteId, setTargetSiteId] = useState<number | null>(urlSiteId)
   const [highlightSiteId, setHighlightSiteId] = useState<number | null>(null)
 
+  // NEW: show/hide Top button
+  const [showTopBtn, setShowTopBtn] = useState(false)
+
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({})
+
+  // NEW: listen to scroll position for Top button
+  useEffect(() => {
+    const onScroll = () => setShowTopBtn(window.scrollY > 250)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     async function loadPlaces() {
@@ -206,9 +217,45 @@ function PlacesPageInner() {
 
   return (
     <div style={{ padding: '12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: COLORS.text }}>
-      <h1 style={{ color: COLORS.primary, fontSize: '1.2rem', marginBottom: '14px', fontWeight: 'bold' }}>
-        Places
-      </h1>
+      {/* STICKY HEADER + TOP BUTTON */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          background: 'white',
+          paddingTop: '8px',
+          paddingBottom: '10px',
+          borderBottom: `1px solid ${COLORS.border}`
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+          <div style={{ color: COLORS.primary, fontSize: '1.2rem', fontWeight: 'bold' }}>Places</div>
+
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            disabled={!showTopBtn}
+            style={{
+              padding: '6px 10px',
+              borderRadius: '8px',
+              border: `1px solid ${COLORS.border}`,
+              background: showTopBtn ? 'white' : '#f3f3f3',
+              color: showTopBtn ? COLORS.primary : '#999',
+              fontWeight: 'bold',
+              fontSize: '0.8rem',
+              cursor: showTopBtn ? 'pointer' : 'default',
+              whiteSpace: 'nowrap'
+            }}
+            aria-label="Back to top"
+            title="Back to top"
+          >
+            ↑ Top
+          </button>
+        </div>
+      </div>
+
+      <div style={{ height: '10px' }} />
 
       {/* Filters */}
       <div style={{ background: COLORS.bg, padding: '10px', borderRadius: '8px', marginBottom: '10px' }}>
