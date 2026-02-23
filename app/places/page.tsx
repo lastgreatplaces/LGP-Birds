@@ -75,12 +75,12 @@ function PlacesPageInner() {
           .range(from, from + pageSize - 1)
 
         if (error) {
-          setLoading(false)
-          setHasLoaded(true)
-          console.error(error)
-          alert('Error loading Places from the database.')
-          return
-        }
+  setLoading(false)
+  setHasLoaded(true)
+  console.error('Supabase error:', error)
+  alert(`Error loading Places: ${error.message}`)
+  return
+}
 
         const chunk = (data || []) as PlaceRow[]
         rowsAll = rowsAll.concat(chunk)
