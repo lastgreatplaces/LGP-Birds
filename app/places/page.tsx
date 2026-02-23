@@ -42,16 +42,13 @@ function PlacesPageInner() {
   const [sortField, setSortField] = useState<'name' | 'state' | 'region' | 'acres' | 'priority'>('name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
-  // target + highlight
   const [targetSiteId, setTargetSiteId] = useState<number | null>(urlSiteId)
   const [highlightSiteId, setHighlightSiteId] = useState<number | null>(null)
 
-  // show/hide Top button
   const [showTopBtn, setShowTopBtn] = useState(false)
 
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
-  // listen to scroll position for Top button visibility
   useEffect(() => {
     const onScroll = () => setShowTopBtn(window.scrollY > 250)
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -68,10 +65,11 @@ function PlacesPageInner() {
       let rowsAll: PlaceRow[] = []
 
       while (true) {
-        // Updated query to use 'bcr_name' from site_catalog
+        // Updated to use exact column names from your site_catalog screenshot: 
+        // bcr_name, ebird_url, iba_url
         const { data, error } = await supabase
           .from('site_catalog')
-          .select('site_id, site_name, state, bcr_name, acres, priority, site_slug, iba_link, ebird_link, status')
+          .select('site_id, site_name, state, bcr_name, acres, priority, site_slug, iba_url, ebird_url, status')
           .order('site_name', { ascending: true })
           .range(from, from + pageSize - 1)
 
@@ -83,10 +81,12 @@ function PlacesPageInner() {
           return
         }
 
-        // Map 'bcr_name' to 'bird_region' to keep the rest of your code working
+        // Map database fields to your preferred code variable names
         const chunk = (data || []).map((r: any) => ({
           ...r,
-          bird_region: r.bcr_name
+          bird_region: r.bcr_name,
+          iba_link: r.iba_url,
+          ebird_link: r.ebird_url
         })) as PlaceRow[]
         
         rowsAll = rowsAll.concat(chunk)
@@ -229,7 +229,6 @@ function PlacesPageInner() {
   return (
     <div style={{ padding: '0 12px 12px 12px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif', color: COLORS.text }}>
       
-      {/* FROZEN HEADER: Title + Top Button */}
       <div
         style={{
           position: 'sticky',
@@ -267,7 +266,6 @@ function PlacesPageInner() {
         </div>
       </div>
 
-      {/* Filters Container */}
       <div style={{ background: COLORS.bg, padding: '10px', borderRadius: '8px', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
           <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Filters</span>
@@ -286,7 +284,6 @@ function PlacesPageInner() {
           </div>
         </div>
 
-        {/* Search */}
         <div style={{ marginTop: '10px' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
             Search by place name
@@ -306,7 +303,6 @@ function PlacesPageInner() {
           />
         </div>
 
-        {/* State + Region pickers */}
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -360,7 +356,6 @@ function PlacesPageInner() {
         </div>
       </div>
 
-      {/* Sort bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
         <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#666' }}>Sort:</span>
         <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '8px', flex: 1 }}>
@@ -389,7 +384,6 @@ function PlacesPageInner() {
         </button>
       </div>
 
-      {/* Results */}
       {loading && (
         <div style={{ padding: '14px', textAlign: 'center', backgroundColor: '#fff9c4', borderRadius: '8px', border: '1px solid #fbc02d', fontSize: '0.9rem' }}>
           Loading places...
