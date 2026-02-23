@@ -30,8 +30,18 @@ export default function SpeciesAtPlacesSearch() {
 
   useEffect(() => {
     async function loadInitialData() {
-      const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
-      const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
+      // Pulling active states from your states table override
+      const { data: sData } = await supabase
+        .from('dropdown_states')
+        .select('state')
+        .eq('is_active', true)
+        .order('state')
+      
+      const { data: wData } = await supabase
+        .from('weeks_months')
+        .select('week, label_long')
+        .order('week')
+
       if (sData) {
         const stateList = sData.map(s => s.state)
         setStates(stateList)
@@ -46,8 +56,16 @@ export default function SpeciesAtPlacesSearch() {
     async function loadPlaces() {
       if (!selectedState) return
       setSelectedPlaceId('') 
-      let q = supabase.from('site_catalog').select('site_id, site_name, state').order('site_name')
-      q = q.eq('state', selectedState)
+      
+      // FIX: Only select sites that are 'protected' or 'candidate'
+      // This filters out footprint, lack_data, and unpopulated sites
+      let q = supabase
+        .from('site_catalog')
+        .select('site_id, site_name, state, status')
+        .eq('state', selectedState)
+        .in('status', ['protected', 'candidate']) 
+        .order('site_name')
+
       const { data } = await q
       setPlaces(data || [])
     }
@@ -65,7 +83,10 @@ export default function SpeciesAtPlacesSearch() {
     setLoading(true); setHasSearched(false)
     const weekArray = Array.from({ length: toWeek - fromWeek + 1 }, (_, i) => fromWeek + i)
     const { data, error } = await supabase.rpc('rpc_species_at_place', {
-      p_site_id: Number(selectedPlaceId), p_weeks: weekArray, p_min_avg_likelihood: minLikelihood, p_limit: limit
+      p_site_id: Number(selectedPlaceId), 
+      p_weeks: weekArray, 
+      p_min_avg_likelihood: minLikelihood, 
+      p_limit: limit
     })
     setLoading(false); setHasSearched(true)
     if (error) console.error(error); else setResults(data || [])
@@ -89,7 +110,7 @@ export default function SpeciesAtPlacesSearch() {
           </select>
 
           <div style={{ fontSize: '0.75rem', color: '#666', paddingLeft: '4px', fontStyle: 'italic' }}>
-            {places.length} Places in {selectedState || 'this state'}
+            {places.length} Active Places in {selectedState || 'this state'}
           </div>
           
           <select value={selectedPlaceId} onChange={(e) => setSelectedPlaceId(e.target.value)} 
