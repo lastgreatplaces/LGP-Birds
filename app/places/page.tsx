@@ -27,9 +27,8 @@ function PlacesPageInner() {
   const urlSiteId = urlSiteIdRaw ? Number(urlSiteIdRaw) : null
 
   const [allRows, setAllRows] = useState<PlaceRow[]>([])
-  const [states, setStates] = useState<string[]>([])
-  const [regions, setRegions] = useState<string[]>([])
-
+  
+  // These are now handled by useMemo below to react to the "Active Only" toggle
   const [selectedStates, setSelectedStates] = useState<string[]>([])
   const [selectedRegions, setSelectedRegions] = useState<string[]>([])
   const [showActiveOnly, setShowActiveOnly] = useState(true)
@@ -65,8 +64,6 @@ function PlacesPageInner() {
       let rowsAll: PlaceRow[] = []
 
       while (true) {
-        // Updated to use exact column names from your site_catalog screenshot: 
-        // bcr_name, ebird_url, iba_url
         const { data, error } = await supabase
           .from('site_catalog')
           .select('site_id, site_name, state, bcr_name, acres, priority, site_slug, iba_url, ebird_url, status')
@@ -81,7 +78,6 @@ function PlacesPageInner() {
           return
         }
 
-        // Map database fields to your preferred code variable names
         const chunk = (data || []).map((r: any) => ({
           ...r,
           bird_region: r.bcr_name,
@@ -98,16 +94,25 @@ function PlacesPageInner() {
       setLoading(false)
       setHasLoaded(true)
       setAllRows(rowsAll)
-
-      const uniqStates = Array.from(new Set(rowsAll.map(r => (r.state || '').trim()).filter(Boolean))).sort()
-      const uniqRegions = Array.from(new Set(rowsAll.map(r => (r.bird_region || '').trim()).filter(Boolean))).sort()
-
-      setStates(uniqStates)
-      setRegions(uniqRegions)
     }
 
     loadPlaces()
   }, [])
+
+  // NEW LOGIC: Filter available selection lists based on the Active Only toggle
+  const states = useMemo(() => {
+    const sourceRows = showActiveOnly 
+      ? allRows.filter(r => ['protected', 'candidate'].includes((r.status || '').toLowerCase()))
+      : allRows
+    return Array.from(new Set(sourceRows.map(r => (r.state || '').trim()).filter(Boolean))).sort()
+  }, [allRows, showActiveOnly])
+
+  const regions = useMemo(() => {
+    const sourceRows = showActiveOnly 
+      ? allRows.filter(r => ['protected', 'candidate'].includes((r.status || '').toLowerCase()))
+      : allRows
+    return Array.from(new Set(sourceRows.map(r => (r.bird_region || '').trim()).filter(Boolean))).sort()
+  }, [allRows, showActiveOnly])
 
   useEffect(() => {
     if (!urlSiteId) return
