@@ -16,6 +16,7 @@ type PlaceRow = {
   site_slug: string | null
   iba_link: string | null
   ebird_link: string | null
+  status: string // Added status field
 }
 
 function PlacesPageInner() {
@@ -31,6 +32,7 @@ function PlacesPageInner() {
 
   const [selectedStates, setSelectedStates] = useState<string[]>([])
   const [selectedRegions, setSelectedRegions] = useState<string[]>([])
+  const [showActiveOnly, setShowActiveOnly] = useState(true) // DEFAULT TO TRUE
 
   const [searchText, setSearchText] = useState('')
 
@@ -68,7 +70,7 @@ function PlacesPageInner() {
       while (true) {
         const { data, error } = await supabase
           .from('site_catalog_web')
-          .select('site_id, site_name, state, bird_region, acres, priority, site_slug, iba_link, ebird_link')
+          .select('site_id, site_name, state, bird_region, acres, priority, site_slug, iba_link, ebird_link, status')
           .order('site_name', { ascending: true })
           .range(from, from + pageSize - 1)
 
@@ -111,6 +113,7 @@ function PlacesPageInner() {
     setSearchText('')
     setSortField('name')
     setSortDir('asc')
+    setShowActiveOnly(false) // If linking to a specific site, disable active-only in case target is 'dropped'
   }, [urlSiteId])
 
   const toggleState = (val: string) => {
@@ -129,6 +132,7 @@ function PlacesPageInner() {
     setSearchText('')
     setSortField('name')
     setSortDir('asc')
+    setShowActiveOnly(true)
   }
 
   const filteredRows = useMemo(() => {
@@ -137,6 +141,13 @@ function PlacesPageInner() {
     const q = searchText.trim().toLowerCase()
 
     return allRows.filter(r => {
+      // 1. Status Filter (The "Executive Decision" change)
+      if (showActiveOnly) {
+        const isQualifying = ['protected', 'candidate'].includes(r.status || '')
+        if (!isQualifying) return false
+      }
+
+      // 2. Existing filters
       if (stFilterOn && !selectedStates.includes(r.state)) return false
       if (regFilterOn) {
         const br = (r.bird_region || '').trim()
@@ -148,7 +159,7 @@ function PlacesPageInner() {
       }
       return true
     })
-  }, [allRows, selectedStates, selectedRegions, searchText])
+  }, [allRows, selectedStates, selectedRegions, searchText, showActiveOnly])
 
   const sortedRows = useMemo(() => {
     const dir = sortDir === 'asc' ? 1 : -1
@@ -256,13 +267,20 @@ function PlacesPageInner() {
       <div style={{ background: COLORS.bg, padding: '10px', borderRadius: '8px', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
           <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Filters</span>
-          <button
-            type="button"
-            onClick={clearAllFilters}
-            style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '6px', border: `1px solid ${COLORS.border}`, background: 'white', cursor: 'pointer' }}
-          >
-            Clear All
-          </button>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* THE NEW TOGGLE */}
+            <label style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', background: 'white', padding: '2px 8px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}>
+              <input type="checkbox" checked={showActiveOnly} onChange={() => setShowActiveOnly(!showActiveOnly)} />
+              Active Only
+            </label>
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '6px', border: `1px solid ${COLORS.border}`, background: 'white', cursor: 'pointer' }}
+            >
+              Clear All
+            </button>
+          </div>
         </div>
 
         {/* Search */}
@@ -398,8 +416,16 @@ function PlacesPageInner() {
                   transition: 'background 250ms ease, box-shadow 250ms ease'
                 }}
               >
-                <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
-                  {r.site_name}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
+                    {r.site_name}
+                  </div>
+                  {/* Subtle status tag if not one of the main active ones */}
+                  {!['protected', 'candidate'].includes(r.status || '') && (
+                    <span style={{ fontSize: '0.65rem', color: '#999', background: '#eee', padding: '1px 5px', borderRadius: '4px' }}>
+                      {r.status}
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '10px' }}>
                   <span style={{ fontWeight: 'bold', color: COLORS.primary }}>{r.state}</span>
