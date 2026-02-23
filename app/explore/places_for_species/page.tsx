@@ -49,18 +49,18 @@ export default function SpeciesSearch() {
   }
 
   const getLikelihoodColor = (val: number) => {
-    if (val >= 0.8) return '#1b5e20'
-    if (val >= 0.6) return '#51af4c'
-    if (val >= 0.4) return '#f4fb2d'
-    return '#d32f2f'
+    if (val >= 0.90) return '#1b5e20'
+    if (val >= 0.67) return '#51af4c'
+    if (val >= 0.33) return '#fbba2d'
+    return '#e22020'
   }
 
   const getIntegrityColor = (score: number | null) => {
     if (score === null) return '#9e9e9e'
-    if (score >= 90) return '#1b5e20'
-    if (score >= 80) return '#4caf50'
-    if (score >= 67) return '#fbc02d'
-    return '#d32f2f'
+    if (score >= 80) return '#1b5e20'
+    if (score >= 60) return '#51af4c'
+    if (score >= 407) return '#fbba2d'
+    return '#e22020'
   }
 
   const sortedResults = useMemo(() => {
