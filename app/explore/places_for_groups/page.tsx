@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../../lib/supabase'
 import React from 'react'
-import Link from 'next/link' // ✅ ADDED
+import Link from 'next/link'
 
 type WeekRow = { week: number; label_long: string | null; expected_species: number }
 
@@ -73,12 +73,15 @@ export default function GroupsSearch() {
 
   useEffect(() => {
     async function loadInitialData() {
+      // Honors your manual 'is_active' override for the state list
       const { data: sData } = await supabase
         .from('dropdown_states')
         .select('state')
         .eq('is_active', true)
         .order('state')
+      
       const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
+      
       if (sData) setStates(sData)
       if (wData) setWeeks(wData)
     }
@@ -98,7 +101,6 @@ export default function GroupsSearch() {
   const toggleState = (val: string) => setSelectedStates((prev) => (prev.includes(val) ? prev.filter((s) => s !== val) : [...prev, val]))
 
   const runPowerQuery = async () => {
-    // UPDATED DATE VALIDATION Logic
     if (fromWeek > toWeek && toWeek !== 1) {
       alert("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!")
       return
@@ -107,6 +109,8 @@ export default function GroupsSearch() {
     setLoading(true)
     setHasSearched(false)
 
+    // Note: The RPC 'rpc_explore_groups' should be updated in Postgres 
+    // to filter 'site_catalog' by status IN ('protected', 'candidate')
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
       p_group_system: groupSet,
       p_group_values: selectedGroups.length > 0 ? selectedGroups : null,
@@ -349,13 +353,12 @@ export default function GroupsSearch() {
                       >
                         <td style={{ padding: '10px 4px', color: '#999' }}>{idx + 1}</td>
 
-                        {/* ✅ UPDATED: place name now includes small ⓘ link to /places */}
                         <td style={{ padding: '10px 4px', fontWeight: 'bold', color: '#333' }}>
                           <span>{r.place}</span>
 
                           <Link
                             href={`/places?site_id=${siteId}`}
-                            onClick={(e) => e.stopPropagation()} // IMPORTANT: don't toggle the row
+                            onClick={(e) => e.stopPropagation()} 
                             style={{
                               display: 'inline-block',
                               marginLeft: '6px',
