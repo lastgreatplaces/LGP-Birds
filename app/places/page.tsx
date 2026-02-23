@@ -68,21 +68,27 @@ function PlacesPageInner() {
       let rowsAll: PlaceRow[] = []
 
       while (true) {
+        // Updated query to use 'bcr_name' from site_catalog
         const { data, error } = await supabase
           .from('site_catalog')
-          .select('site_id, site_name, state, bird_region, acres, priority, site_slug, iba_link, ebird_link, status')
+          .select('site_id, site_name, state, bcr_name, acres, priority, site_slug, iba_link, ebird_link, status')
           .order('site_name', { ascending: true })
           .range(from, from + pageSize - 1)
 
         if (error) {
-  setLoading(false)
-  setHasLoaded(true)
-  console.error('Supabase error:', error)
-  alert(`Error loading Places: ${error.message}`)
-  return
-}
+          setLoading(false)
+          setHasLoaded(true)
+          console.error(error)
+          alert('Error loading Places from the database.')
+          return
+        }
 
-        const chunk = (data || []) as PlaceRow[]
+        // Map 'bcr_name' to 'bird_region' to keep the rest of your code working
+        const chunk = (data || []).map((r: any) => ({
+          ...r,
+          bird_region: r.bcr_name
+        })) as PlaceRow[]
+        
         rowsAll = rowsAll.concat(chunk)
 
         if (chunk.length < pageSize) break
@@ -141,7 +147,6 @@ function PlacesPageInner() {
     const q = searchText.trim().toLowerCase()
 
     return allRows.filter(r => {
-      // New logic for Active Only toggle
       if (showActiveOnly) {
         const s = (r.status || '').toLowerCase()
         if (s !== 'protected' && s !== 'candidate') return false
@@ -418,7 +423,6 @@ function PlacesPageInner() {
                   <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
                     {r.site_name}
                   </div>
-                  {/* Optional status badge for non-active sites when toggle is OFF */}
                   {r.status && !['protected', 'candidate'].includes(r.status.toLowerCase()) && (
                     <span style={{ fontSize: '0.6rem', color: '#999', background: '#eee', padding: '2px 5px', borderRadius: '4px' }}>{r.status}</span>
                   )}
