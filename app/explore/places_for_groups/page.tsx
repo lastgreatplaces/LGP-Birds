@@ -52,9 +52,9 @@ export default function GroupsSearch() {
 
   const getIntegrityColor = (integrityScore: number | null) => {
     if (integrityScore === null) return '#9e9e9e'
-    if (integrityScore >= 80) return '#1b5e20'
-    if (integrityScore >= 60) return '#51af4c'
-    if (integrityScore >= 40) return '#fbba2d'
+    if (integrityScore >= 90) return '#1b5e20'
+    if (integrityScore >= 80) return '#51af4c'
+    if (integrityScore >= 60) return '#fbba2d'
     return '#e22020'
   }
 

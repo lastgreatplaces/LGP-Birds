@@ -57,9 +57,9 @@ export default function SpeciesSearch() {
 
   const getIntegrityColor = (score: number | null) => {
     if (score === null) return '#9e9e9e'
-    if (score >= 80) return '#1b5e20'
-    if (score >= 60) return '#51af4c'
-    if (score >= 407) return '#fbba2d'
+    if (score >= 90) return '#1b5e20'
+    if (score >= 80) return '#51af4c'
+    if (score >= 60) return '#fbba2d'
     return '#e22020'
   }
 
