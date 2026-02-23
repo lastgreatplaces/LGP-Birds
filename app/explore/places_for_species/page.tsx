@@ -81,9 +81,27 @@ export default function SpeciesSearch() {
 
   useEffect(() => {
     async function loadInitialData() {
-      const { data: sData } = await supabase.from('dropdown_states').select('state').eq('is_active', true).order('state')
-      const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
-      const { data: spData } = await supabase.from('species_groups').select('species_name').order('species_name')
+      // 1. Fetch States (Filtered by your manual is_active toggle)
+      const { data: sData } = await supabase
+        .from('dropdown_states')
+        .select('state')
+        .eq('is_active', true)
+        .order('state')
+
+      // 2. Fetch Weeks
+      const { data: wData } = await supabase
+        .from('weeks_months')
+        .select('week, label_long')
+        .order('week')
+
+      // 3. Fetch Species Names 
+      // NOTE: Pulling from species_groups is fine, but if you find "dead" species 
+      // appearing, you can pull from site_week_group_sightings (distinct species_name)
+      const { data: spData } = await supabase
+        .from('species_groups')
+        .select('species_name')
+        .order('species_name')
+
       if (sData) setStates((sData as any[]).map((x) => x.state))
       if (wData) setWeeks(wData as any[])
       if (spData) setAllSpecies((spData as any[]).map((x) => x.species_name))
@@ -96,7 +114,6 @@ export default function SpeciesSearch() {
   const runPowerQuery = async () => {
     setSearchError(null)
 
-    // UPDATED DATE VALIDATION
     if (fromWeek > toWeek && toWeek !== 1) {
       setSearchError("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!")
       setResults([])
@@ -312,7 +329,6 @@ export default function SpeciesSearch() {
                     <tr onClick={() => toggleSiteWeeks(r.site_id)} style={{ borderBottom: '1px solid #eee', cursor: 'pointer', backgroundColor: isOpen ? '#f9f9f9' : 'white' }}>
                       <td style={{ padding: '12px 4px', color: '#999' }}>{idx + 1}</td>
 
-                      {/* Place name + ⓘ link to Places */}
                       <td style={{ padding: '12px 4px', fontWeight: 'bold', color: '#333' }}>
                         <span>{r.site_name}</span>
                         <Link
