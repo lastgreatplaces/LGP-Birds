@@ -16,7 +16,7 @@ type PlaceRow = {
   site_slug: string | null
   iba_link: string | null
   ebird_link: string | null
-  status: string 
+  status: string | null
 }
 
 function PlacesPageInner() {
@@ -141,10 +141,10 @@ function PlacesPageInner() {
     const q = searchText.trim().toLowerCase()
 
     return allRows.filter(r => {
-      // Status Toggle Logic
+      // New logic for Active Only toggle
       if (showActiveOnly) {
-        const isQualifying = ['protected', 'candidate'].includes((r.status || '').toLowerCase())
-        if (!isQualifying) return false
+        const s = (r.status || '').toLowerCase()
+        if (s !== 'protected' && s !== 'candidate') return false
       }
 
       if (stFilterOn && !selectedStates.includes(r.state)) return false
@@ -266,18 +266,17 @@ function PlacesPageInner() {
       <div style={{ background: COLORS.bg, padding: '10px', borderRadius: '8px', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
           <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Filters</span>
-          
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <label style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', background: 'white', padding: '2px 8px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}>
               <input type="checkbox" checked={showActiveOnly} onChange={() => setShowActiveOnly(!showActiveOnly)} />
               Active Only
             </label>
             <button
-                type="button"
-                onClick={clearAllFilters}
-                style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '6px', border: `1px solid ${COLORS.border}`, background: 'white', cursor: 'pointer' }}
+              type="button"
+              onClick={clearAllFilters}
+              style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '6px', border: `1px solid ${COLORS.border}`, background: 'white', cursor: 'pointer' }}
             >
-                Clear All
+              Clear All
             </button>
           </div>
         </div>
@@ -416,13 +415,13 @@ function PlacesPageInner() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#222', marginBottom: '4px' }}>
                     {r.site_name}
-                    </div>
-                    {/* Tiny status badge for non-active sites if user toggles them ON */}
-                    {!['protected', 'candidate'].includes((r.status || '').toLowerCase()) && (
-                        <span style={{ fontSize: '0.6rem', color: '#999', background: '#eee', padding: '2px 5px', borderRadius: '4px' }}>{r.status}</span>
-                    )}
+                  </div>
+                  {/* Optional status badge for non-active sites when toggle is OFF */}
+                  {r.status && !['protected', 'candidate'].includes(r.status.toLowerCase()) && (
+                    <span style={{ fontSize: '0.6rem', color: '#999', background: '#eee', padding: '2px 5px', borderRadius: '4px' }}>{r.status}</span>
+                  )}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '10px' }}>
                   <span style={{ fontWeight: 'bold', color: COLORS.primary }}>{r.state}</span>
