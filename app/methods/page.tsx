@@ -46,7 +46,7 @@ export default function MethodsPage() {
         <p>
           Seasonality is handled using a <strong>48 week-based model</strong> aligned with eBird’s 
           standard reporting bins. This data is presented in a month-friendly interface designed 
-          for intuitive trip planning. 
+          for intuitive trip planning. For all places a "best season" for sightings is determined, and used along with expected average sightings over a full year, to evaluate qualifying sites. 
         </p>
         <p style={{ fontSize: '0.95rem', color: '#666', fontStyle: 'italic' }}>
           Note: Rankings reflect observed patterns in the data and are intended to help birders compare 
