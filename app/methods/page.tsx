@@ -12,9 +12,9 @@ export default function MethodsPage() {
 
       <section style={{ lineHeight: '1.6', fontSize: '1.1rem' }}>
         <p>
-          Last Great Places for Birds & Birders summarizes seasonal birding patterns using 
-          publicly available <strong>eBird checklist data</strong>, anchored to a curated set 
-          of important bird areas and birding destinations, as well as data on human modification at all places. 
+          Last Great Places for Birds & Birders summarizes weekly birding patterns using 
+          publicly available <strong>eBird checklist data</strong>, as well as data on human modification, anchored to a curated set 
+          of important bird areas and birding destinations. 
         </p>
 
         <h2 style={{ marginTop: '30px' }}>Site Selection</h2>
@@ -39,14 +39,14 @@ export default function MethodsPage() {
         </p>
 
 <h2 style={{ marginTop: '30px' }}>Integrity</h2>
-        <p> The Global Human Modification dataset was used to assess Integrity at places. It assesses the degree of roads, development, agriculture, industry and other human impacts on the landscape. The "Optimal" ranking option identifies places with relatively high sightings that are less modified -- i.e. Probability * Integrity / 100</p>
+        <p> The Global Human Modification dataset was used to assess Integrity at places. It assesses the degree of roads, development, agriculture, industry and other human impacts on the landscape. Only places with relatively lower levels of modification (less than 40%) are included in the active list of sites. This "Last Great Places" screen excludes some urban and other sites with higher bird sightings. The "Optimal" ranking option identifies places with relatively high sightings that are less modified -- i.e. Probability * Integrity / 100</p>
           
 
         <h2 style={{ marginTop: '30px' }}>Temporal Design</h2>
         <p>
           Seasonality is handled using a <strong>48 week-based model</strong> aligned with eBird’s 
           standard reporting bins. This data is presented in a month-friendly interface designed 
-          for intuitive trip planning. 
+          for intuitive trip planning. For all places a "best season" for sightings is determined, and used along with expected average sightings over a full year, to evaluate qualifying sites. 
         </p>
         <p style={{ fontSize: '0.95rem', color: '#666', fontStyle: 'italic' }}>
           Note: Rankings reflect observed patterns in the data and are intended to help birders compare 
