@@ -21,7 +21,7 @@ export default function MethodsPage() {
         <p>
           Places are drawn primarily from <strong>Audubon Important Bird Areas (IBAs)</strong>, 
           supplemented by a number of recommended birding sites outside of IBAs that are identified in the <strong>"National Geographic Guide to Birding Hotspots of the United States"</strong>. Within several large landscape-level IBAs (e.g. Chenier Plain) specific protected areas are noted by National Geographic; this approach parallels Audubon's treatment of the ACE Basin in South Carolina, where three specific protected areas were selected as globally important IBAs rather than the greater ACE Basin landscape. Birders will want to explore eBird Hotpsots for localized birding sites within places. For more information on IBAs see <a href="https://www.audubon.org/important-bird-areas" target="_blank" rel="noopener">
-          Audubon Important Bird Areas
+          Audubon Important Bird Areas.
           </a>
         </p>
 
@@ -48,6 +48,14 @@ export default function MethodsPage() {
           standard reporting bins. This data is presented in a month-friendly interface designed 
           for intuitive trip planning. For all places a "best season" for sightings is determined, and used along with expected average sightings over a full year, to evaluate qualifying sites. 
         </p>
+
+ <h2 style={{ marginTop: '30px' }}>Final Site Selection</h2>
+        <p>
+          A final set of 1000 "Last Great Places for Birds and Birders" was derrived from the larger universe of IBAs. Sites were excluded if highly modified or low sightings both annually and in their best season. At least 5 sites were selected from every state, and at least 10 sites from every Bird Conervation Region. Sites were scored on three factors: expected average annual sightings, expected sightings in the best season (in order to qualify sites with high seasonal variability) and the degree of human modification.  Z-scores were used to normalize and rank the top sites. 
+        </p>
+
+
+
         <p style={{ fontSize: '0.95rem', color: '#666', fontStyle: 'italic' }}>
           Note: Rankings reflect observed patterns in the data and are intended to help birders compare 
           places efficiently, not to predict exact outcomes. Results are influenced by reporting density; 
