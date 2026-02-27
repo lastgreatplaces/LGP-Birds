@@ -53,7 +53,7 @@ export default function HomePage() {
             fontSize: '14px', 
             fontWeight: '700'
           }}>
-            Now covering 30 states
+            Now covering 35 states
           </div>
         </div>
 
