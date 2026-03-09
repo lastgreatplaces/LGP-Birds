@@ -42,7 +42,7 @@ export default function ExploreHub() {
         marginBottom: '10px',
         whiteSpace: 'nowrap'
       }}>
-        Now covering 26 states
+        Now covering 37 states
       </div>
 
       <p style={{ 
