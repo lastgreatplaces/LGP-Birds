@@ -3,31 +3,53 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 
+type Place = {
+  site_id: number
+  site_name: string
+  state: string
+}
+
+type WeekRow = {
+  week: number
+  label_long: string
+}
+
+type ResultRow = {
+  rank: number
+  species: string
+  avg_likelihood_see: number
+}
+
 export default function SpeciesAtPlacesSearch() {
-  const [places, setPlaces] = useState<any[]>([])
+  const [places, setPlaces] = useState<Place[]>([])
   const [states, setStates] = useState<string[]>([])
-  const [weeks, setWeeks] = useState<any[]>([])
-  const [results, setResults] = useState<any[]>([])
+  const [weeks, setWeeks] = useState<WeekRow[]>([])
+  const [results, setResults] = useState<ResultRow[]>([])
 
   const [selectedPlaceId, setSelectedPlaceId] = useState<string>('')
-  const [selectedState, setSelectedState] = useState('')
-  const [fromWeek, setFromWeek] = useState(1)
-  const [toWeek, setToWeek] = useState(2)
+  const [selectedState, setSelectedState] = useState<string>('')
+  const [fromWeek, setFromWeek] = useState<number>(1)
+  const [toWeek, setToWeek] = useState<number>(2)
 
-  const [loading, setLoading] = useState(false)
-  const [hasSearched, setHasSearched] = useState(false)
-  const [minLikelihood] = useState(0.10)
-  const [limit] = useState(50)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [hasSearched, setHasSearched] = useState<boolean>(false)
+  const [urlLocked, setUrlLocked] = useState<boolean>(false)
+  const [urlPlaceName, setUrlPlaceName] = useState<string>('')
+  const [linkReady, setLinkReady] = useState<boolean>(false)
 
-  const [urlLocked, setUrlLocked] = useState(false)
-  const [urlPlaceName, setUrlPlaceName] = useState('')
-  const [linkReady, setLinkReady] = useState(false)
+  const minLikelihood = 0.10
+  const limit = 50
 
-  const COLORS = { primary: '#2e4a31', bg: '#f4f4f4', border: '#ccc', text: '#333' }
+  const COLORS = {
+    primary: '#2e4a31',
+    bg: '#f4f4f4',
+    border: '#ccc',
+    text: '#333'
+  }
 
   const getLikelihoodColor = (val: number) => {
-    if (val >= 0.80) return '#1b5e20'
-    if (val >= 0.60) return '#4caf50'
+    if (val >= 0.8) return '#1b5e20'
+    if (val >= 0.6) return '#4caf50'
     if (val >= 0.33) return '#fbc02d'
     return '#d32f2f'
   }
@@ -50,7 +72,7 @@ export default function SpeciesAtPlacesSearch() {
         .order('week')
 
       if (sData) {
-        const stateList = sData.map(s => s.state)
+        const stateList = sData.map((s: { state: string }) => s.state)
         setStates(stateList)
 
         if (stateParam && nameParam && stateList.includes(stateParam)) {
@@ -62,7 +84,9 @@ export default function SpeciesAtPlacesSearch() {
         }
       }
 
-      if (wData) setWeeks(wData)
+      if (wData) {
+        setWeeks(wData as WeekRow[])
+      }
     }
 
     loadInitialData()
@@ -81,14 +105,14 @@ export default function SpeciesAtPlacesSearch() {
         .eq('state', selectedState)
         .order('site_name')
 
-      const placeList = data || []
+      const placeList = (data || []) as Place[]
       setPlaces(placeList)
 
       if (urlLocked && urlPlaceName) {
         const targetName = urlPlaceName.trim().toLowerCase()
 
         const match = placeList.find(
-          p => String(p.site_name || '').trim().toLowerCase() === targetName
+          (p) => String(p.site_name || '').trim().toLowerCase() === targetName
         )
 
         if (match) {
@@ -139,19 +163,48 @@ export default function SpeciesAtPlacesSearch() {
       console.error(error)
       setResults([])
     } else {
-      setResults(data || [])
+      setResults((data || []) as ResultRow[])
     }
   }
 
   return (
-    <div style={{ padding: '12px', maxWidth: '500px', margin: '0 auto', fontFamily: 'sans-serif', color: COLORS.text }}>
-      <h1 style={{ color: COLORS.primary, fontSize: '1.5rem', marginBottom: '16px', fontWeight: 'bold' }}>
+    <div
+      style={{
+        padding: '12px',
+        maxWidth: '500px',
+        margin: '0 auto',
+        fontFamily: 'sans-serif',
+        color: COLORS.text
+      }}
+    >
+      <h1
+        style={{
+          color: COLORS.primary,
+          fontSize: '1.5rem',
+          marginBottom: '16px',
+          fontWeight: 'bold'
+        }}
+      >
         What you're likely to see
       </h1>
 
       {urlLocked ? (
-        <div style={{ marginBottom: '12px', backgroundColor: COLORS.bg, padding: '12px', borderRadius: '8px' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
+        <div
+          style={{
+            marginBottom: '12px',
+            backgroundColor: COLORS.bg,
+            padding: '12px',
+            borderRadius: '8px'
+          }}
+        >
+          <span
+            style={{
+              fontSize: '0.85rem',
+              fontWeight: 'bold',
+              display: 'block',
+              marginBottom: '8px'
+            }}
+          >
             1. Bird Area
           </span>
 
@@ -170,14 +223,36 @@ export default function SpeciesAtPlacesSearch() {
           </div>
 
           {!linkReady && (
-            <div style={{ fontSize: '0.75rem', color: '#666', paddingLeft: '4px', fontStyle: 'italic', marginTop: '8px' }}>
+            <div
+              style={{
+                fontSize: '0.75rem',
+                color: '#666',
+                paddingLeft: '4px',
+                fontStyle: 'italic',
+                marginTop: '8px'
+              }}
+            >
               Loading selected bird area...
             </div>
           )}
         </div>
       ) : (
-        <div style={{ marginBottom: '12px', backgroundColor: COLORS.bg, padding: '12px', borderRadius: '8px' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
+        <div
+          style={{
+            marginBottom: '12px',
+            backgroundColor: COLORS.bg,
+            padding: '12px',
+            borderRadius: '8px'
+          }}
+        >
+          <span
+            style={{
+              fontSize: '0.85rem',
+              fontWeight: 'bold',
+              display: 'block',
+              marginBottom: '8px'
+            }}
+          >
             1. Select a State & Place
           </span>
 
@@ -185,59 +260,129 @@ export default function SpeciesAtPlacesSearch() {
             <select
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
-              style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}
+              style={{
+                width: '100%',
+                padding: '10px',
+                fontSize: '16px',
+                borderRadius: '6px',
+                border: `1px solid ${COLORS.border}`
+              }}
             >
-              {states.map(s => (
-                <option key={s} value={s}>{s}</option>
+              {states.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
 
-            <div style={{ fontSize: '0.75rem', color: '#666', paddingLeft: '4px', fontStyle: 'italic' }}>
+            <div
+              style={{
+                fontSize: '0.75rem',
+                color: '#666',
+                paddingLeft: '4px',
+                fontStyle: 'italic'
+              }}
+            >
               {places.length} Places in {selectedState || 'this state'}
             </div>
 
             <select
               value={selectedPlaceId}
               onChange={(e) => setSelectedPlaceId(e.target.value)}
-              style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}
+              style={{
+                width: '100%',
+                padding: '10px',
+                fontSize: '16px',
+                borderRadius: '6px',
+                border: `1px solid ${COLORS.border}`
+              }}
             >
               <option value="">-- Choose a Place --</option>
-              {places.map(p => (
-                <option key={p.site_id} value={p.site_id}>{p.site_name}</option>
+              {places.map((p) => (
+                <option key={p.site_id} value={p.site_id}>
+                  {p.site_name}
+                </option>
               ))}
             </select>
           </div>
         </div>
       )}
 
-      <div style={{ marginBottom: '16px', backgroundColor: COLORS.bg, padding: '12px', borderRadius: '8px' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
+      <div
+        style={{
+          marginBottom: '16px',
+          backgroundColor: COLORS.bg,
+          padding: '12px',
+          borderRadius: '8px'
+        }}
+      >
+        <span
+          style={{
+            fontSize: '0.85rem',
+            fontWeight: 'bold',
+            display: 'block',
+            marginBottom: '8px'
+          }}
+        >
           2. Choose Weeks
         </span>
 
-        <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
+        <label
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+            color: '#666',
+            display: 'block',
+            marginBottom: '4px'
+          }}
+        >
           From
         </label>
         <select
           value={fromWeek}
           onChange={(e) => setFromWeek(Number(e.target.value))}
-          style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '6px', border: `1px solid ${COLORS.border}`, marginBottom: '10px' }}
+          style={{
+            width: '100%',
+            padding: '10px',
+            fontSize: '16px',
+            borderRadius: '6px',
+            border: `1px solid ${COLORS.border}`,
+            marginBottom: '10px'
+          }}
         >
-          {weeks.map(w => (
-            <option key={w.week} value={w.week}>{w.label_long}</option>
+          {weeks.map((w) => (
+            <option key={w.week} value={w.week}>
+              {w.label_long}
+            </option>
           ))}
         </select>
 
-        <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '4px' }}>
+        <label
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+            color: '#666',
+            display: 'block',
+            marginBottom: '4px'
+          }}
+        >
           To
         </label>
         <select
           value={toWeek}
           onChange={(e) => setToWeek(Number(e.target.value))}
-          style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '6px', border: `1px solid ${COLORS.border}` }}
+          style={{
+            width: '100%',
+            padding: '10px',
+            fontSize: '16px',
+            borderRadius: '6px',
+            border: `1px solid ${COLORS.border}`
+          }}
         >
-          {weeks.map(w => (
-            <option key={w.week} value={w.week}>{w.label_long}</option>
+          {weeks.map((w) => (
+            <option key={w.week} value={w.week}>
+              {w.label_long}
+            </option>
           ))}
         </select>
       </div>
@@ -252,10 +397,10 @@ export default function SpeciesAtPlacesSearch() {
           color: 'white',
           borderRadius: '8px',
           fontWeight: 'bold',
-          cursor: (loading || (urlLocked && !linkReady)) ? 'default' : 'pointer',
+          cursor: loading || (urlLocked && !linkReady) ? 'default' : 'pointer',
           border: 'none',
           fontSize: '1rem',
-          opacity: (loading || (urlLocked && !linkReady)) ? 0.7 : 1
+          opacity: loading || (urlLocked && !linkReady) ? 0.7 : 1
         }}
       >
         {loading ? 'ANALYZING...' : 'REVEAL SPECIES'}
@@ -264,12 +409,27 @@ export default function SpeciesAtPlacesSearch() {
       {hasSearched && (
         <div style={{ marginTop: '24px' }}>
           {results.length === 0 ? (
-            <div style={{ padding: '15px', textAlign: 'center', backgroundColor: '#fff9c4', borderRadius: '8px', border: '1px solid #fbc02d', fontSize: '0.9rem' }}>
+            <div
+              style={{
+                padding: '15px',
+                textAlign: 'center',
+                backgroundColor: '#fff9c4',
+                borderRadius: '8px',
+                border: '1px solid #fbc02d',
+                fontSize: '0.9rem'
+              }}
+            >
               No species were identified at this place and time frame; perhaps choose another place or date range.
             </div>
           ) : (
             <>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '0.9rem'
+                }}
+              >
                 <thead>
                   <tr style={{ backgroundColor: COLORS.primary, color: 'white' }}>
                     <th style={{ padding: '10px 4px', width: '30px' }}>#</th>
@@ -280,8 +440,18 @@ export default function SpeciesAtPlacesSearch() {
                 <tbody>
                   {results.map((r, idx) => (
                     <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                      <td style={{ padding: '10px 4px', textAlign: 'center', color: '#888' }}>{r.rank}</td>
-                      <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.species}</td>
+                      <td
+                        style={{
+                          padding: '10px 4px',
+                          textAlign: 'center',
+                          color: '#888'
+                        }}
+                      >
+                        {r.rank}
+                      </td>
+                      <td style={{ padding: '10px', fontWeight: 'bold' }}>
+                        {r.species}
+                      </td>
                       <td style={{ textAlign: 'center', padding: '10px' }}>
                         <span
                           style={{
@@ -302,8 +472,17 @@ export default function SpeciesAtPlacesSearch() {
                   ))}
                 </tbody>
               </table>
-              <div style={{ marginTop: '16px', fontSize: '0.7rem', color: '#666', fontStyle: 'italic', textAlign: 'center' }}>
-                Minimum 20% likelihood for reporting.
+
+              <div
+                style={{
+                  marginTop: '16px',
+                  fontSize: '0.7rem',
+                  color: '#666',
+                  fontStyle: 'italic',
+                  textAlign: 'center'
+                }}
+              >
+                Minimum 10% likelihood for reporting.
               </div>
             </>
           )}

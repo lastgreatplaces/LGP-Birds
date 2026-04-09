@@ -95,11 +95,11 @@ export default function SpeciesSearch() {
         .order('week')
 
       // 3. Fetch Species Names 
-      // UPDATED: Now filters by the is_active flag we set in Supabase
+      // NOTE: Pulling from species_groups is fine, but if you find "dead" species 
+      // appearing, you can pull from site_week_group_sightings (distinct species_name)
       const { data: spData } = await supabase
         .from('species_groups')
         .select('species_name')
-        .eq('is_active', true)
         .order('species_name')
 
       if (sData) setStates((sData as any[]).map((x) => x.state))
@@ -294,13 +294,13 @@ export default function SpeciesSearch() {
         <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#666' }}>Sort:</span>
           <div style={{ display: 'flex', background: '#eee', padding: '2px', borderRadius: '6px', flex: 1 }}>
-            <button onClick={() => setSortBy('avg')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'avg' ? '#007bff' : '#666', backgroundColor: sortBy === 'avg' ? 'white' : 'transparent', cursor: 'pointer' }}>
+            <button onClick={() => setSortBy('avg')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'avg' ? '#007bff' : '#666', backgroundColor: sortBy === 'avg' ? 'white' : 'transparent' }}>
               Probability
             </button>
-            <button onClick={() => setSortBy('integrity')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'integrity' ? '#007bff' : '#666', backgroundColor: sortBy === 'integrity' ? 'white' : 'transparent', cursor: 'pointer' }}>
+            <button onClick={() => setSortBy('integrity')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'integrity' ? '#007bff' : '#666', backgroundColor: sortBy === 'integrity' ? 'white' : 'transparent' }}>
               Integrity
             </button>
-            <button onClick={() => setSortBy('optimal')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'optimal' ? '#007bff' : '#666', backgroundColor: sortBy === 'optimal' ? 'white' : 'transparent', cursor: 'pointer' }}>
+            <button onClick={() => setSortBy('optimal')} style={{ flex: 1, padding: '10px 0', borderRadius: '5px', border: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: sortBy === 'optimal' ? '#007bff' : '#666', backgroundColor: sortBy === 'optimal' ? 'white' : 'transparent' }}>
               Optimal
             </button>
           </div>
@@ -371,8 +371,7 @@ export default function SpeciesSearch() {
                                   borderRadius: '4px',
                                   border: '1px solid #2e4a31',
                                   backgroundColor: weeksSortMode === 'best' ? '#2e4a31' : 'white',
-                                  color: weeksSortMode === 'best' ? 'white' : '#2e4a31',
-                                  cursor: 'pointer'
+                                  color: weeksSortMode === 'best' ? 'white' : '#2e4a31'
                                 }}
                               >
                                 Best
@@ -388,8 +387,7 @@ export default function SpeciesSearch() {
                                   borderRadius: '4px',
                                   border: '1px solid #2e4a31',
                                   backgroundColor: weeksSortMode === 'calendar' ? '#2e4a31' : 'white',
-                                  color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31',
-                                  cursor: 'pointer'
+                                  color: weeksSortMode === 'calendar' ? 'white' : '#2e4a31'
                                 }}
                               >
                                 Calendar

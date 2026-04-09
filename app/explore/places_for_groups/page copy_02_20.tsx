@@ -2,7 +2,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../../lib/supabase'
 import React from 'react'
-import Link from 'next/link'
 
 type WeekRow = { week: number; label_long: string | null; expected_species: number }
 
@@ -53,9 +52,9 @@ export default function GroupsSearch() {
   const getIntegrityColor = (integrityScore: number | null) => {
     if (integrityScore === null) return '#9e9e9e'
     if (integrityScore >= 90) return '#1b5e20'
-    if (integrityScore >= 80) return '#51af4c'
-    if (integrityScore >= 60) return '#fbba2d'
-    return '#e22020'
+    if (integrityScore >= 80) return '#4caf50'
+    if (integrityScore >= 66.6) return '#fbc02d'
+    return '#d32f2f'
   }
 
   const sortedResults = useMemo(() => {
@@ -73,15 +72,12 @@ export default function GroupsSearch() {
 
   useEffect(() => {
     async function loadInitialData() {
-      // Honors your manual 'is_active' override for the state list
       const { data: sData } = await supabase
         .from('dropdown_states')
         .select('state')
         .eq('is_active', true)
         .order('state')
-      
       const { data: wData } = await supabase.from('weeks_months').select('week, label_long').order('week')
-      
       if (sData) setStates(sData)
       if (wData) setWeeks(wData)
     }
@@ -101,16 +97,15 @@ export default function GroupsSearch() {
   const toggleState = (val: string) => setSelectedStates((prev) => (prev.includes(val) ? prev.filter((s) => s !== val) : [...prev, val]))
 
   const runPowerQuery = async () => {
-    if (fromWeek > toWeek && toWeek !== 1) {
-      alert("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!")
-      return
+    // UPDATED DATE VALIDATION Logic
+    if (fromWeek > toWeek && toWeek !== 1) { 
+      alert("DATE ERROR: Your 'From' week is later than your 'To' week. The database cannot search backwards!"); 
+      return; 
     }
 
     setLoading(true)
     setHasSearched(false)
 
-    // Note: The RPC 'rpc_explore_groups' should be updated in Postgres 
-    // to filter 'site_catalog' by status IN ('protected', 'candidate')
     const { data, error } = await supabase.rpc('rpc_explore_groups', {
       p_group_system: groupSet,
       p_group_values: selectedGroups.length > 0 ? selectedGroups : null,
@@ -352,34 +347,9 @@ export default function GroupsSearch() {
                         style={{ borderBottom: '1px solid #eee', cursor: 'pointer', backgroundColor: isOpen ? '#f9f9f9' : 'white' }}
                       >
                         <td style={{ padding: '10px 4px', color: '#999' }}>{idx + 1}</td>
-
                         <td style={{ padding: '10px 4px', fontWeight: 'bold', color: '#333' }}>
-                          <span>{r.place}</span>
-
-                          <Link
-                            href={`/places?site_id=${siteId}`}
-                            onClick={(e) => e.stopPropagation()} 
-                            style={{
-                              display: 'inline-block',
-                              marginLeft: '6px',
-                              fontSize: '14px',
-                              lineHeight: '14px',
-                              fontWeight: '700',
-                              color: '#2e4a31',
-                              textDecoration: 'none',
-                              border: '1px solid #cfcfcf',
-                              borderRadius: '10px',
-                              padding: '0px 5px'
-                            }}
-                            title="Open this place in Places"
-                            aria-label="Open this place in Places"
-                          >
-                            ⓘ
-                          </Link>
-
-                          <span style={{ fontWeight: 'normal', color: '#666', marginLeft: '6px' }}>{r.state}</span>
+                          {r.place} <span style={{ fontWeight: 'normal', color: '#666' }}>{r.state}</span>
                         </td>
-
                         <td style={{ padding: '10px 4px', textAlign: 'center' }}>
                           <span style={{ ...badgeStyle, backgroundColor: '#eeeeee', color: '#333' }}>{Number(r.expected_species).toFixed(1)}</span>
                         </td>
